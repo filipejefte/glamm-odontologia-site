@@ -40,7 +40,7 @@
 </div>
 <header class="topo">
   <div class="env topo-linha">
-    <a class="topo-marca" href="index.html" aria-label="Glamm Odontologia, ir para a página inicial"><img class="logo" src="assets/img/marca-glamm.webp" width="800" height="262" alt="" decoding="async"></a>
+    <a class="topo-marca" href="index.html" aria-label="Glamm Odontologia, ir para a página inicial"><img class="logo" src="assets/img/marca-glamm.webp" width="800" height="262" alt="" decoding="async" fetchpriority="high"></a>
     <button class="topo-botao" type="button" id="abrir-menu" aria-expanded="false" aria-controls="navegacao">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menu</span>
     </button>
@@ -148,6 +148,131 @@
 </section>
 
 
+<section class="sec sec-dente" id="onde-atua" data-dente>
+  <div class="env">
+    <p class="eyebrow">Onde cada tratamento atua</p>
+    <h2>Um dente, sete lugares</h2>
+    <p class="sec-intro">Quase todo tratamento odontológico age numa parte específica do dente. Saber qual ajuda a entender por que a ordem do plano importa.</p>
+
+    <div class="dente-grade">
+      <div class="dente-palco">
+        <canvas class="dente-tela" aria-hidden="true"></canvas>
+        <span class="dente-marcador" aria-hidden="true"></span>
+        <p class="dente-dica" aria-hidden="true">Arraste para girar</p>
+      </div>
+
+      <div class="dente-lista">
+        <ul class="dente-partes">
+          
+          <li>
+            <button type="button" class="dente-parte" data-parte="lentes-e-facetas" data-curto="Face do dente">
+              <span class="dente-parte-ico"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6C15.5 3.6 17.6 5.9 17.6 8.7c0 2.8-1 5.3-1.5 8.7-.2 1.4-.5 2.4-1.1 2.4-.6 0-.9-.9-1.3-2.6L12.6 12.9c-.1-.5-1.1-.5-1.2 0L10.3 17.2c-.4 1.7-.7 2.6-1.3 2.6-.6 0-.9-1-1.1-2.4C7.4 14 6.4 11.5 6.4 8.7C6.4 5.9 8.5 3.6 12 3.6Z"/><path d="M8.6 3.75C6.1 4.75 4.5 6.6 4.5 8.8c0 2 .7 3.6 1.25 5.3"/></svg></span>
+              <span class="dente-parte-txt">
+                <span class="dente-parte-nome">Face do dente</span>
+                <span class="dente-parte-trat">Lentes e facetas</span>
+              </span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="dente-parte" data-parte="ortodontia-e-alinhadores" data-curto="Posição na arcada">
+              <span class="dente-parte-ico"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6C15.5 3.6 17.6 5.9 17.6 8.7c0 2.8-1 5.3-1.5 8.7-.2 1.4-.5 2.4-1.1 2.4-.6 0-.9-.9-1.3-2.6L12.6 12.9c-.1-.5-1.1-.5-1.2 0L10.3 17.2c-.4 1.7-.7 2.6-1.3 2.6-.6 0-.9-1-1.1-2.4C7.4 14 6.4 11.5 6.4 8.7C6.4 5.9 8.5 3.6 12 3.6Z"/><rect x="9.5" y="8.6" width="5" height="4.2" rx="1.1"/><path d="M4.85 10.7h4.65M14.5 10.7h4.65"/></svg></span>
+              <span class="dente-parte-txt">
+                <span class="dente-parte-nome">Posição na arcada</span>
+                <span class="dente-parte-trat">Ortodontia e alinhadores</span>
+              </span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="dente-parte" data-parte="implante-e-protese" data-curto="Raiz e osso">
+              <span class="dente-parte-ico"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6C15.5 3.6 17.6 5.9 17.6 8.7c0 2.8-1 5.3-1.5 8.7-.2 1.4-.5 2.4-1.1 2.4-.6 0-.9-.9-1.3-2.6L12.6 12.9c-.1-.5-1.1-.5-1.2 0L10.3 17.2c-.4 1.7-.7 2.6-1.3 2.6-.6 0-.9-1-1.1-2.4C7.4 14 6.4 11.5 6.4 8.7C6.4 5.9 8.5 3.6 12 3.6Z"/><path d="M12 9.2v7.6"/><path d="M10.1 11.1h3.8M10.3 13.1h3.4M10.6 15.1h2.8"/></svg></span>
+              <span class="dente-parte-txt">
+                <span class="dente-parte-nome">Raiz e osso</span>
+                <span class="dente-parte-trat">Implante e prótese</span>
+              </span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="dente-parte" data-parte="clareamento-dental" data-curto="Cor do esmalte">
+              <span class="dente-parte-ico"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6C15.5 3.6 17.6 5.9 17.6 8.7c0 2.8-1 5.3-1.5 8.7-.2 1.4-.5 2.4-1.1 2.4-.6 0-.9-.9-1.3-2.6L12.6 12.9c-.1-.5-1.1-.5-1.2 0L10.3 17.2c-.4 1.7-.7 2.6-1.3 2.6-.6 0-.9-1-1.1-2.4C7.4 14 6.4 11.5 6.4 8.7C6.4 5.9 8.5 3.6 12 3.6Z"/><path d="M19.5 3.4l.7 1.95 1.95.7-1.95.7-.7 1.95-.7-1.95-1.95-.7 1.95-.7Z"/></svg></span>
+              <span class="dente-parte-txt">
+                <span class="dente-parte-nome">Cor do esmalte</span>
+                <span class="dente-parte-trat">Clareamento dental</span>
+              </span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="dente-parte" data-parte="endodontia" data-curto="Polpa e canais">
+              <span class="dente-parte-ico"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6C15.5 3.6 17.6 5.9 17.6 8.7c0 2.8-1 5.3-1.5 8.7-.2 1.4-.5 2.4-1.1 2.4-.6 0-.9-.9-1.3-2.6L12.6 12.9c-.1-.5-1.1-.5-1.2 0L10.3 17.2c-.4 1.7-.7 2.6-1.3 2.6-.6 0-.9-1-1.1-2.4C7.4 14 6.4 11.5 6.4 8.7C6.4 5.9 8.5 3.6 12 3.6Z"/><path d="M10.45 8.7c-.15 2.45.3 4.7.9 6.9M13.55 8.7c.15 2.45-.3 4.7-.9 6.9"/></svg></span>
+              <span class="dente-parte-txt">
+                <span class="dente-parte-nome">Polpa e canais</span>
+                <span class="dente-parte-trat">Endodontia</span>
+              </span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="dente-parte" data-parte="periodontia" data-curto="Colo e gengiva">
+              <span class="dente-parte-ico"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.4 13.7C9 12 8.4 10.4 8.4 8.8c0-2.1 1.6-3.8 3.6-3.8s3.6 1.7 3.6 3.8c0 1.6-.6 3.2-1 4.9"/><path d="M5.7 13.5c-.3-1.3-.75-2.5-.75-3.7 0-1.4.85-2.6 2.15-3.05M18.3 13.5c.3-1.3.75-2.5.75-3.7 0-1.4-.85-2.6-2.15-3.05"/><path d="M3.5 15.5c2.6-1.05 5.5-1.6 8.5-1.6s5.9.55 8.5 1.6v1.9c0 1.35-1.15 2.5-2.55 2.5H6.05c-1.4 0-2.55-1.15-2.55-2.5Z"/></svg></span>
+              <span class="dente-parte-txt">
+                <span class="dente-parte-nome">Colo e gengiva</span>
+                <span class="dente-parte-trat">Periodontia</span>
+              </span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="dente-parte" data-parte="avaliacao-com-camera-intraoral" data-curto="Superfície visível">
+              <span class="dente-parte-ico"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4.2h3.3a2.6 2.6 0 0 1 2.6 2.6v3.3a2.6 2.6 0 0 1-2.6 2.6h-3.3a2.6 2.6 0 0 1-2.6-2.6V6.8a2.6 2.6 0 0 1 2.6-2.6Z"/><circle cx="16.15" cy="8.45" r="1.6"/><path d="M11.9 10.5 4.7 17.7a2 2 0 0 0 2.8 2.8l7.2-7.2"/></svg></span>
+              <span class="dente-parte-txt">
+                <span class="dente-parte-nome">Superfície visível</span>
+                <span class="dente-parte-trat">Avaliação com câmera intraoral</span>
+              </span>
+            </button>
+          </li>
+        </ul>
+
+        <div class="dente-paineis">
+          
+          <div class="dente-painel" data-painel="lentes-e-facetas">
+            <h3>Face do dente</h3>
+            <p>A camada externa da coroa, a que aparece quando você sorri.</p>
+            <p><a class="link-seta" href="tratamentos/lentes-e-facetas.html">Lentes e facetas de resina <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13m-5.5-5.5L18.5 12l-6 5.5"/></svg></a></p>
+          </div>
+          <div class="dente-painel" data-painel="ortodontia-e-alinhadores">
+            <h3>Posição na arcada</h3>
+            <p>O dente inteiro, movido dentro do osso até a posição certa.</p>
+            <p><a class="link-seta" href="tratamentos/ortodontia-e-alinhadores.html">Ortodontia, aparelho fixo e alinhadores <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13m-5.5-5.5L18.5 12l-6 5.5"/></svg></a></p>
+          </div>
+          <div class="dente-painel" data-painel="implante-e-protese">
+            <h3>Raiz e osso</h3>
+            <p>O que fica sob a gengiva e sustenta o dente. É o que o implante repõe.</p>
+            <p><a class="link-seta" href="tratamentos/implante-e-protese.html">Implante dentário e prótese <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13m-5.5-5.5L18.5 12l-6 5.5"/></svg></a></p>
+          </div>
+          <div class="dente-painel" data-painel="clareamento-dental">
+            <h3>Cor do esmalte</h3>
+            <p>A face oclusal e o esmalte, onde o pigmento se acumula.</p>
+            <p><a class="link-seta" href="tratamentos/clareamento-dental.html">Clareamento dental <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13m-5.5-5.5L18.5 12l-6 5.5"/></svg></a></p>
+          </div>
+          <div class="dente-painel" data-painel="endodontia">
+            <h3>Polpa e canais</h3>
+            <p>O interior do dente, onde ficam o nervo e os vasos.</p>
+            <p><a class="link-seta" href="tratamentos/endodontia.html">Endodontia, o tratamento de canal <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13m-5.5-5.5L18.5 12l-6 5.5"/></svg></a></p>
+          </div>
+          <div class="dente-painel" data-painel="periodontia">
+            <h3>Colo e gengiva</h3>
+            <p>A junção entre a coroa e a raiz, e o tecido que a envolve.</p>
+            <p><a class="link-seta" href="tratamentos/periodontia.html">Periodontia, o cuidado com a gengiva <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13m-5.5-5.5L18.5 12l-6 5.5"/></svg></a></p>
+          </div>
+          <div class="dente-painel" data-painel="avaliacao-com-camera-intraoral">
+            <h3>Superfície visível</h3>
+            <p>Tudo que a luz alcança dentro da boca, ampliado numa tela.</p>
+            <p><a class="link-seta" href="tratamentos/avaliacao-com-camera-intraoral.html">Avaliação com câmera intraoral <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13m-5.5-5.5L18.5 12l-6 5.5"/></svg></a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
 <section class="sec sec-ordem">
   <div class="env">
     <p class="eyebrow">Antes de escolher</p>
@@ -167,7 +292,7 @@
   <div class="env">
     <div class="rp-grade">
       <div class="rp-marca">
-        <img class="logo logo-rodape" src="assets/img/marca-glamm-clara.webp" width="800" height="262" alt="Glamm Odontologia" decoding="async">
+        <img class="logo logo-rodape" src="assets/img/marca-glamm-clara.webp" width="800" height="262" alt="Glamm Odontologia" decoding="async" loading="lazy">
         <p class="rp-tagline">Clínica odontológica em Marília e Garça, interior de São Paulo.</p>
         <p class="rp-social">
           <a href="https://www.instagram.com/glammodontologia/" target="_blank" rel="noopener noreferrer">Instagram @glammodontologia</a>
@@ -223,5 +348,6 @@
   </div>
 </footer>
 <script src="assets/js/site.js" defer></script>
+<script src="assets/js/dente3d.js" defer></script>
 </body>
 </html>

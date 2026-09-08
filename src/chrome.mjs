@@ -101,8 +101,8 @@ export const simbolo = (classe = 'simbolo') =>
    ODONTOLOGIA na ardósia da marca, a de fundo escuro é o arquivo como a
    clínica publica. O manuscrito em ouro é idêntico nas duas, pixel a pixel.
    Proporção 800 por 262. */
-export const logo = ({ base = '', variante = 'escura', classe = 'logo', alt = CLINICA.nome } = {}) =>
-  `<img class="${classe}" src="${base}assets/img/marca-glamm${variante === 'clara' ? '-clara' : ''}.webp" width="800" height="262" alt="${esc(alt)}" decoding="async">`;
+export const logo = ({ base = '', variante = 'escura', classe = 'logo', alt = CLINICA.nome, tardio = false } = {}) =>
+  `<img class="${classe}" src="${base}assets/img/marca-glamm${variante === 'clara' ? '-clara' : ''}.webp" width="800" height="262" alt="${esc(alt)}" decoding="async"${tardio ? ' loading="lazy"' : ' fetchpriority="high"'}>`;
 
 /* ------------------------------------------------------------------ */
 /* Ícones. Traçado próprio, sem biblioteca externa.                    */
@@ -242,7 +242,7 @@ function rodape(p, ctx) {
   <div class="env">
     <div class="rp-grade">
       <div class="rp-marca">
-        ${logo({ base: b, variante: 'clara', classe: 'logo logo-rodape' })}
+        ${logo({ base: b, variante: 'clara', classe: 'logo logo-rodape', tardio: true })}
         <p class="rp-tagline">${esc(CLINICA.assinatura)} em Marília e Garça, interior de São Paulo.</p>
         <p class="rp-social">
           <a href="${esc(CLINICA.instagramUrl)}" target="_blank" rel="noopener noreferrer">Instagram @${esc(CLINICA.instagram)}</a>
@@ -361,6 +361,7 @@ ${body}
 </main>
 ${rodape(p, ctx)}
 <script src="${b}assets/js/site.js" defer></script>
+${(p.scripts || []).map(x => `<script src="${b}${x}" defer></script>`).join('')}
 </body>
 </html>
 `;

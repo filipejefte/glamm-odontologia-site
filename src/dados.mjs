@@ -259,6 +259,8 @@ export const TRATAMENTOS = [
     nome: 'Lentes e facetas',
     nomeLongo: 'Lentes e facetas de resina',
     icone: 'lente',
+    parte: 'Face do dente',
+    parteTexto: 'A camada externa da coroa, a que aparece quando você sorri.',
     resumo: 'Lâminas finas aplicadas sobre a face do dente para mudar formato, tamanho e cor.',
     descricao: 'Uma faceta é uma lâmina fina fixada sobre a superfície do dente para alterar formato, tamanho, alinhamento aparente ou cor. O material e a espessura mudam conforme o caso, e são definidos na avaliação.',
     conteudo: [
@@ -295,6 +297,8 @@ export const TRATAMENTOS = [
     nome: 'Ortodontia e alinhadores',
     nomeLongo: 'Ortodontia, aparelho fixo e alinhadores',
     icone: 'alinhador',
+    parte: 'Posição na arcada',
+    parteTexto: 'O dente inteiro, movido dentro do osso até a posição certa.',
     resumo: 'Correção da posição dos dentes e da mordida, com aparelho fixo ou com alinhadores transparentes.',
     descricao: 'Ortodontia é a área que move dentes e corrige a mordida. O movimento pode ser conduzido por aparelho fixo, colado aos dentes, ou por alinhadores transparentes removíveis, trocados em sequência.',
     conteudo: [
@@ -331,6 +335,8 @@ export const TRATAMENTOS = [
     nome: 'Implante e prótese',
     nomeLongo: 'Implante dentário e prótese',
     icone: 'implante',
+    parte: 'Raiz e osso',
+    parteTexto: 'O que fica sob a gengiva e sustenta o dente. É o que o implante repõe.',
     resumo: 'Reposição de dentes perdidos, de um único dente à arcada completa.',
     descricao: 'O implante é um pino de titânio instalado no osso, que passa a fazer o papel da raiz. Sobre ele se instala a prótese, que é a parte visível. Quando o implante não é indicado, a reposição pode ser feita por prótese fixa ou removível.',
     conteudo: [
@@ -367,6 +373,8 @@ export const TRATAMENTOS = [
     nome: 'Clareamento dental',
     nomeLongo: 'Clareamento dental',
     icone: 'clareamento',
+    parte: 'Cor do esmalte',
+    parteTexto: 'A face oclusal e o esmalte, onde o pigmento se acumula.',
     resumo: 'Clareamento acompanhado por cirurgião-dentista, em consultório, caseiro supervisionado ou combinado.',
     descricao: 'O clareamento age por um gel à base de peróxido que atravessa o esmalte e quebra as moléculas responsáveis pela cor. Pode ser feito em consultório, em casa com moldeira sob supervisão, ou nos dois formatos combinados.',
     conteudo: [
@@ -403,6 +411,8 @@ export const TRATAMENTOS = [
     nome: 'Endodontia',
     nomeLongo: 'Endodontia, o tratamento de canal',
     icone: 'canal',
+    parte: 'Polpa e canais',
+    parteTexto: 'O interior do dente, onde ficam o nervo e os vasos.',
     resumo: 'Tratamento da polpa do dente, para manter o dente natural em boca.',
     descricao: 'Endodontia é o tratamento do interior do dente. Quando a polpa, o tecido que contém nervo e vasos, é atingida por cárie profunda, trauma ou trinca, o tratamento de canal remove esse tecido, limpa e sela o espaço interno.',
     conteudo: [
@@ -439,6 +449,8 @@ export const TRATAMENTOS = [
     nome: 'Periodontia',
     nomeLongo: 'Periodontia, o cuidado com a gengiva',
     icone: 'gengiva',
+    parte: 'Colo e gengiva',
+    parteTexto: 'A junção entre a coroa e a raiz, e o tecido que a envolve.',
     resumo: 'Tratamento da gengiva e do osso que sustentam os dentes, da limpeza profissional ao contorno estético.',
     descricao: 'Periodontia cuida do que segura o dente: gengiva, ligamento e osso. Vai da limpeza profissional e do tratamento da gengivite e da periodontite até procedimentos que ajustam o contorno gengival.',
     conteudo: [
@@ -475,6 +487,8 @@ export const TRATAMENTOS = [
     nome: 'Avaliação com câmera intraoral',
     nomeLongo: 'Avaliação com câmera intraoral',
     icone: 'camera',
+    parte: 'Superfície visível',
+    parteTexto: 'Tudo que a luz alcança dentro da boca, ampliado numa tela.',
     resumo: 'A câmera mostra na tela o que você não enxerga no espelho, durante a consulta de avaliação.',
     descricao: 'A câmera intraoral é uma câmera pequena que registra o interior da boca e projeta a imagem ampliada numa tela, durante a consulta. Ela é ferramenta de exame e de comunicação, e integra a avaliação.',
     conteudo: [

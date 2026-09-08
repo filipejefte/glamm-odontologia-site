@@ -113,6 +113,60 @@ mudou aqui:
 
 ---
 
+## O dente que gira
+
+Na página de tratamentos, uma seção mostra um dente em três dimensões e liga
+cada tratamento à parte do dente em que ele atua. Escolher "Polpa e canais"
+deixa a casca translúcida e revela a câmara pulpar e os dois canais.
+
+**Sem biblioteca e sem arquivo de modelo.** O caminho comum seria Three.js mais
+um GLB: cerca de 1,6 MB entre biblioteca, carregador e malha, contra os 182 KB
+do site inteiro. Aqui a malha é gerada em tempo de execução, por três sólidos de
+revolução, e desenhada em WebGL 1 puro. Custo total: **7,4 KB comprimidos**, e
+nenhuma licença de terceiro a respeitar. A malha é facetada de propósito, porque
+é o que conversa com o símbolo da marca, que é um dente lapidado.
+
+**A peça é um acréscimo, nunca o caminho.** O que comanda são os botões da
+lista, que são HTML de verdade e funcionam pelo teclado. A tela é `aria-hidden`.
+Sem WebGL, sem JavaScript, ou com o arquivo bloqueado, a seção continua sendo
+uma lista dos sete tratamentos com links que levam às páginas certas, e a grade
+completa de tratamentos está logo acima na mesma página.
+
+**No celular:** a inicialização só acontece quando a seção se aproxima da tela,
+o desenho para quando ela sai, a resolução é limitada a duas vezes a do
+dispositivo, e o palco declara `touch-action: pan-y`, que é o que garante que o
+gesto vertical continua rolando a página em vez de girar o dente. Com
+`prefers-reduced-motion` não há rotação automática nem transição de virada.
+
+Abrir a página com `#endodontia`, ou qualquer outro identificador de tratamento,
+já seleciona aquela parte.
+
+---
+
+## Desempenho
+
+Medido sobre os arquivos gerados, com gzip que é o que o GitHub Pages serve:
+
+| | bruto | gzip |
+|---|---|---|
+| Página inicial, tudo que ela carrega | 186 KB | **108 KB** |
+| Página de tratamentos, com o dente 3D | 195 KB | **114 KB** |
+| Só o dente 3D | 21 KB | **7,4 KB** |
+
+Das 108 KB da home, 53 KB são as três fontes, que já vêm comprimidas e não
+encolhem mais. O HTML de 50 KB vira 8,6 KB.
+
+O que sustenta isso: nenhuma biblioteca, nenhum framework, nenhum recurso de
+terceiro, nenhum rastreador, fontes recortadas para os caracteres que o site
+escreve, `width` e `height` em toda imagem (o verificador recusa sem), logotipo
+do cabeçalho com `fetchpriority="high"` e o do rodapé com `loading="lazy"`.
+
+Varredura de transbordamento horizontal: **11 páginas × 4 larguras (320, 360,
+375 e 414 px), zero casos**. O único elemento mais largo que a tela é a tabela
+comparativa das unidades, que rola dentro do próprio quadro de propósito.
+
+---
+
 ## Segurança
 
 - **CSP `default-src 'none'`** em toda página, sem exceção para estilo ou script

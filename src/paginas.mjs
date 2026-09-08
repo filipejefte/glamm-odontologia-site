@@ -203,6 +203,58 @@ const grafo = (nos) => ({ '@context': 'https://schema.org', '@graph': nos });
    a entidade, isso é o ponto inteiro. */
 const grafoBase = () => [clinicaLd(), ...UNIDADES.map(unidadeLd)];
 
+
+/* Peça do dente que gira, na página de tratamentos.
+
+   A ordem importa: isto é, antes de tudo, uma LISTA DE TRATAMENTOS com links
+   que funcionam. O `dente3d.js` a transforma em algo com um dente girando
+   quando há WebGL. Sem script, sem WebGL, ou com o arquivo bloqueado, a
+   pessoa continua vendo o mesmo conteúdo e chegando às mesmas páginas.
+
+   Por isso nada aqui começa escondido, e os botões só ganham `aria-pressed`
+   pelo script: sem ele, o painel de cada tratamento fica visível como um item
+   comum da lista. */
+const dente3d = (b) => `
+<section class="sec sec-dente" id="onde-atua" data-dente>
+  <div class="env">
+    <p class="eyebrow">Onde cada tratamento atua</p>
+    <h2>Um dente, sete lugares</h2>
+    <p class="sec-intro">Quase todo tratamento odontológico age numa parte específica do dente. Saber qual ajuda a entender por que a ordem do plano importa.</p>
+
+    <div class="dente-grade">
+      <div class="dente-palco">
+        <canvas class="dente-tela" aria-hidden="true"></canvas>
+        <span class="dente-marcador" aria-hidden="true"></span>
+        <p class="dente-dica" aria-hidden="true">Arraste para girar</p>
+      </div>
+
+      <div class="dente-lista">
+        <ul class="dente-partes">
+          ${TRATAMENTOS.map((t, i) => `
+          <li>
+            <button type="button" class="dente-parte" data-parte="${esc(t.slug)}" data-curto="${esc(t.parte)}"${i === 0 ? '' : ''}>
+              <span class="dente-parte-ico">${ICO[t.icone]}</span>
+              <span class="dente-parte-txt">
+                <span class="dente-parte-nome">${esc(t.parte)}</span>
+                <span class="dente-parte-trat">${esc(t.nome)}</span>
+              </span>
+            </button>
+          </li>`).join('')}
+        </ul>
+
+        <div class="dente-paineis">
+          ${TRATAMENTOS.map(t => `
+          <div class="dente-painel" data-painel="${esc(t.slug)}">
+            <h3>${esc(t.parte)}</h3>
+            <p>${esc(t.parteTexto)}</p>
+            <p><a class="link-seta" href="${b}tratamentos/${t.slug}.html">${esc(t.nomeLongo)} ${ICO.seta}</a></p>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>`;
+
 /* ------------------------------------------------------------------ */
 /* Início                                                              */
 /* ------------------------------------------------------------------ */
@@ -375,6 +427,8 @@ ${secao({
   </div>`
 })}
 
+${dente3d(b)}
+
 ${secao({
   eyebrow: 'Antes de escolher',
   titulo: 'A ordem importa',
@@ -390,6 +444,7 @@ ${secao({
   return {
     p: {
       path: 'tratamentos.html', base: '', classe: 'pg-tratamentos',
+      scripts: ['assets/js/dente3d.js'],
       titulo: 'Tratamentos',
       descricao: 'Lentes e facetas, ortodontia e alinhadores, implante e prótese, clareamento, endodontia, periodontia e avaliação com câmera intraoral, na Glamm Odontologia de Marília e Garça.'
     },

@@ -1017,3 +1017,118 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { border-color
   .faq-item .faq-resp { display: block; }
   a[href^="http"]::after { content: ' (' attr(href) ')'; font-size: 9pt; word-break: break-all; }
 }
+
+/* ------------------------------------------------------------------ */
+/* O dente que gira                                                    */
+/* ------------------------------------------------------------------ */
+
+/* Fundo escuro: o dente é creme com contorno em ouro, e sobre o creme da
+   página ele sumiria. É também o que faz a seção ancorar visualmente a
+   página de tratamentos. */
+.sec-dente {
+  background: var(--escuro);
+  color: rgba(251 248 243 / 0.78);
+  padding-block: var(--passo);
+  margin-top: var(--passo);
+}
+.sec-dente h2 { color: var(--creme); }
+.sec-dente .eyebrow { color: var(--ouro-claro); }
+.sec-dente .sec-intro { color: rgba(251 248 243 / 0.72); }
+.sec-dente a { color: var(--ouro-claro); }
+.sec-dente .link-seta { border-bottom-color: rgba(210 175 87 / 0.45); }
+.sec-dente .link-seta:hover { border-bottom-color: var(--ouro-claro); color: var(--creme); }
+
+.dente-grade {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(1.75rem, 4vw, 3.5rem);
+  align-items: start;
+}
+
+.dente-palco {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  max-height: 26rem;
+  /* `pan-y` é a linha que faz a peça funcionar no celular: o gesto vertical
+     continua rolando a página, e só o horizontal gira o dente. Sem isto, o
+     dedo fica preso no objeto e a pessoa não consegue passar da seção. */
+  touch-action: pan-y;
+  cursor: grab;
+}
+.dente-palco:active { cursor: grabbing; }
+.dente-tela { display: block; width: 100%; height: 100%; }
+
+/* Enquanto o script não confirma que há WebGL, o palco não ocupa espaço:
+   a seção é só a lista, que é conteúdo de verdade. */
+.dente-palco, .dente-marcador, .dente-dica { display: none; }
+.dente-pronto .dente-palco { display: block; }
+.dente-pronto .dente-marcador, .dente-pronto .dente-dica { display: block; }
+
+.dente-marcador {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 0.25rem 0.6rem;
+  background: var(--ouro-claro);
+  color: var(--escuro);
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.dente-marcador.on { opacity: 1; }
+
+.dente-dica {
+  position: absolute;
+  left: 50%; bottom: 0.25rem;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(251 248 243 / 0.42);
+  pointer-events: none;
+}
+
+.dente-partes { display: grid; gap: 1px; background: rgba(251 248 243 / 0.14); border-block: 1px solid rgba(251 248 243 / 0.14); }
+.dente-parte {
+  display: flex; align-items: center; gap: 0.85rem;
+  width: 100%;
+  padding: 0.85rem 0.9rem;
+  background: var(--escuro);
+  border: 0;
+  border-left: 2px solid transparent;
+  font-family: var(--texto);
+  text-align: left;
+  color: rgba(251 248 243 / 0.74);
+  cursor: pointer;
+  transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+}
+.dente-parte:hover { background: rgba(251 248 243 / 0.07); color: var(--creme); }
+.dente-parte.on { border-left-color: var(--ouro-claro); background: rgba(210 175 87 / 0.1); color: var(--creme); }
+.dente-parte-ico { display: block; color: var(--ouro-claro); flex: none; }
+.dente-parte-ico .ico { width: 1.5rem; height: 1.5rem; stroke-width: 1.3; }
+.dente-parte-txt { display: grid; gap: 0.1rem; }
+.dente-parte-nome { font-family: var(--display); font-weight: 600; font-size: 1.05rem; color: var(--creme); line-height: 1.2; }
+.dente-parte-trat { font-size: 0.8125rem; }
+
+.dente-paineis { margin-top: 1.5rem; }
+.dente-painel h3 { color: var(--creme); margin-bottom: 0.35em; }
+.dente-painel p { color: rgba(251 248 243 / 0.74); }
+/* Sem script todos os painéis aparecem, um sob o outro: continua sendo a
+   lista completa dos tratamentos, com link. */
+.dente-painel + .dente-painel { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid rgba(251 248 243 / 0.14); }
+.dente-pronto .dente-painel + .dente-painel { margin-top: 0; padding-top: 0; border-top: 0; }
+
+@media (max-width: 56rem) {
+  .dente-grade { grid-template-columns: 1fr; }
+  .dente-palco { aspect-ratio: auto; height: min(78vw, 21rem); max-height: none; order: -1; }
+}
+@media (max-width: 30rem) {
+  .dente-palco { height: min(88vw, 19rem); }
+  .dente-parte { padding: 0.75rem 0.7rem; gap: 0.7rem; }
+  .dente-parte-nome { font-size: 1rem; }
+}
