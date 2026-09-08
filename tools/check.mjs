@@ -448,6 +448,49 @@ if (existsSync(llms)) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Classe de estilo sem dono.
+
+   Depois de uma reforma de layout sobra sempre alguma regra que não estiliza
+   mais nada. Não quebra a página, então ninguém vê: só engorda o arquivo que
+   todo visitante baixa. Esta regra compara os dois lados.
+
+   O sentido contrário — classe usada no HTML sem regra na folha — NÃO é erro
+   aqui de propósito: várias existem só como gancho de leitura ou de âncora,
+   e transformar isso em erro obrigaria a inventar regra vazia. */
+const folha = join(RAIZ, 'assets', 'css', 'site.css');
+if (existsSync(folha)) {
+  const css = readFileSync(folha, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  /* url('../fonts/hanken.woff2') e afins não são seletores. */
+  const semUrl = css.replace(/url\([^)]*\)/g, '');
+  const declaradas = new Set([...semUrl.matchAll(/\.([A-Za-z][\w-]*)/g)].map(m => m[1]));
+
+  const usadas = new Set();
+  for (const p of paginas) {
+    for (const m of readFileSync(p, 'utf8').matchAll(/\sclass="([^"]*)"/g)) {
+      m[1].split(/\s+/).filter(Boolean).forEach(c => usadas.add(c));
+    }
+  }
+  /* O script põe e tira classe em tempo de execução; essas não aparecem em
+     nenhum HTML gerado e nem por isso estão sobrando. */
+  /* `arquivos` não alcança assets/, que é pulado na varredura das páginas:
+     ler o diretório dos scripts direto é o que evita acusar como morta toda
+     classe que só existe depois de um clique. */
+  const dirJs = join(RAIZ, 'assets', 'js');
+  const scripts = existsSync(dirJs) ? readdirSync(dirJs).filter(f => f.endsWith('.js')) : [];
+  if (!scripts.length) { problemas.push('assets/js: nenhum script encontrado para conferir as classes de tempo de execução'); }
+  for (const j of scripts) {
+    const js = readFileSync(join(dirJs, j), 'utf8');
+    for (const m of js.matchAll(/classList\.(?:add|remove|toggle|contains)\(\s*'([^']+)'/g)) {
+      m[1].split(/\s+/).filter(Boolean).forEach(c => usadas.add(c));
+    }
+  }
+
+  for (const c of [...declaradas].sort()) {
+    if (!usadas.has(c)) { anota(folha, `a classe .${c} não estiliza nada em nenhuma página`); }
+  }
+}
+
+/* ------------------------------------------------------------------ */
 
 console.log(`${paginas.length} páginas verificadas, ${arquivos.length} arquivos do site, ${doRepo.length} arquivos do repositório varridos por vazamento e por telefone.`);
 console.log(`Telefones aceitos: ${[...TEL_OK].join(', ')}`);

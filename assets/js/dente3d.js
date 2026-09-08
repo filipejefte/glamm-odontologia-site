@@ -38,7 +38,10 @@
     var tela = raiz.querySelector('.dente-tela');
     var palco = raiz.querySelector('.dente-palco');
     var marcador = raiz.querySelector('.dente-marcador');
-    var botoes = [].slice.call(raiz.querySelectorAll('[data-parte]'));
+    /* Os botões vivem na SEÇÃO de tratamentos, não dentro do cartão do
+       modelo: o cartão está no hero e a lista fica bem abaixo na página. Por
+       isso a busca é no documento inteiro, e não dentro de `raiz`. */
+    var botoes = [].slice.call(document.querySelectorAll('[data-parte]'));
     if (!tela || !botoes.length) { return; }
 
     var gl = null;
@@ -54,172 +57,492 @@
     /* 1. Geometria                                                        */
     /* ------------------------------------------------------------------ */
 
-    /* O dente é a UNIÃO de três sólidos de revolução: a coroa com o tronco, e
-       duas raízes inclinadas que saem dele. Não é uma superfície só.
+    /* Uma ARCADA, não um dente solto.
 
-       Tentei antes com uma superfície única, abrindo a fenda entre as raízes
-       por um degrau na base de cada ângulo. A fenda saía, mas a ponta de cada
-       raiz não fechava: no ápice, a união de dois círculos afastados vira dois
-       pontos, e um anel fechado não representa dois pontos. O resultado era um
-       par de tocos quadrados.
+       O dente único lia como objeto de laboratório e não dizia nada sobre o
+       tratamento: dava para pôr um ponto na raiz e outro na coroa, e acabava
+       aí. A arcada resolve isso porque cada tratamento age numa REGIÃO dela,
+       e a região dá para acender: as facetas nos quatro da frente, a
+       ortodontia na arcada inteira, o implante numa falha, a periodontia na
+       gengiva.
 
-       Com três sólidos, cada um é um torno simples, fechado nas duas pontas, e
-       quem resolve a união é o buffer de profundidade. Custa alguns triângulos
-       a mais e elimina a classe inteira de defeito. */
+       Nada é arquivo de modelo. Cada coroa é uma superfície de varredura
+       gerada em tempo de execução, e a gengiva é um perfil varrido ao longo
+       da mesma curva. Doze dentes, cerca de 6 mil triângulos, zero bytes de
+       malha baixados.
+
+       AS PROPORÇÕES SÃO MEDIDAS, NÃO CHUTADAS. As larguras, espessuras e
+       alturas de coroa abaixo estão em milímetros, na faixa média da
+       dentição superior permanente adulta. Elas entram na curva por
+       COMPRIMENTO DE ARCO: o meio-arco é medido, a soma das larguras é
+       ajustada a ele, e cada dente é posto no seu ponto. É isso que faz os
+       dentes se TOCAREM. Espalhados por ângulo, como estavam antes, sobrava
+       vão entre eles e a peça lia como um colar de contas. */
 
     function suave(a, b, x) {
       var t = Math.max(0, Math.min(1, (x - a) / (b - a)));
       return t * t * (3 - 2 * t);
     }
 
-    /* Interpola o perfil, que é uma lista de pares altura e raio. */
-    function doPerfil(perfil, y) {
-      var n = perfil.length;
-      if (y <= perfil[0][0]) { return perfil[0][1]; }
-      if (y >= perfil[n - 1][0]) { return perfil[n - 1][1]; }
-      for (var i = 0; i < n - 1; i++) {
-        if (y <= perfil[i + 1][0]) {
-          var a = perfil[i], b = perfil[i + 1];
-          var t = (y - a[0]) / (b[0] - a[0]);
-          t = t * t * (3 - 2 * t);
-          return a[1] + (b[1] - a[1]) * t;
-        }
-      }
-      return perfil[n - 1][1];
+    /* Potência que preserva o sinal: é o que leva o círculo à superelipse,
+       e a superelipse é o que dá um molar com face de mastigação quadrada e
+       um incisivo com face achatada, na mesma fórmula. */
+    function pot(v, e) {
+      var s = v < 0 ? -1 : 1;
+      return s * Math.pow(Math.abs(v), e);
     }
 
-    var pos = [], nor = [];
+    var pos = [], nor = [], reg = [];   /* reg: a que região cada vértice pertence */
+    var regiaoAtual = 0;
 
     function triangulo(A, B, C) {
       var ux = B[0] - A[0], uy = B[1] - A[1], uz = B[2] - A[2];
       var wx = C[0] - A[0], wy = C[1] - A[1], wz = C[2] - A[2];
       var nx = uy * wz - uz * wy, ny = uz * wx - ux * wz, nz = ux * wy - uy * wx;
       var m = Math.sqrt(nx * nx + ny * ny + nz * nz);
-      if (m < 1e-7) { return; }                    /* face degenerada: descarta */
+      if (m < 1e-7) { return; }
       nx /= m; ny /= m; nz /= m;
       pos.push(A[0], A[1], A[2], B[0], B[1], B[2], C[0], C[1], C[2]);
       nor.push(nx, ny, nz, nx, ny, nz, nx, ny, nz);
+      reg.push(regiaoAtual, regiaoAtual, regiaoAtual);
     }
 
-    /* Sólido de revolução. `mod` deforma cada ponto e é por onde entram as
-       cúspides e o achatamento do dente no sentido de frente para trás. */
-    function torno(perfil, aneis, voltas, mod) {
-      var y0 = perfil[0][0], y1 = perfil[perfil.length - 1][0];
-      var malha = [], i, j;
-      for (i = 0; i <= aneis; i++) {
-        var f = i / aneis;
-        var y = y0 + f * (y1 - y0);
-        var r = doPerfil(perfil, y);
-        var anel = [];
-        for (j = 0; j < voltas; j++) {
-          var v = (j / voltas) * Math.PI * 2;
-          var pt = [r * Math.cos(v), y, r * Math.sin(v)];
-          if (mod) { pt = mod(pt, v, f); }
-          anel.push(pt);
-        }
-        malha.push(anel);
-      }
-      for (i = 0; i < aneis; i++) {
-        for (j = 0; j < voltas; j++) {
-          var k = (j + 1) % voltas;
-          triangulo(malha[i][j], malha[i + 1][j], malha[i + 1][k]);
-          triangulo(malha[i][j], malha[i + 1][k], malha[i][k]);
-        }
-      }
-      /* Tampas: sem elas o sólido é oco e se vê o avesso. */
-      function tampa(anel, paraCima) {
-        var c = [0, 0, 0], t;
-        for (t = 0; t < voltas; t++) { c[0] += anel[t][0]; c[1] += anel[t][1]; c[2] += anel[t][2]; }
-        c[0] /= voltas; c[1] /= voltas; c[2] /= voltas;
-        for (t = 0; t < voltas; t++) {
-          var a = anel[t], b = anel[(t + 1) % voltas];
-          if (paraCima) { triangulo(c, a, b); } else { triangulo(c, b, a); }
-        }
-      }
-      tampa(malha[0], false);
-      tampa(malha[aneis], true);
+    function quadrilatero(A, B, C, D) { triangulo(A, B, C); triangulo(A, C, D); }
+
+    /* --- a curva da arcada -------------------------------------------- */
+
+    /* Meia-elipse, com `t` de -1 (último molar esquerdo) a 1 (direito) e 0
+       no meio dos incisivos centrais. Medidas de arcada superior adulta:
+       cerca de 55 mm entre os molares e 42 mm de fundo. */
+    var MM = 0.0295;                       /* escala: milímetro para unidade de cena */
+    /* Mais larga que funda: com a elipse ao contrário, o raio de
+       curvatura na frente caía para 19 mm e a tangente virava 25 graus
+       ao longo de UM incisivo, o que abria as coroas em leque. */
+    var ARCO_L = 24.0 * MM, ARCO_P = 27.0 * MM, ABERTURA = 1.78;
+
+    function naArcada(t) {
+      var a = t * ABERTURA;
+      return [ARCO_L * Math.sin(a), 0, -ARCO_P * Math.cos(a)];
+    }
+    function tangenteNaArcada(t) {
+      var a = t * ABERTURA;
+      return Math.atan2(ARCO_L * Math.cos(a), ARCO_P * Math.sin(a));
     }
 
-    /* Coroa com o tronco por baixo. A parte de baixo fica enterrada nas raízes
-       e nunca aparece. Mesa oclusal larga, não cúpula: dente termina numa face
-       de mastigação. */
-    var P_COROA = [
-      [-0.40, 0.150], [-0.26, 0.196], [-0.14, 0.226], [-0.04, 0.252],
-      [0.06, 0.336], [0.18, 0.428], [0.32, 0.478], [0.50, 0.494],
-      [0.68, 0.492], [0.82, 0.478], [0.92, 0.446], [1.00, 0.348]
+    /* Comprimento do meio-arco, integrado. É o número que decide onde cada
+       dente cai: sem ele não há como garantir que eles se toquem. */
+    var PASSOS_ARCO = 400;
+    var TABELA_S = [0];
+    (function () {
+      var ant = naArcada(0), soma = 0, i, p;
+      for (i = 1; i <= PASSOS_ARCO; i++) {
+        p = naArcada(i / PASSOS_ARCO);
+        soma += Math.sqrt((p[0] - ant[0]) * (p[0] - ant[0]) + (p[2] - ant[2]) * (p[2] - ant[2]));
+        TABELA_S.push(soma);
+        ant = p;
+      }
+    })();
+    var ARCO_TOTAL = TABELA_S[PASSOS_ARCO];
+
+    /* Inverso da tabela: dado um comprimento, devolve o `t` correspondente. */
+    function tEm(s) {
+      if (s <= 0) { return 0; }
+      if (s >= ARCO_TOTAL) { return 1; }
+      var lo = 0, hi = PASSOS_ARCO, m;
+      while (hi - lo > 1) { m = (lo + hi) >> 1; if (TABELA_S[m] < s) { lo = m; } else { hi = m; } }
+      var f = (s - TABELA_S[lo]) / (TABELA_S[hi] - TABELA_S[lo] || 1);
+      return (lo + f) / PASSOS_ARCO;
+    }
+
+    /* --- os dentes ------------------------------------------------------ */
+
+    /* l: largura mésio-distal, e: espessura vestíbulo-lingual, h: altura de
+       coroa, todas em milímetros. `q` é o quanto a face de mastigação é
+       quadrada, `c` é a altura das cúspides e `n` quantas são. */
+    var FILA = [
+      { nome: 'central', l: 8.6, e: 7.1, h: 10.5, q: 0.34, c: 0.00, n: 0 },
+      { nome: 'lateral', l: 6.6, e: 6.2, h: 9.0, q: 0.36, c: 0.00, n: 0 },
+      { nome: 'canino', l: 7.6, e: 8.1, h: 10.0, q: 0.50, c: 0.16, n: 1 },
+      { nome: 'premolar', l: 7.1, e: 9.2, h: 8.5, q: 0.62, c: 0.13, n: 2 },
+      { nome: 'premolar', l: 6.8, e: 9.0, h: 8.2, q: 0.64, c: 0.13, n: 2 },
+      { nome: 'molar', l: 10.4, e: 11.3, h: 7.6, q: 0.78, c: 0.07, n: 4 }
     ];
 
-    /* Raiz em coordenada local: y de 0 no colo a -0.92 no ápice. */
-    var P_RAIZ = [
-      [-0.92, 0.006], [-0.84, 0.040], [-0.72, 0.072], [-0.56, 0.098],
-      [-0.38, 0.118], [-0.20, 0.136], [-0.08, 0.152], [0.00, 0.168]
-    ];
-    var P_CANAL = [
-      [-0.82, 0.008], [-0.60, 0.024], [-0.34, 0.038], [-0.10, 0.052], [0.10, 0.070]
-    ];
+    /* A soma das larguras é encaixada no meio-arco medido. O fator abaixo de
+       1 deixa um fio entre as coroas, para o contato aparecer como contato e
+       não como fusão. */
+    var LARG_TOTAL = 0;
+    for (var iw = 0; iw < FILA.length; iw++) { LARG_TOTAL += FILA[iw].l; }
+    var ESCALA = (ARCO_TOTAL * 0.985) / (LARG_TOTAL * MM);
 
-    var INCLINACAO = 0.20;   /* radianos que cada raiz abre para fora */
-    var DESLOCA = 0.105;     /* meia distância entre as raízes, no colo */
-
-    /* Achata o dente no sentido de frente para trás e põe duas cúspides. */
-    function modCoroa(pt, v, f) {
-      var cusp = suave(0.80, 1.0, f) * 0.040 * (0.5 + 0.5 * Math.cos(2 * v));
-      return [pt[0] * 1.06, pt[1] + cusp, pt[2] * 0.84];
+    /* Centro de cada coroa, em comprimento de arco a partir da linha média. */
+    var CENTROS = [], acumulado = 0;
+    for (var ic = 0; ic < FILA.length; ic++) {
+      var wmm = FILA[ic].l * MM * ESCALA;
+      CENTROS.push(acumulado + wmm / 2);
+      acumulado += wmm;
     }
 
-    function modRaiz(lado) {
-      var c = Math.cos(INCLINACAO * lado), sn = Math.sin(INCLINACAO * lado);
-      return function (pt) {
-        var x = pt[0] * 1.0, y = pt[1], z = pt[2] * 0.86;
-        return [x * c - y * sn + DESLOCA * lado, x * sn + y * c - 0.02, z];
-      };
+    var NU = 10, NV = 20;
+
+    /* Uma coroa, do colo à borda que corta ou mastiga.
+
+       Duas correções em relação à primeira versão, as duas visíveis:
+
+       O COLO. Antes a coroa era mais larga justamente na altura da gengiva,
+       e o resultado era um dente APOIADO sobre a gengiva em vez de nascido
+       dela. A cintura agora é estreita embaixo e cheia acima da linha, que
+       é como a coroa sai do sulco de verdade.
+
+       O TOPO. Antes o topo fechava num ponto, nos dois sentidos, e a
+       superfície virava um leque de raios que lia como sujeira na malha —
+       além de dar um incisivo pontudo, que não existe. Agora o incisivo
+       fecha só na ESPESSURA e sobra a lâmina da borda incisal; o molar
+       encolhe pouco e sobra a mesa oclusal com as cúspides. As duas
+       terminam em tampa plana, de uma face só. */
+    function umaCoroa(d, lado, indice) {
+      var t = tEm(CENTROS[indice]) * lado;
+      var base = naArcada(t);
+      var giro = tangenteNaArcada(t) * lado;
+      /* O par (cos, sen) tirado da tangente aponta para DENTRO da arcada.
+         Sem o sinal trocado, a face vestibular da coroa fica virada para o
+         palato: o tombamento inclina a coroa para dentro e a cunha alarga o
+         lado errado, que é justamente o lado que se vê. Meia volta no
+         referencial local resolve, e é rotação, não espelho — os dois eixos
+         trocam de sinal juntos. */
+      var cg = -Math.cos(giro), sg = -Math.sin(giro);
+
+      var L = d.l * MM * ESCALA * 0.5;
+      var E = d.e * MM * ESCALA * 0.5;
+      var H = d.h * MM * ESCALA;
+      var COLO = H * 0.34;                 /* o quanto a coroa entra na gengiva */
+      /* Os de trás ficam mais baixos que os da frente: é a curva de Spee, e
+         sem ela a arcada lê como uma cerca. */
+      var afunda = H * 0.10 * suave(1, 5, indice);
+      /* Inclinação para fora, crescente para trás. */
+      var tomba = 0.10 + 0.10 * suave(0, 5, indice);
+
+      /* OS DOIS EIXOS DA COROA, e eles já estiveram trocados.
+
+         `base` mais `(cg, sg)` aponta para FORA da arcada, e `(-sg, cg)`
+         corre AO LONGO dela. Na primeira versão a largura mésio-distal ia
+         para o eixo de fora e a espessura ia para o eixo do arco: cada
+         coroa ocupava, ao longo da curva, só a sua espessura. O incisivo
+         central recebia 8,3 mm de arco e preenchia 7,1 — o milímetro e
+         pouco que sobrava virava uma fenda preta entre um dente e o outro,
+         em todos os doze. Levou três rodadas de captura para eu ver que o
+         defeito não era a gengiva nem a papila: era isto. */
+      function ponto(iu, iv) {
+        var s = iu / NU;
+        var v = (iv / NV) * Math.PI * 2;
+        var alt = -COLO + s * (H + COLO);
+        var sc = (alt + COLO) / (H + COLO);
+        /* A coroa abre depressa acima do colo e daí para cima MANTÉM a
+           largura, em vez de voltar a afinar. É o que faz duas vizinhas se
+           encostarem ao longo de toda a metade de cima. */
+        var cintura = 0.72 + 0.28 * suave(0.06, 0.50, sc);
+        var k = suave(0.82, 1.0, sc);
+        /* O topo fecha. Em quem corta (incisivo e canino) ele fecha só na
+           ESPESSURA, e sobra a lâmina da borda incisal. Em quem mastiga ele
+           encolhe pouco e sobra a mesa oclusal. */
+        var rMd = cintura * (1 - (d.n ? 0.20 : 0.06) * k);
+        var rBl = cintura * (1 - (d.n ? 0.20 : 0.62) * k);
+        var md = L * rMd * pot(Math.cos(v), d.q);     /* ao longo da arcada */
+        var bl = E * rBl * pot(Math.sin(v), d.q);     /* vestibular / lingual */
+        /* Cunha: mais larga na face de fora que na de dentro. É o que
+           permite doze coroas caberem numa curva sem abrir leque entre
+           elas — e é a razão anatômica de o dente ser assim. */
+        md *= 1 + 0.24 * Math.sin(v);
+        /* Cúspides. Uma no canino, duas no pré-molar (vestibular e
+           lingual), quatro no molar (nas diagonais, que é onde estão). */
+        if (d.n && k > 0) {
+          alt += d.c * H * k * (d.n === 1 ? 1
+            : d.n === 4 ? (0.68 + 0.32 * Math.abs(Math.sin(2 * v)))
+            : Math.abs(Math.sin(v)));
+        }
+        alt -= afunda;
+        /* tombamento para fora, depois a posição na curva */
+        var y2 = alt * Math.cos(tomba) - bl * Math.sin(tomba);
+        var b2 = alt * Math.sin(tomba) + bl * Math.cos(tomba);
+        return [base[0] + b2 * cg - md * sg, y2, base[2] + b2 * sg + md * cg];
+      }
+
+      var i, j;
+      for (i = 0; i < NU; i++) {
+        for (j = 0; j < NV; j++) {
+          quadrilatero(ponto(i, j), ponto(i, j + 1), ponto(i + 1, j + 1), ponto(i + 1, j));
+        }
+      }
+
+      /* Tampas: a de cima é a borda incisal ou a mesa oclusal, a de baixo
+         some dentro da gengiva e existe só para a coroa ser sólida. */
+      function tampa(iu) {
+        var cx = 0, cy = 0, cz = 0, p, j;
+        for (j = 0; j < NV; j++) { p = ponto(iu, j); cx += p[0]; cy += p[1]; cz += p[2]; }
+        var c = [cx / NV, cy / NV, cz / NV];
+        for (j = 0; j < NV; j++) { triangulo(c, ponto(iu, j), ponto(iu, j + 1)); }
+      }
+      tampa(NU); tampa(0);
     }
 
-    torno(P_COROA, 16, 26, modCoroa);
-    torno(P_RAIZ, 12, 18, modRaiz(1));
-    torno(P_RAIZ, 12, 18, modRaiz(-1));
-    var casca = { pos: new Float32Array(pos), nor: new Float32Array(nor), n: pos.length / 3 };
+    /* --- a gengiva ----------------------------------------------------- */
 
-    pos = []; nor = [];
-    torno(P_CANAL, 10, 12, modRaiz(1));
-    torno(P_CANAL, 10, 12, modRaiz(-1));
-    /* Câmara pulpar, ligando os dois canais sob a coroa. */
-    torno([[-0.06, 0.070], [0.10, 0.105], [0.26, 0.088], [0.34, 0.030]], 6, 14,
-      function (pt) { return [pt[0] * 1.7, pt[1], pt[2] * 0.9]; });
-    var canal = { pos: new Float32Array(pos), nor: new Float32Array(nor), n: pos.length / 3 };
+    /* Um cordão varrido ao longo da mesma curva, de seção elíptica, que se
+       fecha nas duas pontas porque o raio vai a zero.
+
+       O detalhe que faz a peça parecer boca e não maquete é o RECORTE: a
+       borda sobe em ponta entre um dente e outro (a papila) e desce no meio
+       de cada dente. Sem ele o cordão vira um cano atrás dos dentes, que foi
+       exatamente como a primeira versão leu. */
+    function gengiva() {
+      var VOLTAS = 132, ANEL = 12;
+      var LIM = 1.06;                     /* passa um pouco dos molares */
+      var FIM = CENTROS[FILA.length - 1] + FILA[FILA.length - 1].l * MM * ESCALA * 0.5;
+
+      /* Altura da borda num ponto do arco: pico nos contatos, vale no meio
+         de cada coroa. */
+      function recorte(sArco) {
+        var s = Math.abs(sArco);
+        var melhor = 0;
+        for (var k = 0; k < FILA.length; k++) {
+          var meia = FILA[k].l * MM * ESCALA * 0.5;
+          var d = (s - CENTROS[k]) / meia;      /* -1 .. 1 dentro da coroa */
+          if (d >= -1 && d <= 1) { melhor = Math.abs(d); }
+        }
+        /* 0 no meio do dente, 1 no contato */
+        return melhor * melhor;
+      }
+
+      function ponto(i, j) {
+        var u = -LIM + (i / VOLTAS) * 2 * LIM;      /* -1.06 .. 1.06 */
+        var sArco = u * FIM;
+        var t = tEm(Math.abs(sArco)) * (u < 0 ? -1 : 1);
+        var base = naArcada(t);
+        var giro = tangenteNaArcada(t) * (u < 0 ? -1 : 1);
+        var cg = Math.cos(giro), sg = Math.sin(giro);
+
+        /* Engorda para trás: a gengiva dos molares é mais larga. */
+        var grossura = 1 + 0.62 * suave(0.30, 1.0, Math.abs(u));
+        var RX = 0.147 * grossura, RY = 0.166;
+        /* Some nas pontas em vez de terminar num toco. */
+        var fecha = 1 - suave(0.86, LIM, Math.abs(u));
+        RX *= fecha; RY *= fecha;
+
+        var a = (j / ANEL) * Math.PI * 2;
+        var lx = RX * Math.cos(a);
+        /* A metade de baixo é achatada. Com o anel elíptico inteiro a
+           gengiva pendurava um bojo embaixo dos dentes e lia como uma
+           fatia de carne; achatada, lê como a base de um modelo. */
+        var ly = RY * Math.sin(a) * (Math.sin(a) < 0 ? 0.62 : 1);
+        /* A papila levanta só o lado de cima do anel. */
+        ly += 0.082 * recorte(sArco) * Math.pow(Math.max(0, Math.sin(a)), 0.45) * fecha;
+        ly -= 0.058;
+
+        var lado = (u < 0 ? -1 : 1);
+        return [base[0] + lx * lado * cg, ly, base[2] + lx * lado * sg];
+      }
+
+      for (var i = 0; i < VOLTAS; i++) {
+        for (var j = 0; j < ANEL; j++) {
+          quadrilatero(ponto(i, j), ponto(i, j + 1), ponto(i + 1, j + 1), ponto(i + 1, j));
+        }
+      }
+    }
+
+    /* --- montagem -------------------------------------------------------
+       As regiões são o que o site acende. Cada dente entra numa delas, e a
+       gengiva na sua própria. O número vai por vértice até o shader. */
+    var REG = { GENGIVA: 0, FRENTE: 1, LADO: 2, FUNDO: 3, FALHA: 4 };
+
+    /* O implante mostra uma FALHA: o segundo pré-molar da direita não é
+       desenhado, e no lugar entra um pino. É o que faz o tratamento aparecer
+       em vez de ser só um rótulo. */
+    var SEM_DENTE = { lado: 1, indice: 4 };
+
+    regiaoAtual = REG.GENGIVA;
+    gengiva();
+
+    for (var lado = -1; lado <= 1; lado += 2) {
+      for (var k = 0; k < FILA.length; k++) {
+        var vazio = (lado === SEM_DENTE.lado && k === SEM_DENTE.indice);
+        if (vazio) { continue; }
+        regiaoAtual = k <= 2 ? REG.FRENTE : (k <= 4 ? REG.LADO : REG.FUNDO);
+        umaCoroa(FILA[k], lado, k);
+      }
+    }
+
+    var arcada = {
+      pos: new Float32Array(pos), nor: new Float32Array(nor),
+      reg: new Float32Array(reg), n: pos.length / 3
+    };
+
+    /* --- o implante que preenche a falha ------------------------------- */
+
+    pos = []; nor = []; reg = [];
+    regiaoAtual = REG.FALHA;
+    (function () {
+      var d = FILA[SEM_DENTE.indice];
+      var t = tEm(CENTROS[SEM_DENTE.indice]) * SEM_DENTE.lado;
+      var base = naArcada(t);
+      var H = d.h * MM * ESCALA;
+      var NUp = 14, NVp = 14;
+      function ponto(i, j) {
+        var v = (j / NVp) * Math.PI * 2;
+        var s = i / NUp;
+        var y = -0.34 + s * (0.34 + H * 0.30);
+        /* Corpo roscado embaixo, colo liso, plataforma em cima. */
+        var r = 0.062 * (1 + 0.20 * Math.sin(y * 52));
+        if (y > -0.02) { r = 0.052; }
+        if (y > H * 0.10) { r = 0.086 * (1 - suave(H * 0.10, H * 0.30, y) * 0.35); }
+        return [base[0] + r * Math.cos(v), y, base[2] + r * Math.sin(v)];
+      }
+      for (var i = 0; i < NUp; i++) {
+        for (var j = 0; j < NVp; j++) {
+          quadrilatero(ponto(i, j), ponto(i + 1, j), ponto(i + 1, j + 1), ponto(i, j + 1));
+        }
+      }
+      var topo = ponto(NUp, 0);
+      for (var jt = 0; jt < NVp; jt++) {
+        triangulo([base[0], topo[1], base[2]], ponto(NUp, jt), ponto(NUp, jt + 1));
+      }
+    })();
+    var implante = {
+      pos: new Float32Array(pos), nor: new Float32Array(nor),
+      reg: new Float32Array(reg), n: pos.length / 3
+    };
+
+    /* --- assentar a peça -----------------------------------------------
+
+       Duas correções de uma vez, as duas de sinal.
+
+       A curva nasce com os incisivos em z negativo, e a câmera olha para
+       -Z: do jeito que sai do gerador, o giro zero mostra a NUCA da arcada.
+       Meia volta em Y resolve, e é uma rotação de verdade (x e z trocam de
+       sinal juntos, nas posições e nas normais), não um espelho: espelhar
+       inverteria o sentido das faces.
+
+       E a peça nasce fora da origem, porque a curva se abre para trás. Girar
+       assim faz a arcada bambear em vez de rodar no lugar. Centrar nos três
+       eixos é o que dá o giro limpo, e é o que deixa a câmera ser calculada
+       a partir do tamanho real. */
+    var TAMANHO = (function () {
+      var b = [1e9, 1e9, 1e9, -1e9, -1e9, -1e9], i, k;
+      for (i = 0; i < arcada.pos.length; i += 3) {
+        for (k = 0; k < 3; k++) {
+          if (arcada.pos[i + k] < b[k]) { b[k] = arcada.pos[i + k]; }
+          if (arcada.pos[i + k] > b[3 + k]) { b[3 + k] = arcada.pos[i + k]; }
+        }
+      }
+      var c = [(b[0] + b[3]) / 2, (b[1] + b[4]) / 2, (b[2] + b[5]) / 2];
+      [arcada, implante].forEach(function (m) {
+        for (var i = 0; i < m.pos.length; i += 3) {
+          m.pos[i] = -(m.pos[i] - c[0]);
+          m.pos[i + 1] = m.pos[i + 1] - c[1];
+          m.pos[i + 2] = -(m.pos[i + 2] - c[2]);
+          m.nor[i] = -m.nor[i];
+          m.nor[i + 2] = -m.nor[i + 2];
+        }
+      });
+      return [b[3] - b[0], b[4] - b[1], b[5] - b[2]];
+    })();
+
+    /* --- onde cada região mostra a cara ---------------------------------
+
+       O rótulo não pode pousar no centro de massa da região: metade delas é
+       simétrica (os dois lados, os dois fundos), e a média dos dois lados
+       cai no meio da boca, que é onde não há nada para apontar.
+
+       Então a DIREÇÃO é escolhida — de que lado da peça aquele tratamento
+       vai ser mostrado — e o PONTO é medido: o vértice da região que vai
+       mais longe naquela direção, suavizado pela vizinhança para não
+       pendurar o rótulo num vértice solto. Escolha de projeto onde é
+       escolha; conta onde é conta. Digitado à mão, o ponto descolava do
+       modelo a cada ajuste de geometria e ninguém percebia. */
+    function pontoNaDirecao(malha, r, dir) {
+      var dl = Math.sqrt(dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]);
+      var dx = dir[0] / dl, dy = dir[1] / dl, dz = dir[2] / dl;
+      var melhor = -1e9, b = [0, 0, 0], i, s;
+      for (i = 0; i < malha.pos.length; i += 3) {
+        if (Math.abs(malha.reg[i / 3] - r) > 0.3) { continue; }
+        s = malha.pos[i] * dx + malha.pos[i + 1] * dy + malha.pos[i + 2] * dz;
+        if (s > melhor) { melhor = s; b = [malha.pos[i], malha.pos[i + 1], malha.pos[i + 2]]; }
+      }
+      var sx = 0, sy = 0, sz = 0, n = 0, ax, ay, az;
+      for (i = 0; i < malha.pos.length; i += 3) {
+        if (Math.abs(malha.reg[i / 3] - r) > 0.3) { continue; }
+        ax = malha.pos[i] - b[0]; ay = malha.pos[i + 1] - b[1]; az = malha.pos[i + 2] - b[2];
+        if (ax * ax + ay * ay + az * az > 0.020) { continue; }
+        sx += malha.pos[i]; sy += malha.pos[i + 1]; sz += malha.pos[i + 2]; n++;
+      }
+      return n ? [sx / n, sy / n, sz / n] : b;
+    }
+
+    /* O giro que traz um ponto para a frente da câmera. Vem da própria
+       matriz de transformação: o eixo que aponta para quem olha é
+       (-sen, cos), então alinhar o ponto a ele é atan2(-x, z). */
+    function giroPara(p) { return Math.atan2(-p[0], p[2]); }
 
     /* ------------------------------------------------------------------ */
     /* 2. WebGL                                                            */
     /* ------------------------------------------------------------------ */
 
     var VS = [
-      'attribute vec3 pos; attribute vec3 nor;',
-      'uniform mat4 mvp; uniform mat4 mv;',
-      'varying vec3 vN; varying vec3 vP;',
+      'attribute vec3 pos; attribute vec3 nor; attribute float regiao;',
+      'uniform mat4 mvp; uniform mat4 mv; uniform vec4 acesas;',
+      'varying vec3 vN; varying vec3 vP; varying float vAceso; varying float vGengiva;',
       'void main(){',
       '  vN = mat3(mv) * nor;',
       '  vP = (mv * vec4(pos,1.0)).xyz;',
+      '  vGengiva = step(regiao, 0.5);',
+      /* `acesas` traz ate quatro regioes de uma vez, e -1 significa
+         "nenhuma". Antes era UMA regiao por chamada e a arcada era
+         desenhada de novo para cada uma; com o teste de profundidade em
+         MENOR, o segundo desenho tinha profundidade IGUAL e era descartado
+         inteiro. Ou seja: a ortodontia, que acende a arcada toda, acendia
+         so a gengiva, e em silencio. Uma chamada com quatro numeros nao tem
+         esse jeito de errar. */
+      '  float d = min(min(abs(regiao-acesas.x), abs(regiao-acesas.y)),',
+      '                min(abs(regiao-acesas.z), abs(regiao-acesas.w)));',
+      '  vAceso = step(d, 0.3);',
       '  gl_Position = mvp * vec4(pos,1.0);',
       '}'
     ].join('\n');
 
     var FS = [
       'precision mediump float;',
-      'varying vec3 vN; varying vec3 vP;',
-      'uniform vec3 cor; uniform vec3 corRim; uniform float alfa;',
+      'varying vec3 vN; varying vec3 vP; varying float vAceso; varying float vGengiva;',
+      'uniform vec3 cor; uniform vec3 corGengiva; uniform vec3 corRim;',
+      'uniform vec3 corAceso; uniform float alfa;',
       'void main(){',
       '  vec3 N = normalize(vN);',
+      /* A malha tem partes que se atravessam (a coroa entra na gengiva), e
+         nesse encontro ha faces viradas para dentro. Sem esta linha elas
+         aparecem pretas. E por isso tambem que o recorte de faces esta
+         desligado: e mais barato acertar a normal aqui do que garantir a
+         mao o sentido de cada quadrilatero de duas superficies varridas. */
       '  if (!gl_FrontFacing) { N = -N; }',
       '  vec3 V = normalize(-vP);',
-      /* luz principal, alta e à esquerda, mais um preenchimento frio embaixo */
-      '  vec3 L = normalize(vec3(-0.45, 0.80, 0.62));',
+      /* luz principal, alta e a esquerda, mais um preenchimento frio embaixo */
+      '  vec3 L = normalize(vec3(-0.42, 0.86, 0.58));',
       '  float dif = max(dot(N, L), 0.0);',
-      '  float fill = max(dot(N, normalize(vec3(0.60,-0.45,0.20))), 0.0) * 0.14;',
+      '  float fill = max(dot(N, normalize(vec3(0.65,-0.35,0.30))), 0.0) * 0.16;',
       '  vec3 H = normalize(L + V);',
-      '  float esp = pow(max(dot(N, H), 0.0), 34.0) * 0.38;',
-      /* luz de contorno em ouro: é ela que amarra o objeto à marca */
-      '  float rim = pow(1.0 - max(dot(N, V), 0.0), 3.0);',
-      '  vec3 c = cor * (0.22 + 0.86 * dif + fill) + vec3(esp) + corRim * rim * 1.55;',
+      '  vec3 corBase = mix(cor, corGengiva, vGengiva);',
+      '  float brilho = mix(46.0, 16.0, vGengiva);',
+      '  float esp = pow(max(dot(N, H), 0.0), brilho) * mix(0.42, 0.16, vGengiva);',
+      /* Luz de contorno em ouro. Estava em 1,55 e lavava a peca inteira: as
+         faces de perfil ficavam douradas e a arcada lia como uma joia, nao
+         como dentes. Em 0,42 ela so desenha a silhueta contra o cartao. */
+      '  float rim = pow(1.0 - max(dot(N, V), 0.0), 3.4);',
+      /* O realce nao TROCA a cor do dente: mistura. Trocando, a regiao
+         escolhida virava um bloco de ouro macico, que numa clinica
+         odontologica e exatamente a imagem que nao se quer. Misturado a
+         menos da metade, com o contorno reforcado, le como luz em cima
+         da regiao. */
+      '  vec3 base = mix(corBase, corAceso, vAceso * 0.42);',
+      '  vec3 c = base * (0.24 + 0.80 * dif + fill) + vec3(esp);',
+      '  c += corRim * rim * (0.40 + 1.10 * vAceso);',
+      '  c += corAceso * vAceso * 0.13;',
       '  gl_FragColor = vec4(c, alfa);',
       '}'
     ].join('\n');
@@ -228,7 +551,12 @@
       var s = gl.createShader(tipo);
       gl.shaderSource(s, fonte);
       gl.compileShader(s);
-      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { return null; }
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+        /* Sem este aviso a falha e muda: o programa nao linka, iniciar()
+           desiste em silencio, e o cartao fica preto sem nenhum sinal. */
+        if (window.console) { console.warn('dente3d: shader nao compilou', gl.getShaderInfoLog(s)); }
+        return null;
+      }
       return s;
     }
 
@@ -237,16 +565,23 @@
     if (!vs || !fs) { return; }
     var prog = gl.createProgram();
     gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { return; }
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+      if (window.console) { console.warn('dente3d: programa nao linkou', gl.getProgramInfoLog(prog)); }
+      return;
+    }
     gl.useProgram(prog);
 
     var aPos = gl.getAttribLocation(prog, 'pos');
     var aNor = gl.getAttribLocation(prog, 'nor');
+    var aReg = gl.getAttribLocation(prog, 'regiao');
     var uMvp = gl.getUniformLocation(prog, 'mvp');
     var uMv = gl.getUniformLocation(prog, 'mv');
     var uCor = gl.getUniformLocation(prog, 'cor');
     var uRim = gl.getUniformLocation(prog, 'corRim');
     var uAlfa = gl.getUniformLocation(prog, 'alfa');
+    var uAcesas = gl.getUniformLocation(prog, 'acesas');
+    var uCorAceso = gl.getUniformLocation(prog, 'corAceso');
+    var uCorGengiva = gl.getUniformLocation(prog, 'corGengiva');
 
     function enviar(m) {
       var bp = gl.createBuffer();
@@ -255,10 +590,13 @@
       var bn = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, bn);
       gl.bufferData(gl.ARRAY_BUFFER, m.nor, gl.STATIC_DRAW);
-      m.bp = bp; m.bn = bn;
+      var br = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, br);
+      gl.bufferData(gl.ARRAY_BUFFER, m.reg, gl.STATIC_DRAW);
+      m.bp = bp; m.bn = bn; m.br = br;
       return m;
     }
-    enviar(casca); enviar(canal);
+    enviar(arcada); enviar(implante);
 
     function desenhar(m) {
       gl.bindBuffer(gl.ARRAY_BUFFER, m.bp);
@@ -267,8 +605,15 @@
       gl.bindBuffer(gl.ARRAY_BUFFER, m.bn);
       gl.enableVertexAttribArray(aNor);
       gl.vertexAttribPointer(aNor, 3, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, m.br);
+      gl.enableVertexAttribArray(aReg);
+      gl.vertexAttribPointer(aReg, 1, gl.FLOAT, false, 0, 0);
       gl.drawArrays(gl.TRIANGLES, 0, m.n);
     }
+
+    /* Inclinação da câmera: olhando de cima, o suficiente para a arcada
+       ler como arcada e não como fileira de dentes. */
+    var giroX = 0.80;
 
     /* ------------------------------------------------------------------ */
     /* 3. Matrizes                                                         */
@@ -304,8 +649,85 @@
         cy, sy * sx, -sy * cx, 0,
         0, cx, sx, 0,
         sy, -cy * sx, cy * cx, 0,
-        0, -0.05, -dist, 1
+        0, 0, -dist, 1
       ]);
+    }
+
+    /* --- a que distância a câmera cabe ---------------------------------
+
+       Antes isto era uma altura e uma largura digitadas à mão, com uma
+       folga estimada. Deu no que se vê: a arcada saía cortada na direita,
+       porque a silhueta de uma peça que GIRA não é a caixa que a envolve, e
+       porque a perspectiva engorda o que está mais perto.
+
+       Aqui a distância é MEDIDA. A busca binária procura a menor distância
+       em que todo vértice, em todo ângulo de giro, ainda cai dentro do
+       quadro com uma margem. Roda uma vez por proporção de tela, sobre uma
+       amostra dos vértices, e o resultado fica guardado. Não é possível
+       cortar a peça sem que este teste falhe primeiro. */
+    /* Campo de visão estreito, de foto de produto. Em 45 graus a
+       perspectiva engordava os incisivos, que ficam na beirada mais
+       próxima, e a arcada parecia tombar para a frente. */
+    var FOV = 0.52;
+    var MARGEM = 0.86;          /* fração do quadro que a peça pode ocupar */
+
+    var AMOSTRA = (function () {
+      var passo = Math.max(1, Math.floor(arcada.n / 900)) * 3;
+      var a = [], i;
+      for (i = 0; i < arcada.pos.length; i += passo) {
+        a.push(arcada.pos[i], arcada.pos[i + 1], arcada.pos[i + 2]);
+      }
+      return a;
+    })();
+
+    /* Extremos da amostra depois de girar, por ângulo e por eixo. Como só há
+       um giro (em Y) e uma inclinação fixa (em X), varrer 32 ângulos cobre a
+       volta inteira com sobra. */
+    var EXTREMOS = (function () {
+      var lista = [], k, i, ang, cy, sy, cx, sx, x, y, z, x2, y2, z2, e;
+      for (k = 0; k < 32; k++) {
+        ang = (k / 32) * Math.PI * 2;
+        cy = Math.cos(ang); sy = Math.sin(ang);
+        cx = Math.cos(giroX); sx = Math.sin(giroX);
+        e = [0, 0, 0];               /* |x| máximo, |y| máximo, z máximo */
+        e[2] = -1e9;
+        for (i = 0; i < AMOSTRA.length; i += 3) {
+          x = AMOSTRA[i]; y = AMOSTRA[i + 1]; z = AMOSTRA[i + 2];
+          x2 = cy * x + sy * z;
+          y2 = sy * sx * x + cx * y - cy * sx * z;
+          z2 = -sy * cx * x + sx * y + cy * cx * z;
+          if (Math.abs(x2) > e[0]) { e[0] = Math.abs(x2); }
+          if (Math.abs(y2) > e[1]) { e[1] = Math.abs(y2); }
+          if (z2 > e[2]) { e[2] = z2; }
+          lista.push(x2, y2, z2);
+        }
+      }
+      return lista;
+    })();
+
+    var distCache = {};
+
+    function cabe(dist, aspecto) {
+      var tanV = Math.tan(FOV / 2), tanH = tanV * aspecto, i, w;
+      for (i = 0; i < EXTREMOS.length; i += 3) {
+        w = dist - EXTREMOS[i + 2];
+        if (w < 0.25) { return false; }
+        if (Math.abs(EXTREMOS[i]) > w * tanH * MARGEM) { return false; }
+        if (Math.abs(EXTREMOS[i + 1]) > w * tanV * MARGEM) { return false; }
+      }
+      return true;
+    }
+
+    function distancia(aspecto) {
+      var chave = aspecto.toFixed(2);
+      if (distCache[chave]) { return distCache[chave]; }
+      var lo = 0.5, hi = 24, m, i;
+      for (i = 0; i < 26; i++) {
+        m = (lo + hi) / 2;
+        if (cabe(m, aspecto)) { hi = m; } else { lo = m; }
+      }
+      distCache[chave] = hi;
+      return hi;
     }
 
     function projetar(p, mvp) {
@@ -320,32 +742,57 @@
     /* 4. Âncoras: onde cada tratamento atua                               */
     /* ------------------------------------------------------------------ */
 
-    /* Cada ponto fica na parte do dente que aquele tratamento trata. Não é
-       enfeite: é o motivo de a peça existir. O ângulo é o giro que traz a
-       âncora para a frente. */
+    /* Cada tratamento acende uma REGIÃO da arcada e a traz para a frente.
+       `regiao` é o número que o shader compara, `dir` é de que lado da peça
+       aquela região vai ser mostrada, e o resto — o ponto exato onde o
+       rótulo pousa e o ângulo do giro — sai da malha.
+
+       Dois números são códigos e não regiões: -2 acende a arcada inteira
+       (ortodontia move tudo) e -3 acende os dentes sem a gengiva (o
+       clareamento não age na gengiva). */
     var ANCORAS = {
-      'lentes-e-facetas': { p: [0.02, 0.54, 0.42], giro: 0 },
-      'ortodontia-e-alinhadores': { p: [0.02, 0.22, 0.40], giro: 0 },
-      'implante-e-protese': { p: [0.33, -0.68, 0.04], giro: -0.35 },
-      'clareamento-dental': { p: [0.06, 1.00, 0.14], giro: 0.15 },
-      'endodontia': { p: [0.0, -0.05, 0.0], giro: 0, dentro: true },
-      'periodontia': { p: [0.05, -0.02, 0.24], giro: 0.1 },
-      'avaliacao-com-camera-intraoral': { p: [0.44, 0.50, 0.24], giro: -0.55 }
+      'lentes-e-facetas': { regiao: 1, dir: [0, 0.35, 1] },
+      'ortodontia-e-alinhadores': { regiao: -2, dir: [0, 0.45, 1] },
+      'implante-e-protese': { regiao: 4, dir: [-1, 0.3, 0] },
+      'clareamento-dental': { regiao: -3, dir: [0.25, 0.45, 1] },
+      'endodontia': { regiao: 1, dir: [-0.55, 0.3, 0.8] },
+      'periodontia': { regiao: 0, dir: [0, 0.2, 1] },
+      'avaliacao-com-camera-intraoral': { regiao: 3, dir: [0.85, 0.3, -0.45] }
     };
+
+    Object.keys(ANCORAS).forEach(function (k) {
+      var a = ANCORAS[k];
+      var malha = a.regiao === 4 ? implante : arcada;
+      var r = a.regiao === -2 || a.regiao === -3 ? 1 : a.regiao;
+      a.p = pontoNaDirecao(malha, r, a.dir);
+      a.giro = giroPara(a.p);
+      /* Afasta o rótulo da peça. Pousado na superfície, ele cai em cima
+         dos incisivos e tapa justamente o que está sendo apontado. */
+      a.p = [a.p[0] * 1.34, a.p[1] + 0.20, a.p[2] * 1.34];
+      a.acesas = a.regiao === -2 ? [0, 1, 2, 3]
+        : a.regiao === -3 ? [1, 2, 3, -1]
+        : [a.regiao, -1, -1, -1];
+    });
 
     /* ------------------------------------------------------------------ */
     /* 5. Estado e laço                                                    */
     /* ------------------------------------------------------------------ */
 
-    var giroY = 0.6, giroX = 0.20, alvoY = 0.6;
+    var giroY = 0.35, alvoY = 0.35;
     var girando = true;
     var arrastando = false, xAnterior = 0, movimento = 0;
-    var selecionado = null, transparencia = 0;
+    var selecionado = null;
     var visivel = true, pedido = 0;
 
-    var CREME = [0.969, 0.949, 0.910];
-    var OURO = [0.878, 0.741, 0.404];
-    var CANAL = [0.878, 0.741, 0.404];   /* mais claro que o ouro do contorno: precisa atravessar a casca translucida */
+    /* Esmalte quase branco, gengiva num rosa apagado e ouro só no realce.
+       A versão anterior tinha creme nos dentes e um contorno dourado forte
+       que os deixava com cara de dente de ouro — o oposto do que uma
+       clínica quer mostrar. */
+    var ESMALTE = [0.957, 0.937, 0.898];
+    var GENGIVA = [0.671, 0.478, 0.478];
+    var OURO = [0.824, 0.686, 0.341];
+    var OURO_ACESO = [0.824, 0.686, 0.341];  /* a região escolhida vira ouro */
+    var METAL = [0.66, 0.67, 0.70];          /* o pino do implante */
 
     function dimensionar() {
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -364,58 +811,42 @@
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.enable(gl.DEPTH_TEST);
-      gl.enable(gl.CULL_FACE);
-      gl.cullFace(gl.BACK);
+      gl.disable(gl.CULL_FACE);   /* ver o comentário no shader */
       gl.disable(gl.BLEND);
 
       if (girando && !arrastando && !reduzido) { alvoY += 0.0042; }
       giroY += (alvoY - giroY) * 0.12;
 
       var aspecto = tela.width / tela.height;
-      /* Distância da câmera calculada, não escolhida por faixa de proporção.
-         O objeto tem meia-altura de cerca de 1,0 e meia-largura de 0,52; com a
-         inclinação em x a silhueta cresce um pouco, e a perspectiva aumenta o
-         que está mais perto. Os valores abaixo já embutem essa folga. Fazendo
-         por faixa, o quadro largo e baixo do celular cortava a coroa. */
-      var ALTURA = 1.18, LARGURA = 0.70;
-      var tanF = Math.tan(0.36);
-      var dist = Math.max(ALTURA / tanF, LARGURA / (tanF * aspecto));
-      var proj = perspectiva(0.72, aspecto, 0.1, 20);
-      var mv = transformacao(giroY, giroX, dist);
+      var proj = perspectiva(FOV, aspecto, 0.1, 20);
+      var mv = transformacao(giroY, giroX, distancia(aspecto));
       var mvp = multiplicar(proj, mv);
 
       gl.uniformMatrix4fv(uMv, false, mv);
       gl.uniformMatrix4fv(uMvp, false, mvp);
 
-      var querTransp = selecionado === 'endodontia';
-      transparencia += ((querTransp ? 1 : 0) - transparencia) * 0.14;
+      var a = selecionado && ANCORAS[selecionado];
+      var acesas = a ? a.acesas : [-1, -1, -1, -1];
 
-      if (transparencia > 0.02) {
-        gl.uniform3fv(uCor, CANAL);
-        gl.uniform3fv(uRim, OURO);
-        gl.uniform1f(uAlfa, 1);
-        desenhar(canal);
-      }
-
-      gl.uniform3fv(uCor, CREME);
       gl.uniform3fv(uRim, OURO);
-      var alfa = 1 - transparencia * 0.62;
-      gl.uniform1f(uAlfa, alfa);
-      if (alfa < 0.999) {
-        gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        gl.depthMask(false);
-        gl.cullFace(gl.FRONT); desenhar(casca);
-        gl.cullFace(gl.BACK); desenhar(casca);
-        gl.depthMask(true);
-      } else {
-        desenhar(casca);
+      gl.uniform3fv(uCorAceso, OURO_ACESO);
+      gl.uniform3fv(uCorGengiva, GENGIVA);
+      gl.uniform1f(uAlfa, 1);
+      gl.uniform4f(uAcesas, acesas[0], acesas[1], acesas[2], acesas[3]);
+      gl.uniform3fv(uCor, ESMALTE);
+      desenhar(arcada);
+
+      /* O pino do implante só aparece quando o implante está escolhido: é o
+         tratamento acontecendo, não um enfeite permanente. */
+      if (a && a.regiao === 4) {
+        gl.uniform3fv(uCor, METAL);
+        gl.uniform3fv(uCorGengiva, METAL);
+        desenhar(implante);
       }
 
       posicionarMarcador(mvp, caixa);
 
-      var precisa = (girando && !reduzido) || Math.abs(alvoY - giroY) > 0.0005
-        || Math.abs((querTransp ? 1 : 0) - transparencia) > 0.01;
+      var precisa = (girando && !reduzido) || Math.abs(alvoY - giroY) > 0.0005;
       if (precisa && visivel) { pedirQuadro(); }
     }
 
@@ -438,15 +869,24 @@
       if (!a) { marcador.classList.remove('on'); return; }
       var s = projetar(a.p, mvp);
       if (!s) { marcador.classList.remove('on'); return; }
-      marcador.style.left = (s[0] * caixa.width).toFixed(1) + 'px';
-      marcador.style.top = (s[1] * caixa.height).toFixed(1) + 'px';
-      /* Some quando a âncora vai para trás do dente, exceto a do canal, que é
-         interna e some junto com a transparência. */
+      /* O rótulo é HTML, e o enquadramento só garante que a MALHA cabe.
+         Preso ao ponto sem limite, ele saía pela borda do cartão em parte
+         dos ângulos. Aqui ele para na borda. */
+      var meia = marcador.offsetWidth / 2 + 10;
+      var meiaA = marcador.offsetHeight / 2 + 10;
+      var px = Math.min(Math.max(s[0] * caixa.width, meia), caixa.width - meia);
+      var py = Math.min(Math.max(s[1] * caixa.height, meiaA), caixa.height - meiaA);
+      marcador.style.left = px.toFixed(1) + 'px';
+      marcador.style.top = py.toFixed(1) + 'px';
+      /* Some quando a âncora dá a volta para trás da arcada. O eixo que
+         aponta para quem olha é (-sen, cos), o mesmo de `giroPara`: com o
+         sinal do x trocado, o rótulo sumia justamente quando a região
+         estava de frente. */
+      var n = Math.sqrt(a.p[0] * a.p[0] + a.p[2] * a.p[2]);
       var atras = false;
-      if (!a.dentro) {
-        var n = Math.sqrt(a.p[0] * a.p[0] + a.p[2] * a.p[2]) || 1;
+      if (n > 0.05) {
         var dx = a.p[0] / n, dz = a.p[2] / n;
-        atras = (dx * Math.sin(giroY) + dz * Math.cos(giroY)) < -0.1;
+        atras = (-dx * Math.sin(giroY) + dz * Math.cos(giroY)) < -0.25;
       }
       marcador.classList.toggle('on', !atras);
     }
@@ -472,7 +912,7 @@
         alvo.open = true;
       }
       if (marcador) {
-        var rot = raiz.querySelector('[data-parte="' + parte + '"]');
+        var rot = document.querySelector('[data-parte="' + parte + '"]');
         marcador.textContent = rot ? (rot.getAttribute('data-curto') || '') : '';
       }
       var a = ANCORAS[parte];

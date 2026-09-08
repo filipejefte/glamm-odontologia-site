@@ -96,7 +96,7 @@ mudou aqui:
 - **Um nome só.** "Glamm Odontologia" em todo lugar. O diagnóstico encontrou três
   nomes públicos disputando a mesma identidade: Glamm no CNPJ e nos anúncios,
   Dra. Gabriela Tukasan no Google e no domínio, os dois no Instagram. O nome
-  anterior aparece uma vez, na página de equipe, ligando as duas identidades sem
+  anterior aparece uma vez, na seção de equipe, ligando as duas identidades sem
   competir com a marca (`alternateName` no JSON-LD faz o mesmo para a máquina).
 - **Uma página só, com âncora por seção e por tratamento.** É decisão do cliente,
   e ela tem custo: perdem-se as URLs por tratamento e por cidade, que são as que
@@ -120,33 +120,67 @@ mudou aqui:
 
 ---
 
-## O dente que gira
+## A arcada que gira
 
-Na página de tratamentos, uma seção mostra um dente em três dimensões e liga
-cada tratamento à parte do dente em que ele atua. Escolher "Polpa e canais"
-deixa a casca translúcida e revela a câmara pulpar e os dois canais.
+No cartão do topo, uma arcada dentária em três dimensões gira devagar, e a lista
+de tratamentos logo abaixo acende a região em que cada um atua: as facetas nos
+seis da frente, a ortodontia na arcada inteira, a periodontia na gengiva, o
+implante numa falha — a arcada tem um segundo pré-molar faltando de propósito, e
+o pino só aparece quando o implante é o tratamento escolhido.
+
+**Era um dente solto e virou uma arcada.** O dente único lia como peça de
+laboratório: dava para pôr um ponto na raiz e outro na coroa, e acabava aí. A
+arcada é o que faz a peça dizer alguma coisa, porque tratamento age em região.
 
 **Sem biblioteca e sem arquivo de modelo.** O caminho comum seria Three.js mais
-um GLB: cerca de 1,6 MB entre biblioteca, carregador e malha, contra os 182 KB
-do site inteiro. Aqui a malha é gerada em tempo de execução, por três sólidos de
-revolução, e desenhada em WebGL 1 puro. Custo total: **7,4 KB comprimidos**, e
-nenhuma licença de terceiro a respeitar. A malha é facetada de propósito, porque
-é o que conversa com o símbolo da marca, que é um dente lapidado.
+um GLB: cerca de 1,6 MB entre biblioteca, carregador e malha. Aqui os cerca de
+8 mil triângulos são gerados em tempo de execução e desenhados em WebGL 1 puro,
+sem nenhuma licença de terceiro a respeitar. A malha sai facetada de propósito,
+porque é o que conversa com o símbolo da marca, que é um dente lapidado.
+
+**As proporções são medidas, não estimadas.** As larguras, espessuras e alturas
+de coroa estão no código em milímetros, na faixa média da dentição superior
+permanente adulta, e entram na curva por comprimento de arco: o meio-arco é
+integrado, a soma das larguras é ajustada a ele, e cada coroa cai no seu ponto.
+É isso que faz os dentes se tocarem em vez de virarem um colar de contas. O
+arquivo resultante tem 59 mm de largura por 39 de fundo, que é arcada de gente.
+
+**Três erros que só a medição pegou**, e que ficam registrados porque são o tipo
+de coisa que volta:
+
+- Os eixos da coroa estavam trocados: a largura mésio-distal ia para o eixo que
+  aponta para fora da boca e a espessura ia para o eixo do arco. Cada dente
+  ocupava, ao longo da curva, só a sua espessura, e o milímetro que sobrava
+  virava uma fenda preta entre um dente e o outro. Nas capturas parecia problema
+  de gengiva; era de eixo.
+- O referencial local apontava para dentro da arcada, então o tombamento
+  inclinava a coroa para o palato e a cunha alargava a face errada.
+- O realce acendia uma região por chamada de desenho, e a arcada era desenhada
+  de novo para cada região. Com o teste de profundidade em MENOR, o segundo
+  desenho tinha profundidade IGUAL e era descartado inteiro: a ortodontia, que
+  acende tudo, acendia só a gengiva, em silêncio. Agora são quatro regiões numa
+  chamada só.
+
+**O enquadramento é calculado, não escolhido.** Uma peça que gira não tem a
+silhueta da caixa que a envolve, e a perspectiva ainda engorda o que está mais
+perto: a versão com altura e largura digitadas à mão cortava a arcada na
+direita. Agora uma busca binária procura a menor distância de câmera em que todo
+vértice, em todos os ângulos de giro, cai dentro do quadro com margem. Roda uma
+vez por proporção de tela e fica guardada.
 
 **A peça é um acréscimo, nunca o caminho.** O que comanda são os botões da
 lista, que são HTML de verdade e funcionam pelo teclado. A tela é `aria-hidden`.
-Sem WebGL, sem JavaScript, ou com o arquivo bloqueado, a seção continua sendo
-uma lista dos sete tratamentos com links que levam às páginas certas, e a grade
-completa de tratamentos está logo acima na mesma página.
+Sem WebGL, sem JavaScript, ou com o arquivo bloqueado, a seção continua sendo a
+lista dos sete tratamentos, cada um abrindo o texto completo no mesmo lugar.
 
 **No celular:** a inicialização só acontece quando a seção se aproxima da tela,
 o desenho para quando ela sai, a resolução é limitada a duas vezes a do
 dispositivo, e o palco declara `touch-action: pan-y`, que é o que garante que o
-gesto vertical continua rolando a página em vez de girar o dente. Com
+gesto vertical continua rolando a página em vez de girar a arcada. Com
 `prefers-reduced-motion` não há rotação automática nem transição de virada.
 
 Abrir a página com `#endodontia`, ou qualquer outro identificador de tratamento,
-já seleciona aquela parte.
+já seleciona aquela região.
 
 ---
 
@@ -154,35 +188,42 @@ já seleciona aquela parte.
 
 Medido sobre os arquivos gerados, com gzip, que é o que o GitHub Pages serve.
 O site é uma página só e carrega TUDO: os sete tratamentos com o texto completo,
-as duas unidades, as 29 perguntas e o dente em três dimensões.
+as duas unidades, as perguntas frequentes e a arcada em três dimensões.
 
 | | bruto | gzip |
 |---|---|---|
-| A página inteira, com tudo que ela carrega | 250 KB | **120 KB** |
-| Só o dente 3D | 24 KB | **8 KB** |
-| As duas fontes | 57 KB | 57 KB (já comprimidas) |
+| `index.html`, com os sete tratamentos por extenso | 100 KB | **21 KB** |
+| Folha de estilo | 40 KB | **9 KB** |
+| Scripts, dos quais a arcada é a maior parte | 55 KB | **18 KB** |
+| A fonte, recortada | 23 KB | 23 KB (já comprimida) |
+| Os dois logotipos | 36 KB | 36 KB (já comprimidos) |
+| **Tudo somado** | **255 KB** | **108 KB** |
 
-Das 120 KB, 57 KB são as fontes, que não encolhem mais. O HTML de
-99 KB, com o conteúdo dos sete tratamentos por
-extenso, vira 21 KB.
+Mais da metade do que sobra depois da compressão são a fonte e os dois
+logotipos, que não encolhem mais. O logotipo do rodapé é `loading="lazy"`, então
+o primeiro desenho não espera por ele.
+
+Os 46 KB brutos do `dente3d.js` são, em boa parte, comentário: o arquivo explica
+a geometria e os erros que ela já teve. Não é minificado de propósito — o
+projeto não tem etapa de build para os assets, e o custo real, depois do gzip,
+são 16 KB.
 
 O que sustenta isso: nenhuma biblioteca, nenhum framework, nenhum recurso de
-terceiro, nenhum rastreador, fontes recortadas para os caracteres que o site
+terceiro, nenhum rastreador, fonte recortada para os caracteres que o site
 escreve, `width` e `height` em toda imagem (o verificador recusa sem), logotipo
-do cabeçalho com `fetchpriority="high"` e o do rodapé com `loading="lazy"`.
+do cabeçalho com `fetchpriority="high"`.
 
 Varredura de transbordamento horizontal, em navegador de verdade e por iframe
-nas larguras reais: **320, 360, 375 e 414 px, zero casos**. Os únicos elementos
-mais largos que a tela são o halo e o símbolo do hero, que sangram de propósito
-dentro de um `overflow: hidden`, e a tabela comparativa das unidades, que rola
-dentro do próprio quadro.
+nas larguras reais: **320, 360, 375 e 414 px, zero casos.**
 
 > **Captura de tela em largura de celular:** o Chrome headless nesta máquina tem
 > largura mínima de layout de **500 px**. Pedir `--window-size=430` devolve uma
 > imagem de 430 px, mas a página foi diagramada a 500 e recortada, o que já me
 > fez "achar" um botão cortado que no navegador real não estava. Para largura de
 > celular, usar iframe num navegador de verdade. O script de captura recusa
-> largura abaixo de 500.
+> largura abaixo de 500. O mesmo navegador **repete o conteúdo a partir de
+> 8192 px de altura de janela**: uma captura de página inteira mais alta que
+> isso volta com o começo colado de novo no fim, sem erro nenhum.
 
 ---
 
@@ -199,6 +240,11 @@ dentro do próprio quadro.
   ambiente de trabalho, incluindo `tools/` e `.github/`, que também são públicos.
   Os identificadores pessoais ficam em `interno/identificadores.txt`, que o
   `.gitignore` segura, para o próprio verificador não publicar o que procura.
+
+O verificador também recusa **classe de estilo sem dono**: regra na folha que não
+estiliza nada em nenhuma página. Não quebra nada, então ninguém vê — só engorda o
+arquivo que todo visitante baixa. A regra entrou depois de uma reforma de layout
+deixar cinco para trás, e foi provada plantando uma sexta.
 
 ### Cabeçalhos que faltam, e por quê
 
@@ -241,29 +287,32 @@ As cores foram **medidas, não escolhidas**:
 | Ouro escuro | `#A38434` | parada do gradiente declarada nos SVG do site da clínica |
 | Ouro claro | `#D2AF57` | a outra parada do mesmo gradiente |
 
-O ouro da marca dá 3,36:1 sobre o creme: serve para filete, símbolo e título
-grande, e **não** serve para texto pequeno. Por isso existe `#7D6425`, o mesmo
-tom escurecido, com 5,33:1. Todos os pares de cor foram calculados antes de
-entrar na folha.
+O que a folha de estilo faz com essas três cores está logo abaixo.
 
-### Por que o site é escuro
+### Por que o fundo é claro e o ouro é forma
 
-O ouro da marca não cabe num fundo claro. Medido: `#A38434` sobre creme dá
-3,36:1 e o `#D2AF57` dá **1,98:1**, ou seja, vira mostarda apagada e só serve
-para filete. Sobre o `#12141B` deste site, o mesmo `#D2AF57` dá **8,77:1**: lê
-como ouro de verdade e pode carregar título, número e rótulo. A marca é dourada,
-e ela pede fundo escuro. O claro entra em três seções, para dar respiro.
+O ouro da marca **não carrega texto sobre fundo claro**: `#D2AF57` sobre creme
+dá 1,98:1, e mesmo o `#A38434` só chega a 3,36:1. A leitura fácil disso seria
+fazer o site escuro, e foi o que uma versão anterior fez. Mas escuro ficou sério
+demais para uma marca chamada Glamm, e o cliente disse isso.
 
-O texto grande usa o gradiente literal da marca, o mesmo declarado nos SVG que a
-clínica publica, recortado no texto. A cor cheia vem antes e o recorte só entra
-sob `@supports`: sem isso, um navegador que não recorte fundo no texto mostraria
-texto transparente.
+A saída é a mesma que a referência de design usa com o laranja dela: o ouro
+entra como **forma preenchida**, não como cor de texto. O disco de acento, os
+botões, os realces do modelo — todos com tinta escura por cima, que dá 8,47:1. E
+onde o ouro precisa mesmo virar texto sobre o claro, existe `#7A5F1F`, o mesmo
+tom escurecido, com 4,68:1.
 
-Tipografia: **Bodoni Moda** para display e **Karla** para texto, as duas
-variáveis, sob SIL Open Font License, com o texto da licença em `assets/fonts/`.
-A Bodoni é uma didone, e o eixo óptico fica ligado (`font-optical-sizing: auto`):
-os traços finos afinam conforme o corpo cresce, que é exatamente o que o
-manuscrito do logotipo faz.
+Todos os pares foram **medidos no navegador**, sobre o que a página realmente
+desenha, e não estimados na folha de estilo. Foi assim que apareceram os dois
+únicos casos abaixo do mínimo: a dica "arraste para girar", que dava 3,6:1
+porque o fundo dela é gradiente e a conta a olho não via isso, e o contorno dos
+campos do formulário, que cumpria 3:1 contra o branco de dentro mas não contra o
+papel de fora — e a WCAG 1.4.11 pede contra os dois vizinhos.
+
+Tipografia: **Hanken Grotesk**, variável, uma família só, sob SIL Open Font
+License, com o texto da licença em `assets/fonts/`. Peso 800 nos títulos e 400
+no texto: o contraste vem do peso e do corpo, não de misturar duas fontes. A
+versão anterior usava duas famílias e custava 57 KB; esta custa 23 KB.
 
 ---
 
@@ -295,8 +344,8 @@ src/chrome.mjs          casca: head, cabeçalho, rodapé, ícones, marca
 src/paginas.mjs         a página única, mais privacidade e erro
 tools/check.mjs         verificação estática
 tools/fontes.mjs        recorte das fontes
-tools/imagens.py        ícones, grão e imagem de compartilhamento
-assets/js/dente3d.js    o dente em WebGL, sem biblioteca
+tools/imagens.py        ícones e imagem de compartilhamento
+assets/js/dente3d.js    a arcada em WebGL, sem biblioteca
 assets/                 css, js, fontes, imagens
 interno/                material de trabalho, fora do repositório
 ```

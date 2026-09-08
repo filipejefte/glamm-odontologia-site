@@ -51,8 +51,8 @@ writeFileSync(join(RAIZ, 'site.webmanifest'), JSON.stringify({
   start_url: './',
   scope: './',
   display: 'browser',
-  background_color: '#12141B',
-  theme_color: '#12141B',
+  background_color: '#E7E2DA',
+  theme_color: '#E7E2DA',
   icons: [
     { src: 'assets/img/icone-192.png', sizes: '192x192', type: 'image/png' },
     { src: 'assets/img/icone-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },

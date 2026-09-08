@@ -101,7 +101,7 @@ export const simbolo = (classe = 'simbolo') =>
    ODONTOLOGIA na ardósia da marca, a de fundo escuro é o arquivo como a
    clínica publica. O manuscrito em ouro é idêntico nas duas, pixel a pixel.
    Proporção 800 por 262. */
-export const logo = ({ base = '', variante = 'clara', classe = 'logo', alt = CLINICA.nome, tardio = false } = {}) =>
+export const logo = ({ base = '', variante = 'escura', classe = 'logo', alt = CLINICA.nome, tardio = false } = {}) =>
   `<img class="${classe}" src="${base}assets/img/marca-glamm${variante === 'clara' ? '-clara' : ''}.webp" width="800" height="262" alt="${esc(alt)}" decoding="async"${tardio ? ' loading="lazy"' : ' fetchpriority="high"'}>`;
 
 /* ------------------------------------------------------------------ */
@@ -122,6 +122,8 @@ export const ICO = {
   local: svg('<path d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/>'),
   relogio: svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.3V12l3.1 1.9"/>'),
   seta: svg('<path d="M5 12h13m-5.5-5.5L18.5 12l-6 5.5"/>'),
+  /* Seta na diagonal, para o disco de acento do hero. */
+  setaDiag: svg('<path d="M7.5 7.5h9v9M7.5 16.5l9-9"/>'),
   check: svg('<path d="M4.5 12.6 9.5 17.5 19.5 6.5"/>'),
   alerta: svg('<path d="M12 3.7 21.2 19.4H2.8Z"/><path d="M12 10v4"/><circle cx="12" cy="16.9" r=".9" fill="currentColor" stroke="none"/>'),
   menu: svg('<path d="M4 7h16M4 12h16M4 17h16"/>'),
@@ -249,7 +251,7 @@ function rodape(p, ctx) {
   <div class="env">
     <div class="rp-grade">
       <div class="rp-marca">
-        ${logo({ base: b, classe: 'logo logo-rodape', tardio: true })}
+        ${logo({ base: b, variante: 'clara', classe: 'logo logo-rodape', tardio: true })}
         <p class="rp-tagline">${esc(CLINICA.assinatura)} em Marília e Garça, interior de São Paulo.</p>
         <p class="rp-social">
           <a href="${esc(CLINICA.instagramUrl)}" target="_blank" rel="noopener noreferrer">Instagram @${esc(CLINICA.instagram)}</a>
@@ -335,7 +337,7 @@ export function shell({ p, ctx, body, ld }) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="${CSP}">
 <meta name="referrer" content="no-referrer">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="light">
 <title>${esc(titulo)}</title>
 <meta name="description" content="${esc(p.descricao)}">
 <meta name="robots" content="${ctx.preview ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1'}">
@@ -351,13 +353,12 @@ export function shell({ p, ctx, body, ld }) {
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="${esc(CLINICA.nome)}, clínica odontológica em Marília e Garça, São Paulo">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#12141B">
+<meta name="theme-color" content="#E7E2DA">
 <link rel="icon" type="image/png" sizes="32x32" href="${b}assets/img/icone-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="${b}assets/img/icone-192.png">
 <link rel="apple-touch-icon" href="${b}assets/img/icone-180.png">
 <link rel="manifest" href="${b}site.webmanifest">
-<link rel="preload" as="font" type="font/woff2" href="${b}assets/fonts/karla.woff2" crossorigin>
-<link rel="preload" as="font" type="font/woff2" href="${b}assets/fonts/bodoni.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="${b}assets/fonts/hanken.woff2" crossorigin>
 <link rel="stylesheet" href="${b}assets/css/site.css">
 ${jsonld}
 </head>

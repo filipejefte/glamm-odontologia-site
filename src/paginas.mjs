@@ -183,16 +183,48 @@ export function inicio(ctx) {
 
   const body = `
 <section class="hero" id="topo">
-  <div class="hero-fundo" aria-hidden="true">
-    <span class="hero-halo"></span>
-    ${simbolo('simbolo simbolo-fundo')}
-  </div>
-  <div class="env hero-conteudo">
-    <p class="eyebrow">Marília e Garça, São Paulo</p>
-    <h1><span class="ouro">Odontologia que explica</span><br>antes de tratar.</h1>
-    <p class="hero-sub">Avaliação completa, plano de tratamento por escrito e sete áreas de tratamento na mesma clínica.</p>
-    ${botoesUnidades('hero-acoes')}
-    <p class="hero-nota">Atendimento particular, sem convênio. A primeira consulta é de avaliação e leva de 40 a 60 minutos.</p>
+  <div class="env hero-grade">
+
+    <div class="hero-texto">
+      <p class="etiqueta">
+        <span class="etiqueta-fio" aria-hidden="true"></span>
+        <span class="etiqueta-disco" aria-hidden="true">${ICO.seta}</span>
+        <span class="etiqueta-txt">Atendimento particular em <b>Marília e Garça</b></span>
+      </p>
+
+      <h1>Odontologia<br>que explica<br>antes de tratar.</h1>
+
+      ${botoesUnidades('hero-acoes')}
+
+      <div class="cartao cartao-numero">
+        <p class="numero-n">40 a 60 <span>min</span></p>
+        <p class="numero-l">A consulta de avaliação, com plano de tratamento por escrito</p>
+        <span class="numero-onda" aria-hidden="true"></span>
+      </div>
+    </div>
+
+    <div class="hero-colagem">
+      <div class="cartao cartao-rotulo">
+        <span class="rotulo-grade" aria-hidden="true"></span>
+        <p>Cada tratamento age numa parte específica do dente</p>
+      </div>
+
+      <a class="disco-acento" href="#tratamentos" aria-label="Ir para os tratamentos">${ICO.setaDiag}</a>
+
+      <div class="cartao cartao-3d" data-dente>
+        <div class="dente-palco">
+          <canvas class="dente-tela" aria-hidden="true"></canvas>
+          <span class="dente-marcador" aria-hidden="true"></span>
+          <p class="dente-dica" aria-hidden="true">Arraste para girar</p>
+        </div>
+      </div>
+
+      <div class="canto-numero">
+        <p class="canto-n">07</p>
+        <p class="canto-l">Tratamentos</p>
+      </div>
+
+    </div>
   </div>
 </section>
 
@@ -211,16 +243,11 @@ export function inicio(ctx) {
 ${secao({
   id: 'tratamentos',
   eyebrow: 'Onde cada tratamento atua',
-  titulo: 'Um dente,<br>sete lugares',
-  intro: 'Quase todo tratamento odontológico age numa parte específica do dente. Gire o dente, escolha uma parte, e o tratamento correspondente abre logo abaixo.',
+  titulo: 'Sete tratamentos,<br>sete lugares',
+  intro: 'Escolha uma parte da arcada e a região correspondente acende no modelo lá em cima. O tratamento abre logo abaixo.',
   classe: 'sec-dente',
   corpo: `
-  <div class="dente-grade" data-dente>
-    <div class="dente-palco">
-      <canvas class="dente-tela" aria-hidden="true"></canvas>
-      <span class="dente-marcador" aria-hidden="true"></span>
-      <p class="dente-dica" aria-hidden="true">Arraste para girar</p>
-    </div>
+  <div class="dente-grade">
     <ul class="dente-partes">
       ${TRATAMENTOS.map(t => `
       <li>
@@ -285,7 +312,7 @@ ${secao({
   id: 'a-clinica',
   eyebrow: 'A clínica',
   titulo: 'Uma clínica,<br>duas cidades',
-  classe: 'sec-clinica',
+  classe: 'sec-clinica sec-dupla',
   corpo: `
   <ul class="razoes">
     ${razoes.map(r => `
@@ -348,26 +375,7 @@ ${secao({
   classe: 'sec-unidades',
   corpo: `
   <div class="unid-grade">${UNIDADES.map(cartaoUnidade).join('')}</div>
-
-  <div class="tabela-rolagem">
-    <table class="tabela">
-      <caption class="sr">Comparação entre as unidades de Marília e Garça</caption>
-      <thead>
-        <tr><th scope="col">&nbsp;</th>${UNIDADES.map(u => `<th scope="col">${esc(u.cidade)}</th>`).join('')}</tr>
-      </thead>
-      <tbody>
-        <tr><th scope="row">Endereço</th>${UNIDADES.map(u => `<td>${esc(u.enderecoLinha)}<br>${esc(u.bairro)}</td>`).join('')}</tr>
-        <tr><th scope="row">Referência</th>${UNIDADES.map(u => `<td>${esc(u.referencia)}</td>`).join('')}</tr>
-        <tr><th scope="row">Telefone e WhatsApp</th>${UNIDADES.map(u => `<td><a href="tel:+${esc(u.e164)}">${esc(u.telefone)}</a></td>`).join('')}</tr>
-        <tr><th scope="row">Dias de semana</th>${UNIDADES.map(u => `<td>${u.horarios.filter(h => h.dias !== 'Sábado').map(h => `${esc(h.dias)}, ${esc(hora(h.abre))} às ${esc(hora(h.fecha))}`).join('<br>')}</td>`).join('')}</tr>
-        <tr><th scope="row">Sábado</th>${UNIDADES.map(u => {
-          const s = u.horarios.find(h => h.dias === 'Sábado');
-          return `<td>${s ? `${esc(hora(s.abre))} às ${esc(hora(s.fecha))}` : 'Não atende'}</td>`;
-        }).join('')}</tr>
-        <tr><th scope="row">Tratamentos</th>${UNIDADES.map(() => '<td>Todos os sete</td>').join('')}</tr>
-      </tbody>
-    </table>
-  </div>`
+`
 })}
 
 ${secao({
@@ -375,11 +383,11 @@ ${secao({
   eyebrow: 'Dúvidas frequentes',
   titulo: 'Perguntas que<br>todo mundo faz',
   intro: 'O que mais se pergunta antes da primeira consulta. As dúvidas sobre cada procedimento estão dentro do tratamento correspondente, mais acima.',
-  classe: 'sec-clara',
+  classe: 'sec-clara sec-dupla',
   corpo: listaDuvidas(DUVIDAS)
 })}
 
-<section class="sec sec-agendar" id="agendar">
+<section class="sec sec-agendar sec-dupla" id="agendar">
   <div class="env">
     <header class="sec-cabeca">
       <p class="eyebrow">Agendar</p>
@@ -457,7 +465,7 @@ ${secao({
       scripts: ['assets/js/dente3d.js'],
       titulo: 'Início',
       tituloCompleto: `${CLINICA.nome} | Dentista em Marília e Garça SP`,
-      descricao: 'Clínica odontológica em Marília e Garça, São Paulo. Lentes e facetas, ortodontia, implante e prótese, clareamento, endodontia e periodontia. Atendimento particular, com avaliação completa e plano de tratamento por escrito.'
+      descricao: 'Clínica odontológica em Marília e Garça, SP. Lentes e facetas, ortodontia, implante, clareamento, endodontia e periodontia. Atendimento particular, com plano por escrito.'
     },
     ld: grafo([
       clinicaLd(),
@@ -494,7 +502,7 @@ export function privacidade(ctx) {
 ${secao({
   classe: 'sec-clara',
   corpo: `
-  <div class="prosa prosa-larga">
+  <div class="prosa prosa-larga prosa-centro">
     <h2>Este site não coleta dados</h2>
     <p>Não há formulário que envie informação para lugar nenhum, não há cadastro, não há login e não há comentário. O agendamento monta um texto dentro do seu próprio aparelho e abre o WhatsApp com ele escrito. Enquanto você não tocar em enviar, dentro do WhatsApp, nada saiu de onde estava.</p>
 

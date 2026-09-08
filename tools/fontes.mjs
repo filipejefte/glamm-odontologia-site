@@ -6,12 +6,10 @@
    um conjunto base do português e recorta as fontes exatamente nisso. Se
    amanhã a copy ganhar um caractere novo, basta rodar de novo.
 
-   As duas são variáveis e continuam variáveis depois do recorte. Na Karla o
-   eixo de peso dá 400 a 700 num arquivo só. Na Bodoni Moda o eixo que importa
-   é o ÓPTICO: em tamanho grande ele afina os finos e é de onde vem o ar de
-   alto contraste da marca; em tamanho pequeno ele engrossa, e é o que impede
-   o título de sumir. `font-optical-sizing: auto` faz esse mapeamento sozinho,
-   de graça, e por isso o eixo é preservado.
+   É uma família só, variável, e continua variável depois do recorte: o eixo
+   de peso dá 300 a 800 num arquivo. O contraste da página vem do peso e do
+   corpo, não de misturar duas fontes, que é como a referência de design
+   trabalha e é o que deixa a página mais leve.
 
    Fonte hospedada aqui, e não em serviço externo, por dois motivos somados:
    a CSP do site não abre para terceiro, e a página de privacidade promete
@@ -66,8 +64,7 @@ function caracteresDoSite() {
 }
 
 const FONTES = [
-  { origem: 'karla-var.ttf', destino: 'karla.woff2', variavel: true },
-  { origem: 'bodoni-var.ttf', destino: 'bodoni.woff2', variavel: true }
+  { origem: 'hanken-var.ttf', destino: 'hanken.woff2', variavel: true }
 ];
 
 const py = (codigo) => execFileSync('python', ['-c', codigo], { encoding: 'utf8' });
