@@ -620,10 +620,20 @@ export const DUVIDAS = [
    6. Navegação
    ------------------------------------------------------------------------- */
 
+/* O site é UMA página. O menu aponta para seções, não para arquivos.
+
+   Vale registrar o que se perde, porque foi decisão consciente: o diagnóstico
+   apontava a página única do site atual como problema, e com ela vão embora as
+   URLs por tratamento e por cidade, que são as que ranqueiam busca de cauda
+   longa ("lente de contato dental em Marília"). O que segura o prejuízo é que
+   todo o conteúdo continua na página, cada seção tem âncora própria e o dado
+   estruturado descreve as duas unidades e os sete tratamentos como entidades.
+   Se um dia as páginas voltarem, o conteúdo já está escrito e separado por
+   tratamento em `TRATAMENTOS`. */
 export const MENU = [
-  { path: 'tratamentos.html', rotulo: 'Tratamentos' },
-  { path: 'unidades.html', rotulo: 'Unidades' },
-  { path: 'a-clinica.html', rotulo: 'A clínica' },
-  { path: 'equipe.html', rotulo: 'Equipe' },
-  { path: 'duvidas.html', rotulo: 'Dúvidas' }
+  { path: '#tratamentos', rotulo: 'Tratamentos' },
+  { path: '#unidades', rotulo: 'Unidades' },
+  { path: '#a-clinica', rotulo: 'A clínica' },
+  { path: '#equipe', rotulo: 'Equipe' },
+  { path: '#duvidas', rotulo: 'Dúvidas' }
 ];

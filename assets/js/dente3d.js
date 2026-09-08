@@ -219,7 +219,7 @@
       '  float esp = pow(max(dot(N, H), 0.0), 34.0) * 0.38;',
       /* luz de contorno em ouro: é ela que amarra o objeto à marca */
       '  float rim = pow(1.0 - max(dot(N, V), 0.0), 3.0);',
-      '  vec3 c = cor * (0.30 + 0.80 * dif + fill) + vec3(esp) + corRim * rim * 1.25;',
+      '  vec3 c = cor * (0.22 + 0.86 * dif + fill) + vec3(esp) + corRim * rim * 1.55;',
       '  gl_FragColor = vec4(c, alfa);',
       '}'
     ].join('\n');
@@ -343,8 +343,8 @@
     var selecionado = null, transparencia = 0;
     var visivel = true, pedido = 0;
 
-    var CREME = [0.957, 0.933, 0.894];
-    var OURO = [0.824, 0.686, 0.341];
+    var CREME = [0.969, 0.949, 0.910];
+    var OURO = [0.878, 0.741, 0.404];
     var CANAL = [0.878, 0.741, 0.404];   /* mais claro que o ouro do contorno: precisa atravessar a casca translucida */
 
     function dimensionar() {
@@ -377,7 +377,7 @@
          inclinação em x a silhueta cresce um pouco, e a perspectiva aumenta o
          que está mais perto. Os valores abaixo já embutem essa folga. Fazendo
          por faixa, o quadro largo e baixo do celular cortava a coroa. */
-      var ALTURA = 1.30, LARGURA = 0.78;
+      var ALTURA = 1.18, LARGURA = 0.70;
       var tanF = Math.tan(0.36);
       var dist = Math.max(ALTURA / tanF, LARGURA / (tanF * aspecto));
       var proj = perspectiva(0.72, aspecto, 0.1, 20);
@@ -462,9 +462,15 @@
         b.setAttribute('aria-pressed', meu ? 'true' : 'false');
         b.classList.toggle('on', meu);
       });
-      raiz.querySelectorAll('[data-painel]').forEach(function (p) {
-        p.hidden = p.getAttribute('data-painel') !== parte;
-      });
+      /* Abre o tratamento correspondente e leva a pessoa até ele. Só quando
+         a escolha foi um gesto: na carga inicial nada rola sozinho. */
+      var alvo = document.getElementById(parte);
+      if (alvo && mover) {
+        document.querySelectorAll('details.trat[open]').forEach(function (d) {
+          if (d !== alvo) { d.open = false; }
+        });
+        alvo.open = true;
+      }
       if (marcador) {
         var rot = raiz.querySelector('[data-parte="' + parte + '"]');
         marcador.textContent = rot ? (rot.getAttribute('data-curto') || '') : '';

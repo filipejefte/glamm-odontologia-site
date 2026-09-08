@@ -25,13 +25,15 @@ FONTES = os.path.join(RAIZ, 'assets', 'fonts')
 # Cores da marca. Medidas na arte oficial, não escolhidas.
 #   ardosia  #4C526A  nucleo do traco do simbolo no icone de 512 px
 #   ouro     #A38434  e  #D2AF57  paradas do gradiente declarado nos SVG
-CREME = (251, 248, 243)
+CREME = (247, 242, 232)
 ARDOSIA = (76, 82, 106)
-ESCURO = (43, 47, 62)
+NOITE = (18, 20, 27)
+CARVAO = (26, 29, 38)
 OURO = (163, 132, 52)
 OURO_CLARO = (210, 175, 87)
-TINTA = (38, 42, 56)
-TINTA_2 = (61, 67, 86)
+OURO_LUZ = (235, 215, 155)
+TINTA = (30, 33, 42)
+TINTA_2 = (74, 79, 94)
 
 # O contorno vem de vetorizar a arte oficial: marching squares no nivel 0.5 do
 # campo de alfa, simplificado por Douglas-Peucker a 0.45 px. Conferido por
@@ -107,14 +109,35 @@ def fonte(nome, tam):
 
 
 def gerar_icones():
+    # Fundo noite, simbolo em ouro: e' a marca no registro do site novo.
     for lado in (32, 180, 192, 512):
-        im = pintar(lado, ARDOSIA, CREME, 0.20)
+        im = pintar(lado, NOITE, OURO_CLARO, 0.20)
         im.save(os.path.join(IMG, f'icone-{lado}.png'))
         print(f'  icone-{lado}.png')
     # Mascarável: a zona segura do Android é o circulo central de 80%, entao
     # o simbolo recua mais e o fundo sangra ate a borda.
-    pintar(512, ARDOSIA, CREME, 0.30).save(os.path.join(IMG, 'icone-mascara.png'))
+    pintar(512, NOITE, OURO_CLARO, 0.30).save(os.path.join(IMG, 'icone-mascara.png'))
     print('  icone-mascara.png')
+
+
+def gerar_grao():
+    """Ladrilho de ruido de 128 px, usado como textura do fundo escuro.
+
+    E' arquivo proprio porque a CSP do site nao permite data URI nem
+    terceiro. Ruido monocromatico de baixa amplitude com alfa: some sobre
+    qualquer cor e so tira o chapado.
+    """
+    # 64 px em tons de cinza com alfa, e nao 128 em RGBA: ruido nao comprime,
+    # entao o que decide o peso e' a contagem de pixels e o numero de canais.
+    # 128 em RGBA dava 25 KB; assim fica perto de 5, com a mesma aparencia.
+    lado = 64
+    rng = np.random.default_rng(20260908)          # semente fixa: build reprodutivel
+    a = np.clip(rng.normal(0.5, 0.30, (lado, lado)), 0, 1)
+    px = np.zeros((lado, lado, 2), np.uint8)
+    px[..., 0] = 255                                # luz branca
+    px[..., 1] = (a * 26).astype(np.uint8)          # alfa e' o ruido
+    Image.fromarray(px, 'LA').save(os.path.join(IMG, 'grao.png'), optimize=True)
+    print(f'  grao.png  {os.path.getsize(os.path.join(IMG, "grao.png"))} bytes')
 
 
 def gerar_og():
@@ -133,28 +156,38 @@ def gerar_og():
     COL_DIR = 812           # onde comeca a area do simbolo
     COL = COL_DIR - MARGEM  # largura util da coluna de texto
 
-    im = Image.new('RGB', (W, H), CREME)
+    im = Image.new('RGB', (W, H), NOITE)
+    d = ImageDraw.Draw(im)
+
+    # Halo quente atras do texto, o mesmo do hero: tira o preto morto.
+    yy, xx = np.mgrid[0:H, 0:W]
+    r = np.sqrt(((xx - 180) / 620.0) ** 2 + ((yy - 130) / 620.0) ** 2)
+    halo = np.clip(1.0 - r, 0, 1) ** 2.2
+    base = np.asarray(im).astype(np.float32)
+    base += halo[..., None] * (np.array(OURO, np.float32) - np.array(NOITE, np.float32)) * 0.42
+    im = Image.fromarray(np.clip(base, 0, 255).astype(np.uint8))
     d = ImageDraw.Draw(im)
 
     # Moldura de filete duplo, o motivo do site.
-    d.rectangle([40, 40, W - 41, H - 41], outline=OURO, width=2)
-    d.rectangle([52, 52, W - 53, H - 53], outline=(228, 220, 206), width=1)
+    d.rectangle([40, 40, W - 41, H - 41], outline=OURO_CLARO, width=2)
+    d.rectangle([52, 52, W - 53, H - 53], outline=(58, 52, 38), width=1)
 
     # Simbolo primeiro, para o texto e os filetes ficarem por cima dele.
     lado = 292
     sx, sy = W - 142 - lado, (H - lado) // 2
     a = mascara(lado, 0.0)[..., None]
     regiao = np.asarray(im.crop((sx, sy, sx + lado, sy + lado))).astype(np.float32)
-    misto = regiao * (1 - a) + np.array(OURO, np.float32) * a
+    misto = regiao * (1 - a * 0.62) + np.array(OURO_CLARO, np.float32) * (a * 0.62)
     im.paste(Image.fromarray(misto.astype(np.uint8)), (sx, sy))
 
-    # Logotipo oficial, na variante de fundo claro.
-    marca = Image.open(os.path.join(IMG, 'marca-glamm.webp')).convert('RGBA')
+    # Logotipo oficial, na variante de fundo escuro: e' o arquivo da clinica
+    # sem retoque nenhum.
+    marca = Image.open(os.path.join(IMG, 'marca-glamm-clara.webp')).convert('RGBA')
     larg = 396
     marca = marca.resize((larg, round(marca.height * larg / marca.width)), Image.LANCZOS)
     im.paste(marca, (MARGEM - 6, 90), marca)
 
-    f_titulo = fonte('spectral-600.ttf', 56)
+    f_titulo = fonte('bodoni-var.ttf', 62)
     f_sub = fonte('karla-var.ttf', 24)
     f_peq = fonte('karla-var.ttf', 21)
 
@@ -168,16 +201,16 @@ def gerar_og():
 
     # Grade vertical fixa. Cada bloco tem lugar marcado e nao empurra o
     # seguinte, entao nao existe colisao possivel por texto mais longo.
-    escrever(MARGEM, 258, 'Odontologia em', f_titulo, ARDOSIA)
-    escrever(MARGEM, 322, 'Marília e Garça', f_titulo, ARDOSIA)
+    escrever(MARGEM, 252, 'Odontologia em', f_titulo, OURO_CLARO)
+    escrever(MARGEM, 322, 'Marília e Garça', f_titulo, OURO_CLARO)
 
-    d.line([(MARGEM + 1, 414), (MARGEM + 75, 414)], fill=OURO, width=2)
+    d.line([(MARGEM + 1, 418), (MARGEM + 75, 418)], fill=OURO_CLARO, width=2)
 
-    escrever(MARGEM, 440, 'Atendimento particular, com plano por escrito.', f_sub, TINTA_2)
+    escrever(MARGEM, 444, 'Atendimento particular, com plano por escrito.', f_sub, (201, 195, 184))
 
-    d.line([(MARGEM + 1, 506), (COL_DIR, 506)], fill=(228, 220, 206), width=1)
-    escrever(MARGEM, 522, 'Marília  ·  Rua Marrei Júnior, 49, Fragata', f_peq, TINTA)
-    escrever(MARGEM, 552, 'Garça  ·  Rua Voluntários de 32, 147, Williams', f_peq, TINTA)
+    d.line([(MARGEM + 1, 506), (COL_DIR, 506)], fill=(48, 44, 36), width=1)
+    escrever(MARGEM, 522, 'Marília  ·  Rua Marrei Júnior, 49, Fragata', f_peq, CREME)
+    escrever(MARGEM, 552, 'Garça  ·  Rua Voluntários de 32, 147, Williams', f_peq, CREME)
 
     if largo:
         raise SystemExit('Texto transbordando a coluna do card:\n  ' + '\n  '.join(largo))
@@ -189,5 +222,6 @@ def gerar_og():
 if __name__ == '__main__':
     print('Ícones:')
     gerar_icones()
+    gerar_grao()
     print('Compartilhamento:')
     gerar_og()

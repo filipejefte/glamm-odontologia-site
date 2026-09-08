@@ -98,18 +98,25 @@ mudou aqui:
   Dra. Gabriela Tukasan no Google e no domínio, os dois no Instagram. O nome
   anterior aparece uma vez, na página de equipe, ligando as duas identidades sem
   competir com a marca (`alternateName` no JSON-LD faz o mesmo para a máquina).
-- **URL por unidade e por tratamento.** O site atual é página única: tudo mora em
-  `/`, sem rota por cidade nem por tratamento. Aqui são 18 páginas, cada uma com
-  title, description e dado estruturado próprios.
-- **JSON-LD em todas as páginas.** `Dentist` por unidade, com endereço completo,
-  telefone próprio e `openingHoursSpecification`; `parentOrganization` ligando as
-  duas à mesma marca; `MedicalWebPage` mais `MedicalProcedure` por tratamento;
-  `FAQPage`; `BreadcrumbList`.
+- **Uma página só, com âncora por seção e por tratamento.** É decisão do cliente,
+  e ela tem custo: perdem-se as URLs por tratamento e por cidade, que são as que
+  pegam busca de cauda longa ("lente de contato dental em Marília"). O que segura
+  o prejuízo é que todo o conteúdo continua na página, cada tratamento fica dentro
+  de um `<details>` (portanto no HTML, indexável), e o dado estruturado descreve
+  as duas unidades e os sete tratamentos como entidades com `@id` próprio.
+  O conteúdo segue separado por tratamento em `src/dados.mjs`: se as páginas
+  voltarem, é só voltar a gerá-las.
+- **JSON-LD completo.** `Dentist` por unidade, com endereço, telefone próprio e
+  `openingHoursSpecification`; `parentOrganization` ligando as duas à mesma marca;
+  um `MedicalProcedure` por tratamento, com `bodyLocation`; `FAQPage` com as 29
+  perguntas; `WebSite`.
 - **`llms.txt`** na raiz, com a entidade em texto puro. Enquanto o site estiver em
   prévia, a primeira linha do arquivo avisa que não é o canal oficial da clínica.
   `tools/check.mjs` derruba a verificação se essa coerência se perder.
 - **Nome, endereço e telefone idênticos** em todas as superfícies, sempre lidos de
   `src/dados.mjs`.
+- **Âncoras estáveis**: `#implante-e-protese`, `#garca`, `#agendar` e as demais
+  funcionam como endereço direto e podem ser mandadas por WhatsApp.
 
 ---
 
@@ -145,25 +152,37 @@ já seleciona aquela parte.
 
 ## Desempenho
 
-Medido sobre os arquivos gerados, com gzip que é o que o GitHub Pages serve:
+Medido sobre os arquivos gerados, com gzip, que é o que o GitHub Pages serve.
+O site é uma página só e carrega TUDO: os sete tratamentos com o texto completo,
+as duas unidades, as 29 perguntas e o dente em três dimensões.
 
 | | bruto | gzip |
 |---|---|---|
-| Página inicial, tudo que ela carrega | 186 KB | **108 KB** |
-| Página de tratamentos, com o dente 3D | 195 KB | **114 KB** |
-| Só o dente 3D | 21 KB | **7,4 KB** |
+| A página inteira, com tudo que ela carrega | 250 KB | **120 KB** |
+| Só o dente 3D | 24 KB | **8 KB** |
+| As duas fontes | 57 KB | 57 KB (já comprimidas) |
 
-Das 108 KB da home, 53 KB são as três fontes, que já vêm comprimidas e não
-encolhem mais. O HTML de 50 KB vira 8,6 KB.
+Das 120 KB, 57 KB são as fontes, que não encolhem mais. O HTML de
+99 KB, com o conteúdo dos sete tratamentos por
+extenso, vira 21 KB.
 
 O que sustenta isso: nenhuma biblioteca, nenhum framework, nenhum recurso de
 terceiro, nenhum rastreador, fontes recortadas para os caracteres que o site
 escreve, `width` e `height` em toda imagem (o verificador recusa sem), logotipo
 do cabeçalho com `fetchpriority="high"` e o do rodapé com `loading="lazy"`.
 
-Varredura de transbordamento horizontal: **11 páginas × 4 larguras (320, 360,
-375 e 414 px), zero casos**. O único elemento mais largo que a tela é a tabela
-comparativa das unidades, que rola dentro do próprio quadro de propósito.
+Varredura de transbordamento horizontal, em navegador de verdade e por iframe
+nas larguras reais: **320, 360, 375 e 414 px, zero casos**. Os únicos elementos
+mais largos que a tela são o halo e o símbolo do hero, que sangram de propósito
+dentro de um `overflow: hidden`, e a tabela comparativa das unidades, que rola
+dentro do próprio quadro.
+
+> **Captura de tela em largura de celular:** o Chrome headless nesta máquina tem
+> largura mínima de layout de **500 px**. Pedir `--window-size=430` devolve uma
+> imagem de 430 px, mas a página foi diagramada a 500 e recortada, o que já me
+> fez "achar" um botão cortado que no navegador real não estava. Para largura de
+> celular, usar iframe num navegador de verdade. O script de captura recusa
+> largura abaixo de 500.
 
 ---
 
@@ -227,9 +246,24 @@ grande, e **não** serve para texto pequeno. Por isso existe `#7D6425`, o mesmo
 tom escurecido, com 5,33:1. Todos os pares de cor foram calculados antes de
 entrar na folha.
 
-Tipografia: **Spectral** (400 e 600) para display e **Karla** (variável, 400 a
-700) para texto, as duas sob SIL Open Font License, com o texto da licença em
-`assets/fonts/`.
+### Por que o site é escuro
+
+O ouro da marca não cabe num fundo claro. Medido: `#A38434` sobre creme dá
+3,36:1 e o `#D2AF57` dá **1,98:1**, ou seja, vira mostarda apagada e só serve
+para filete. Sobre o `#12141B` deste site, o mesmo `#D2AF57` dá **8,77:1**: lê
+como ouro de verdade e pode carregar título, número e rótulo. A marca é dourada,
+e ela pede fundo escuro. O claro entra em três seções, para dar respiro.
+
+O texto grande usa o gradiente literal da marca, o mesmo declarado nos SVG que a
+clínica publica, recortado no texto. A cor cheia vem antes e o recorte só entra
+sob `@supports`: sem isso, um navegador que não recorte fundo no texto mostraria
+texto transparente.
+
+Tipografia: **Bodoni Moda** para display e **Karla** para texto, as duas
+variáveis, sob SIL Open Font License, com o texto da licença em `assets/fonts/`.
+A Bodoni é uma didone, e o eixo óptico fica ligado (`font-optical-sizing: auto`):
+os traços finos afinam conforme o corpo cresce, que é exatamente o que o
+manuscrito do logotipo faz.
 
 ---
 
@@ -258,10 +292,13 @@ no verificador.
 build.mjs               gerador
 src/dados.mjs           fonte única de verdade
 src/chrome.mjs          casca: head, cabeçalho, rodapé, ícones, marca
-src/paginas.mjs         as 18 páginas e o JSON-LD
+src/paginas.mjs         a página única, mais privacidade e erro
 tools/check.mjs         verificação estática
 tools/fontes.mjs        recorte das fontes
-tools/imagens.py        ícones e imagem de compartilhamento
+tools/imagens.py        ícones, grão e imagem de compartilhamento
+assets/js/dente3d.js    o dente em WebGL, sem biblioteca
 assets/                 css, js, fontes, imagens
 interno/                material de trabalho, fora do repositório
 ```
+
+Três arquivos HTML: `index.html` (o site), `privacidade.html` e `404.html`.

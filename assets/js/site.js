@@ -3,7 +3,8 @@
 
    1. O menu no celular.
    2. A mensagem de agendamento, montada no aparelho de quem está lendo.
-   3. Abrir as perguntas antes de imprimir.
+   3. Marcar no menu qual seção está na tela.
+   4. Abrir as perguntas antes de imprimir.
 
    Nada aqui revela conteúdo. Nenhum bloco da página depende deste arquivo
    para aparecer: se o script não carregar, o site continua inteiro e o
@@ -128,7 +129,52 @@
   }
 
   /* ---------------------------------------------------------------- */
-  /* 3. Imprimir com as perguntas abertas                             */
+  /* 3. Qual seção está na tela                                       */
+  /* ---------------------------------------------------------------- */
+
+  /* O site é uma página só, então o menu precisa dizer onde a pessoa está.
+     É acréscimo puro: sem script os links continuam levando às âncoras. */
+  var links = [].slice.call(document.querySelectorAll('.topo-nav a[href^="#"]'));
+  if (links.length && 'IntersectionObserver' in window) {
+    var porId = {};
+    var secoes = [];
+    links.forEach(function (a) {
+      var id = a.getAttribute('href').slice(1);
+      var el = document.getElementById(id);
+      if (el) { porId[id] = a; secoes.push(el); }
+    });
+
+    var visiveis = {};
+    var marcar = function () {
+      var atual = null;
+      secoes.forEach(function (el) { if (visiveis[el.id]) { atual = atual || el.id; } });
+      links.forEach(function (a) {
+        var meu = a.getAttribute('href').slice(1) === atual;
+        a.classList.toggle('atual', meu);
+        if (meu) { a.setAttribute('aria-current', 'true'); } else { a.removeAttribute('aria-current'); }
+      });
+    };
+
+    var obs = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { visiveis[e.target.id] = e.isIntersecting; });
+      marcar();
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    secoes.forEach(function (el) { obs.observe(el); });
+  }
+
+  /* Fechar o menu do celular ao seguir uma âncora: senão ele cobre o
+     destino e a pessoa cai numa lista de links. */
+  if (nav && botao) {
+    nav.addEventListener('click', function (e) {
+      if (e.target.closest('a') && nav.classList.contains('aberto')) {
+        nav.classList.remove('aberto');
+        botao.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* 4. Imprimir com as perguntas abertas                             */
   /* ---------------------------------------------------------------- */
 
   var abrirTudo = function () {

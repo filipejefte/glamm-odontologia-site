@@ -6,10 +6,12 @@
    um conjunto base do português e recorta as fontes exatamente nisso. Se
    amanhã a copy ganhar um caractere novo, basta rodar de novo.
 
-   A Karla é variável e continua variável depois do recorte: o eixo de peso
-   é o que dá 400 a 700 sem carregar dois arquivos. A Spectral é estática e
-   entra em dois pesos, 400 para texto de display e 600 onde o título precisa
-   de mais presença.
+   As duas são variáveis e continuam variáveis depois do recorte. Na Karla o
+   eixo de peso dá 400 a 700 num arquivo só. Na Bodoni Moda o eixo que importa
+   é o ÓPTICO: em tamanho grande ele afina os finos e é de onde vem o ar de
+   alto contraste da marca; em tamanho pequeno ele engrossa, e é o que impede
+   o título de sumir. `font-optical-sizing: auto` faz esse mapeamento sozinho,
+   de graça, e por isso o eixo é preservado.
 
    Fonte hospedada aqui, e não em serviço externo, por dois motivos somados:
    a CSP do site não abre para terceiro, e a página de privacidade promete
@@ -65,8 +67,7 @@ function caracteresDoSite() {
 
 const FONTES = [
   { origem: 'karla-var.ttf', destino: 'karla.woff2', variavel: true },
-  { origem: 'spectral-400.ttf', destino: 'spectral-400.woff2' },
-  { origem: 'spectral-600.ttf', destino: 'spectral-600.woff2' }
+  { origem: 'bodoni-var.ttf', destino: 'bodoni.woff2', variavel: true }
 ];
 
 const py = (codigo) => execFileSync('python', ['-c', codigo], { encoding: 'utf8' });

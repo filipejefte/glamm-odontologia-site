@@ -27,16 +27,10 @@ const RAIZ = dirname(fileURLToPath(import.meta.url));
 const PREVIA = process.argv.includes('--preview');
 const ctx = contexto({ preview: PREVIA });
 
+/* Três arquivos. O site é uma página só; privacidade e erro ficam fora dela
+   porque não fazem parte do que se apresenta a quem chega. */
 const paginas = [
   PG.inicio(ctx),
-  PG.tratamentos(ctx),
-  ...TRATAMENTOS.map(t => PG.tratamento(ctx, t)),
-  PG.unidades(ctx),
-  ...UNIDADES.map(u => PG.unidade(ctx, u)),
-  PG.aClinica(ctx),
-  PG.equipe(ctx),
-  PG.agendamento(ctx),
-  PG.duvidas(ctx),
   PG.privacidade(ctx),
   PG.naoEncontrada(ctx)
 ];
@@ -57,8 +51,8 @@ writeFileSync(join(RAIZ, 'site.webmanifest'), JSON.stringify({
   start_url: './',
   scope: './',
   display: 'browser',
-  background_color: '#FBF8F3',
-  theme_color: '#4C526A',
+  background_color: '#12141B',
+  theme_color: '#12141B',
   icons: [
     { src: 'assets/img/icone-192.png', sizes: '192x192', type: 'image/png' },
     { src: 'assets/img/icone-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
@@ -137,19 +131,24 @@ ${UNIDADES.map(u => `### ${u.cidade}, ${u.uf}
 - Telefone e WhatsApp: ${u.telefone}
 - Horário: ${u.horarios.map(h => `${h.dias}, ${hora(h.abre)} às ${hora(h.fecha)}`).join('; ')}
 - ${u.fechado}
-- Página: ${url(`unidades/${u.slug}.html`)}`).join('\n\n')}
+- Endereço direto: ${ctx.origem}/#${u.slug}`).join('\n\n')}
 
 ## Tratamentos
 
-${TRATAMENTOS.map(t => `- [${t.nomeLongo}](${url(`tratamentos/${t.slug}.html`)}): ${t.resumo}`).join('\n')}
+${TRATAMENTOS.map(t => `- [${t.nomeLongo}](${ctx.origem}/#${t.slug}): atua em ${t.parte.toLowerCase()}. ${t.resumo}`).join('\n')}
 
 ## Perguntas frequentes
 
-${DUVIDAS.map(d => `**${d.q}**\n${d.r}`).join('\n\n')}
+${DUVIDAS.concat(TRATAMENTOS.flatMap(t => t.duvidas)).map(d => `**${d.q}**\n${d.r}`).join('\n\n')}
 
-## Páginas
+## Como o site é organizado
 
-${publicas.map(pg => `- [${pg.p.titulo}](${url(pg.p.path)})`).join('\n')}
+O site é uma página só. Cada seção e cada tratamento têm âncora própria:
+
+${['tratamentos', 'como-funciona', 'a-clinica', 'equipe', 'unidades', 'duvidas', 'agendar']
+  .map(a => `- ${ctx.origem}/#${a}`).join('\n')}
+
+Fora dela: ${url('privacidade.html')}
 
 ## O que este site não publica, e por quê
 
