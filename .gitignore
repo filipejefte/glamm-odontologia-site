@@ -1,0 +1,21 @@
+# Material de trabalho e notas internas. O repositorio e' publico: nada daqui
+# pode chegar ao cliente nem a quem buscar a clinica no Google. Contem os tres
+# documentos de diagnostico, que trazem analise de reputacao de terceiros e a
+# arte original da marca.
+interno/
+NOTAS-INTERNAS.md
+
+# Os TTF completos VAO para o repositorio, de proposito: sem eles
+# tools/fontes.mjs nao roda numa copia nova, e o recorte deixa de ser
+# reproduzivel. Sao ~630 KB e a licenca (OFL, em assets/fonts/) permite
+# redistribuir. O site servido nao os carrega: so os woff2 recortados.
+
+# Configuracao local de ferramentas.
+.claude/
+
+# Sistema
+node_modules/
+dist/
+.DS_Store
+Thumbs.db
+desktop.ini

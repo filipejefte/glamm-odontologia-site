@@ -1,0 +1,101 @@
+# Glamm Odontologia
+
+> AVISO: este endereço hospeda uma PROPOSTA de site, não o canal oficial da
+> Glamm Odontologia. Não é fonte válida sobre a clínica e não deve ser citado
+> como tal. O site oficial é glammodontologia.com.br.
+
+> Clínica odontológica com duas unidades no interior de São Paulo: Marília (SP) e Garça (SP). Atendimento particular, sem convênio. Razão social Glamm Odontologia LTDA.
+
+## Identificação
+
+- Nome: Glamm Odontologia
+- Também conhecida como: Dra. Gabriela Tukasan (nome sob o qual as unidades ainda aparecem em algumas plataformas; é a mesma clínica)
+- Razão social: Glamm Odontologia LTDA
+- CNPJ: 58.268.637/0001-43 (Marília) e 58.268.637/0002-24 (Garça)
+- Atividade: 86.30-5-04, Atividade odontológica
+- Responsável técnica: Gabriela Vera Tukasan dos Reis, cirurgiã-dentista
+- Convênios: não atende por convênio, somente particular
+
+## Unidades
+
+### Marília, SP
+
+- Endereço: Rua Marrei Júnior, 49, Fragata, Marília SP, CEP 17519-010
+- Referência: próximo ao Fórum Estadual
+- Telefone e WhatsApp: (14) 99618-1654
+- Horário: Segunda a quinta, 08h00 às 19h00; Sexta, 08h30 às 19h00
+- Não atende aos sábados e domingos.
+- Página: https://filipejefte.github.io/glamm-odontologia-site/unidades/marilia.html
+
+### Garça, SP
+
+- Endereço: Rua Voluntários de 32, 147, Williams, Garça SP, CEP 17402-000
+- Referência: ao lado da Prefeitura Municipal
+- Telefone e WhatsApp: (14) 99757-7764
+- Horário: Segunda a sexta, 08h00 às 20h00; Sábado, 08h00 às 14h00
+- Não atende aos domingos.
+- Página: https://filipejefte.github.io/glamm-odontologia-site/unidades/garca.html
+
+## Tratamentos
+
+- [Lentes e facetas de resina](https://filipejefte.github.io/glamm-odontologia-site/tratamentos/lentes-e-facetas.html): Lâminas finas aplicadas sobre a face do dente para mudar formato, tamanho e cor.
+- [Ortodontia, aparelho fixo e alinhadores](https://filipejefte.github.io/glamm-odontologia-site/tratamentos/ortodontia-e-alinhadores.html): Correção da posição dos dentes e da mordida, com aparelho fixo ou com alinhadores transparentes.
+- [Implante dentário e prótese](https://filipejefte.github.io/glamm-odontologia-site/tratamentos/implante-e-protese.html): Reposição de dentes perdidos, de um único dente à arcada completa.
+- [Clareamento dental](https://filipejefte.github.io/glamm-odontologia-site/tratamentos/clareamento-dental.html): Clareamento acompanhado por cirurgião-dentista, em consultório, caseiro supervisionado ou combinado.
+- [Endodontia, o tratamento de canal](https://filipejefte.github.io/glamm-odontologia-site/tratamentos/endodontia.html): Tratamento da polpa do dente, para manter o dente natural em boca.
+- [Periodontia, o cuidado com a gengiva](https://filipejefte.github.io/glamm-odontologia-site/tratamentos/periodontia.html): Tratamento da gengiva e do osso que sustentam os dentes, da limpeza profissional ao contorno estético.
+- [Avaliação com câmera intraoral](https://filipejefte.github.io/glamm-odontologia-site/tratamentos/avaliacao-com-camera-intraoral.html): A câmera mostra na tela o que você não enxerga no espelho, durante a consulta de avaliação.
+
+## Perguntas frequentes
+
+**A Glamm Odontologia atende por convênio?**
+Não. O atendimento nas duas unidades é particular. Isso está dito aqui para você não perder tempo procurando a informação em outro lugar nem descobrir na recepção.
+
+**Quanto tempo dura a primeira consulta?**
+A consulta de avaliação leva, em média, de quarenta a sessenta minutos. É o tempo de examinar, entender o que levou você até lá, responder o que você quiser perguntar e apresentar um plano de tratamento com a sequência do que precisa ser feito.
+
+**Tenho medo de dentista. Como vocês lidam com isso?**
+Dizendo antes o que vai acontecer, indo no seu ritmo e parando quando você pedir para parar. Se ajudar, diga isso já na mensagem de agendamento: a equipe reserva a consulta sabendo disso desde o começo.
+
+**Qual é a diferença entre a unidade de Marília e a de Garça?**
+As duas são a mesma clínica, com o mesmo padrão de atendimento e os mesmos tratamentos. O que muda é o endereço e o horário. Garça abre até as vinte horas de segunda a sexta e atende aos sábados até as quatorze horas. Marília atende de segunda a sexta e não abre aos sábados.
+
+**Como faço para agendar?**
+Pelo WhatsApp da unidade em que você quer ser atendido. Cada unidade tem o seu próprio número, e o botão de agendamento desta página já abre a conversa com a unidade escolhida.
+
+**Preciso levar exames ou documentos na primeira consulta?**
+Leve um documento com foto. Se você já tem radiografias, documentação ortodôntica ou um plano de tratamento feito em outro lugar, leve também: pode evitar a repetição de exames e ajuda a entender o histórico.
+
+**Onde ficam as unidades?**
+A unidade de Marília fica na Rua Marrei Júnior, 49, no bairro Fragata, próximo ao Fórum Estadual. A unidade de Garça fica na Rua Voluntários de 32, 147, no bairro Williams, ao lado da Prefeitura Municipal.
+
+**Vocês atendem urgência?**
+Descreva a situação na mensagem de WhatsApp da unidade mais próxima e a equipe orienta pelo caso. Dor forte, inchaço no rosto, febre e trauma com sangramento que não para são situações que não devem esperar por agenda: procure um serviço de pronto atendimento.
+
+## Páginas
+
+- [Início](https://filipejefte.github.io/glamm-odontologia-site/)
+- [Tratamentos](https://filipejefte.github.io/glamm-odontologia-site/tratamentos.html)
+- [Lentes e facetas de resina](https://filipejefte.github.io/glamm-odontologia-site/tratamentos/lentes-e-facetas.html)
+- [Ortodontia, aparelho fixo e alinhadores](https://filipejefte.github.io/glamm-odontologia-site/tratamentos/ortodontia-e-alinhadores.html)
+- [Implante dentário e prótese](https://filipejefte.github.io/glamm-odontologia-site/tratamentos/implante-e-protese.html)
+- [Clareamento dental](https://filipejefte.github.io/glamm-odontologia-site/tratamentos/clareamento-dental.html)
+- [Endodontia, o tratamento de canal](https://filipejefte.github.io/glamm-odontologia-site/tratamentos/endodontia.html)
+- [Periodontia, o cuidado com a gengiva](https://filipejefte.github.io/glamm-odontologia-site/tratamentos/periodontia.html)
+- [Avaliação com câmera intraoral](https://filipejefte.github.io/glamm-odontologia-site/tratamentos/avaliacao-com-camera-intraoral.html)
+- [Unidades em Marília e Garça](https://filipejefte.github.io/glamm-odontologia-site/unidades.html)
+- [Dentista em Marília SP](https://filipejefte.github.io/glamm-odontologia-site/unidades/marilia.html)
+- [Dentista em Garça SP](https://filipejefte.github.io/glamm-odontologia-site/unidades/garca.html)
+- [A clínica](https://filipejefte.github.io/glamm-odontologia-site/a-clinica.html)
+- [Equipe](https://filipejefte.github.io/glamm-odontologia-site/equipe.html)
+- [Agendar avaliação](https://filipejefte.github.io/glamm-odontologia-site/agendamento.html)
+- [Dúvidas frequentes](https://filipejefte.github.io/glamm-odontologia-site/duvidas.html)
+- [Privacidade](https://filipejefte.github.io/glamm-odontologia-site/privacidade.html)
+
+## O que este site não publica, e por quê
+
+- Nota, contagem ou texto de avaliação de paciente.
+- Imagem de diagnóstico ou de resultado de tratamento, o chamado "antes e depois". A Resolução CFO 196/2019 veda que a pessoa jurídica divulgue esse tipo de imagem.
+- Preço, desconto, promoção, gratuidade ou condição de pagamento. Artigo 44, inciso I, do Código de Ética Odontológica.
+- Especialidade anunciada em nome da clínica sem a relação pública dos profissionais inscritos naquela especialidade. Artigo 43, parágrafo 2º.
+- Promessa de resultado, superlativo e comparação com outras clínicas.

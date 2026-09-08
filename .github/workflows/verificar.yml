@@ -1,0 +1,39 @@
+name: verificar
+
+# Roda a mesma verificação que roda na máquina, a cada envio. Duas coisas:
+# que o HTML publicado e' exatamente o que o gerador produz (ninguem editou
+# HTML na mao), e que ele passa em tools/check.mjs.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Só leitura. Este fluxo não publica nada e não precisa de escrita.
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Gerar o site
+        run: node build.mjs --preview
+
+      - name: O HTML publicado tem de ser o que o gerador produz
+        run: |
+          if ! git diff --exit-code --stat; then
+            echo "O HTML no repositorio difere do que build.mjs gera."
+            echo "Rode 'node build.mjs --preview' e envie o resultado."
+            exit 1
+          fi
+
+      - name: Verificacao completa
+        run: node tools/check.mjs
