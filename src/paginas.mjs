@@ -50,9 +50,12 @@ const migalhas = (b, trilha) => `
 /* Cartão de unidade. O telefone e o WhatsApp saem sempre de dados.mjs, um
    por unidade. Nunca escrito na mão: é a correção do achado mais caro do
    diagnóstico. */
-const cartaoUnidade = (u, b, { compacto = false } = {}) => `
+/* `nivel` existe porque o mesmo cartão aparece em dois contextos: dentro de
+   uma seção que já tem h2, onde ele é h3, e direto sob o h1 da página de
+   unidades, onde h3 abriria um salto na hierarquia. */
+const cartaoUnidade = (u, b, { compacto = false, nivel = 3 } = {}) => `
 <article class="unid">
-  <h3 class="unid-nome"><a href="${b}unidades/${u.slug}.html">${esc(u.cidade)}</a></h3>
+  <h${nivel} class="unid-nome"><a href="${b}unidades/${u.slug}.html">${esc(u.cidade)}</a></h${nivel}>
   <p class="unid-ref">${esc(u.referencia)}</p>
   <address class="unid-end">
     <span class="unid-rua">${esc(u.enderecoLinha)}</span><br>
@@ -187,6 +190,19 @@ const migalhasLd = (trilha) => ({
 
 const grafo = (nos) => ({ '@context': 'https://schema.org', '@graph': nos });
 
+/* A base que vai em TODA página: a clínica mais as duas unidades por extenso.
+
+   Poderia ser só a clínica, com `department` apontando por `@id` para as
+   unidades declaradas nas páginas delas. Mas aí a página de dúvidas, por
+   exemplo, referencia dois nós que não existem ali, e quem lê aquela página
+   sozinha recebe uma clínica sem endereço e sem telefone.
+
+   Repetir custa cerca de 1 KB por página e garante que QUALQUER página
+   isolada carregue nome, endereço, telefone e horário das duas unidades. Para
+   um negócio cujo diagnóstico apontou justamente a impossibilidade de montar
+   a entidade, isso é o ponto inteiro. */
+const grafoBase = () => [clinicaLd(), ...UNIDADES.map(unidadeLd)];
+
 /* ------------------------------------------------------------------ */
 /* Início                                                              */
 /* ------------------------------------------------------------------ */
@@ -200,6 +216,7 @@ export function inicio(ctx) {
   ctx.pendencia('Horário de sexta em Marília: o site diz 8h, o Google diz 8h30');
   ctx.pendencia('Bairro e CEP da unidade de Garça: Receita e site dizem Williams e 17402-000, o Google diz Centro e 17400-000');
   ctx.pendencia('Lista completa dos tratamentos oferecidos, para conferir se falta algum');
+  ctx.pendencia('Materiais de faceta oferecidos: a copy atual da clínica cita só resina, e a página explica também a porcelana');
 
   const etapas = [
     { n: '01', h: 'Você manda uma mensagem', p: 'Pelo WhatsApp da unidade que fica melhor para você. A equipe responde e vocês escolhem o horário juntos.' },
@@ -209,7 +226,7 @@ export function inicio(ctx) {
   ];
 
   const razoes = [
-    { h: 'Duas unidades, o mesmo padrão', p: `Marília e Garça atendem os mesmos tratamentos, com a mesma equipe de referência. Garça abre até as 20h e atende aos sábados.` },
+    { h: 'Duas unidades, o mesmo padrão', p: `Marília e Garça atendem os mesmos tratamentos, com o mesmo processo de avaliação. Garça abre até as 20h e atende aos sábados.` },
     { h: 'A conta antes do tratamento', p: 'O plano de tratamento é apresentado por escrito na consulta de avaliação, com a sequência e o valor de cada etapa. Você decide com a informação na mão.' },
     { h: 'Atendimento particular', p: 'A clínica não trabalha com convênio. Está dito aqui, e não descoberto na recepção.' },
     { h: 'Quem atende tem nome', p: 'Cada profissional que atende você é identificado, com registro no Conselho Regional de Odontologia. A página de equipe existe para isso.' }
@@ -221,7 +238,7 @@ export function inicio(ctx) {
     <div class="hero-texto">
       <p class="eyebrow">Marília e Garça, São Paulo</p>
       <h1>Odontologia que explica antes de tratar.</h1>
-      <p class="hero-sub">A Glamm Odontologia atende nas duas cidades com avaliação completa, plano de tratamento por escrito e sete áreas de tratamento sob o mesmo teto.</p>
+      <p class="hero-sub">A Glamm Odontologia atende nas duas cidades com avaliação completa, plano de tratamento por escrito e sete áreas de tratamento na mesma clínica.</p>
       ${botoesUnidades('hero-acoes')}
       <p class="hero-nota">Atendimento particular, sem convênio. A primeira consulta é de avaliação e leva de 40 a 60 minutos.</p>
     </div>
@@ -318,8 +335,7 @@ ${secao({
       descricao: 'Clínica odontológica em Marília e Garça, São Paulo. Lentes e facetas, ortodontia, implante e prótese, clareamento, endodontia e periodontia. Atendimento particular, com avaliação completa e plano de tratamento por escrito.'
     },
     ld: grafo([
-      clinicaLd(),
-      ...UNIDADES.map(unidadeLd),
+      ...grafoBase(),
       {
         '@type': 'WebSite',
         '@id': `${CLINICA.origem}/#site`,
@@ -378,7 +394,7 @@ ${secao({
       descricao: 'Lentes e facetas, ortodontia e alinhadores, implante e prótese, clareamento, endodontia, periodontia e avaliação com câmera intraoral, na Glamm Odontologia de Marília e Garça.'
     },
     ld: grafo([
-      clinicaLd(),
+      ...grafoBase(),
       migalhasLd([{ path: 'tratamentos.html', rotulo: 'Tratamentos' }]),
       {
         '@type': 'ItemList',
@@ -453,7 +469,7 @@ ${secao({
       descricao: `${t.descricao} Na Glamm Odontologia, com unidades em Marília e Garça, São Paulo.`.slice(0, 300)
     },
     ld: grafo([
-      clinicaLd(),
+      ...grafoBase(),
       migalhasLd([{ path: 'tratamentos.html', rotulo: 'Tratamentos' }, { path: `tratamentos/${t.slug}.html`, rotulo: t.nome }]),
       {
         '@type': 'MedicalWebPage',
@@ -495,7 +511,7 @@ ${migalhas(b, [{ path: 'unidades.html', rotulo: 'Unidades' }])}
 
 ${secao({
   classe: 'sec-unidades',
-  corpo: `<div class="unid-grade">${UNIDADES.map(u => cartaoUnidade(u, b)).join('')}</div>`
+  corpo: `<div class="unid-grade">${UNIDADES.map(u => cartaoUnidade(u, b, { nivel: 2 })).join('')}</div>`
 })}
 
 ${secao({
@@ -530,8 +546,7 @@ ${secao({
       descricao: 'Endereço, horário e telefone das duas unidades da Glamm Odontologia: Marília, no bairro Fragata, e Garça, no bairro Williams. Cada unidade com o seu próprio WhatsApp.'
     },
     ld: grafo([
-      clinicaLd(),
-      ...UNIDADES.map(unidadeLd),
+      ...grafoBase(),
       migalhasLd([{ path: 'unidades.html', rotulo: 'Unidades' }])
     ]),
     body
@@ -640,8 +655,7 @@ ${secao({
       descricao: `Glamm Odontologia em ${u.cidade}, ${u.enderecoLinha}, ${u.bairro}, ${u.referencia}. Telefone e WhatsApp ${u.telefone}. ${u.horarios.map(h => `${h.dias} das ${h.abre.replace(':', 'h')} às ${h.fecha.replace(':', 'h')}`).join('. ')}.`
     },
     ld: grafo([
-      clinicaLd(),
-      unidadeLd(u),
+      ...grafoBase(),
       migalhasLd([{ path: 'unidades.html', rotulo: 'Unidades' }, { path: `unidades/${u.slug}.html`, rotulo: u.cidade }]),
       faqLd(duvidasUnidade)
     ]),
@@ -720,8 +734,7 @@ ${secao({
       descricao: 'Como funciona o atendimento na Glamm Odontologia: consulta de avaliação, plano de tratamento por escrito e atendimento particular, nas unidades de Marília e Garça, São Paulo.'
     },
     ld: grafo([
-      clinicaLd(),
-      ...UNIDADES.map(unidadeLd),
+      ...grafoBase(),
       migalhasLd([{ path: 'a-clinica.html', rotulo: 'A clínica' }])
     ]),
     body
@@ -801,7 +814,7 @@ ${secao({
       descricao: 'A equipe da Glamm Odontologia, com nome, inscrição no CRO-SP e formação de cada profissional. Atendimento nas unidades de Marília e Garça, São Paulo.'
     },
     ld: grafo([
-      clinicaLd(),
+      ...grafoBase(),
       migalhasLd([{ path: 'equipe.html', rotulo: 'Equipe' }])
     ]),
     body
@@ -901,8 +914,7 @@ ${secao({
       descricao: 'Agende sua consulta de avaliação na Glamm Odontologia, em Marília ou em Garça. Escolha a unidade e o site monta a mensagem de WhatsApp para você revisar e enviar.'
     },
     ld: grafo([
-      clinicaLd(),
-      ...UNIDADES.map(unidadeLd),
+      ...grafoBase(),
       migalhasLd([{ path: 'agendamento.html', rotulo: 'Agendar' }])
     ]),
     body
@@ -963,7 +975,7 @@ ${secao({
       descricao: 'Convênio, duração da primeira consulta, medo de dentista, diferença entre as unidades de Marília e Garça e dúvidas sobre cada tratamento da Glamm Odontologia.'
     },
     ld: grafo([
-      clinicaLd(),
+      ...grafoBase(),
       migalhasLd([{ path: 'duvidas.html', rotulo: 'Dúvidas' }]),
       faqLd(DUVIDAS.concat(porTratamento.map(d => ({ q: d.q, r: d.r }))))
     ]),
@@ -1019,7 +1031,7 @@ ${secao({
       descricao: 'Este site não coleta dados, não usa cookie, não carrega rastreador e não envia formulário. Como a página impede isso, e o que acontece quando você fala com a clínica pelo WhatsApp.'
     },
     ld: grafo([
-      clinicaLd(),
+      ...grafoBase(),
       migalhasLd([{ path: 'privacidade.html', rotulo: 'Privacidade' }])
     ]),
     body

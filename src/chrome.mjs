@@ -228,7 +228,7 @@ function rodape(p, ctx) {
 
   const unidades = UNIDADES.map(u => `
     <div class="rp-unidade">
-      <h3><a href="${b}unidades/${u.slug}.html">${esc(u.nome)}</a></h3>
+      <h2><a href="${b}unidades/${u.slug}.html">${esc(u.nome)}</a></h2>
       <p class="rp-end">${esc(u.enderecoLinha)}<br>${esc(u.bairro)}, ${esc(u.cidade)} ${esc(u.uf)}<br>CEP ${esc(u.cep)}</p>
       <p class="rp-tel"><a href="tel:+${esc(u.e164)}">${esc(u.telefone)}</a></p>
       <p class="rp-links-unid">
@@ -252,7 +252,7 @@ function rodape(p, ctx) {
       <div class="rp-col rp-unidades">${unidades}</div>
 
       <div class="rp-col">
-        <h3>Navegar</h3>
+        <h2>Navegar</h2>
         <ul class="rp-lista">
           ${MENU.map(m => `<li><a href="${b}${m.path}">${esc(m.rotulo)}</a></li>`).join('')}
           <li><a href="${b}agendamento.html">Agendar avaliação</a></li>

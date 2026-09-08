@@ -164,12 +164,22 @@ table { border-collapse: collapse; }
   clip-path: inset(50%); white-space: nowrap;
 }
 
+/* Atalho de teclado, o primeiro elemento focalizável da página.
+
+   SEM TRANSIÇÃO, de propósito. Havia um `transition: top 0.15s` aqui, e ele
+   simplesmente não rodava: o elemento fica fora da tela em `top: -4rem`, o
+   navegador não o pinta, e a transição nunca começa. Resultado medido no
+   navegador: com o foco no link, `top` continuava em -64px e o atalho nunca
+   aparecia. A regra `:focus` estava certa e casava; quem segurava o valor era
+   a transição.
+
+   Um atalho de teclado não precisa de animação, e a versão sem transição não
+   tem como falhar desse jeito. */
 .pular {
-  position: absolute; left: 0.75rem; top: -4rem; z-index: 60;
+  position: absolute; left: 0.75rem; top: -6rem; z-index: 60;
   background: var(--escuro); color: var(--creme);
   padding: 0.7rem 1.1rem; border-radius: var(--raio);
   font-weight: 600; text-decoration: none;
-  transition: top 0.15s ease;
 }
 .pular:focus { top: 0.75rem; color: var(--creme); }
 
@@ -361,7 +371,7 @@ table { border-collapse: collapse; }
   color: var(--tinta-2);
 }
 .migalhas li + li::before { content: '/'; margin-right: 0.5rem; color: var(--linha-forte); }
-.migalhas a { color: var(--tinta-2); text-decoration: none; border-bottom: 1px solid var(--linha); }
+.migalhas a { display: inline-block; padding-block: 0.25rem; color: var(--tinta-2); text-decoration: none; border-bottom: 1px solid var(--linha); }
 .migalhas a:hover { color: var(--tinta); border-bottom-color: var(--ouro); }
 .migalhas [aria-current] { color: var(--tinta); }
 
@@ -894,7 +904,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { border-color
   font-size: 0.9375rem;
 }
 .cta + .rodape { margin-top: 0; }
-.rodape h3 {
+.rodape h2 {
   font-family: var(--texto);
   font-size: 0.75rem; font-weight: 600;
   text-transform: uppercase; letter-spacing: 0.16em;
@@ -916,9 +926,9 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { border-color
 .rp-social { font-size: 0.875rem; }
 
 .rp-unidades { display: grid; gap: 2rem; }
-.rp-unidade h3 { margin-bottom: 0.6rem; }
-.rp-unidade h3 a { color: var(--ouro-claro); border-bottom-color: rgba(210 175 87 / 0.4); }
-.rp-unidade h3 a:hover { color: var(--ouro-claro); border-bottom-color: var(--ouro-claro); }
+.rp-unidade h2 { margin-bottom: 0.6rem; }
+.rp-unidade h2 a { color: var(--ouro-claro); border-bottom-color: rgba(210 175 87 / 0.4); }
+.rp-unidade h2 a:hover { color: var(--ouro-claro); border-bottom-color: var(--ouro-claro); }
 .rp-end { margin-bottom: 0.6rem; line-height: 1.55; }
 .rp-tel { font-size: 1.0625rem; font-weight: 600; margin-bottom: 0.6rem; }
 .rp-tel a { color: var(--creme); }
@@ -926,7 +936,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { border-color
 .rp-links-unid a { display: inline-flex; align-items: center; gap: 0.4rem; }
 .rp-links-unid .ico { width: 1.05em; height: 1.05em; }
 
-.rp-lista { display: grid; gap: 0.55rem; }
+.rp-lista { display: grid; gap: 0.4rem; }
+.rp-lista a { display: inline-block; padding-block: 0.3rem; }
 
 .rp-emergencia {
   display: flex; gap: 0.85rem; align-items: flex-start;
@@ -1002,7 +1013,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { border-color
   .topo, .cta, .previa, .pular, .form-acoes, .migalhas { display: none; }
   body { background: #fff; color: #000; font-size: 11pt; }
   .rodape { background: #fff; color: #000; border-top: 1px solid #999; }
-  .rodape a, .rodape h3, .rp-tel a, .rp-unidade h3 a { color: #000; }
+  .rodape a, .rodape h2, .rp-tel a, .rp-unidade h2 a { color: #000; }
   .faq-item .faq-resp { display: block; }
   a[href^="http"]::after { content: ' (' attr(href) ')'; font-size: 9pt; word-break: break-all; }
 }

@@ -44,7 +44,7 @@ dois números conferidos.
 
 ## Pendências que travam a build de produção
 
-Sete itens. Enquanto qualquer um estiver aberto, `node build.mjs` sai com erro.
+Oito itens. Enquanto qualquer um estiver aberto, `node build.mjs` sai com erro.
 
 | # | Pendência | Por que trava |
 |---|---|---|
@@ -54,7 +54,8 @@ Sete itens. Enquanto qualquer um estiver aberto, `node build.mjs` sai com erro.
 | 4 | **Nome, CRO e especialidade dos demais profissionais**, mais autorização de uso de nome e imagem | O art. 43 §2º só permite que a pessoa jurídica anuncie especialidades se tiver profissional inscrito naquela especialidade **e** disponibilizar ao público a relação desses profissionais com as qualificações. Sem a lista, a clínica não pode dizer que tem equipe de especialistas. |
 | 5 | **Horário de sexta em Marília** | O site atual diz 8h; a ficha do Google diz 8h30. O site publica 8h30, que é o horário que não manda ninguém para uma porta fechada, mas a divergência precisa ser resolvida na fonte. |
 | 6 | **Bairro e CEP da unidade de Garça** | Receita Federal e site dizem Williams / 17402-000. O Google diz Centro / 17400-000, e ainda quebra o nome da rua como "Voluntários, de - 32". O site publica a versão em que duas fontes independentes concordam. O que precisa ser corrigido é a ficha do Google. |
-| 7 | **Lista completa dos tratamentos** | Os sete com página própria vieram da copy publicada. A biblioteca de imagens do site atual sugere outros (cirurgias, estética restauradora). Conferir se falta algum. |
+| 7 | **Materiais de faceta oferecidos** | A copy atual cita só resina, e a página de lentes e facetas explica também a porcelana, porque a diferença importa para quem decide. Confirmar o que a clínica oferece. |
+| 8 | **Lista completa dos tratamentos** | Os sete com página própria vieram da copy publicada. A biblioteca de imagens do site atual sugere outros (cirurgias, estética restauradora). Conferir se falta algum. |
 
 Além dessas, dois dados simplesmente não existem em fonte pública e valem uma
 pergunta: **e-mail de atendimento** e **grafia oficial da rua em Marília**

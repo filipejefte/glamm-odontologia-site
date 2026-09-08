@@ -376,6 +376,7 @@ for (const pagina of paginas) {
        responder "sim, trabalhamos com opções de parcelamento". */
     [/parcelament|promo[çc][ãa]o|desconto|R\$\s?\d|\d+\s?x\s?de\b/i, 'preço, desconto ou modalidade de pagamento (art. 44, I)'],
     [/consulta\s+gr[áa]tis|consulta\s+gratuita|sem\s+custo|gratuidade\s+de/i, 'oferta de gratuidade (art. 44, I)'],
+    [/custa\s+(menos|mais)|mais\s+barat|mais\s+car[oa]|preço\s+(menor|maior)/i, 'comparação de custo (art. 44, I)'],
     [/antes\s+e\s+depois/i, 'expressão de antes e depois (art. 44, I e Res. CFO 196/2019)'],
 
     /* Art. 43 §2º e art. 44, II. A forma proibida é a clínica se dizer

@@ -260,7 +260,7 @@ export const TRATAMENTOS = [
     nomeLongo: 'Lentes e facetas de resina',
     icone: 'lente',
     resumo: 'Lâminas finas aplicadas sobre a face do dente para mudar formato, tamanho e cor.',
-    descricao: 'Uma faceta é uma lâmina fina fixada sobre a superfície do dente para alterar formato, tamanho, alinhamento aparente ou cor. Na Glamm o material de trabalho é a resina composta, esculpida diretamente no dente.',
+    descricao: 'Uma faceta é uma lâmina fina fixada sobre a superfície do dente para alterar formato, tamanho, alinhamento aparente ou cor. O material e a espessura mudam conforme o caso, e são definidos na avaliação.',
     conteudo: [
       {
         h: 'O que a faceta resolve',
@@ -283,6 +283,10 @@ export const TRATAMENTOS = [
       {
         q: 'Quanto tempo dura uma faceta de resina?',
         r: 'A durabilidade depende de manutenção, higiene, hábitos como roer unha ou ranger os dentes, e do consumo de café, chá e outros pigmentos. A resina pode ser repolida e reparada ao longo do tempo, o que faz parte do acompanhamento.'
+      },
+      {
+        q: 'Faceta e lente de contato dental são a mesma coisa?',
+        r: '"Lente de contato dental" é o nome comercial que se popularizou para a faceta muito fina. Tecnicamente as duas são facetas: lâminas aplicadas sobre a face do dente. O que muda de um caso para outro é a espessura, o material e o quanto de preparo o dente precisa, e isso se define no exame, não pelo nome.'
       }
     ]
   },
@@ -315,6 +319,10 @@ export const TRATAMENTOS = [
       {
         q: 'Adulto pode usar aparelho?',
         r: 'Pode. O movimento dentário acontece em qualquer idade, desde que a gengiva e o osso de sustentação estejam saudáveis. Em adulto a avaliação da gengiva antes de começar é ainda mais importante.'
+      },
+      {
+        q: 'Preciso de documentação ortodôntica antes de começar?',
+        r: 'Sim. A documentação reúne radiografias, fotografias e modelos dos seus dentes, e é ela que permite planejar o movimento e estimar o tempo. Sem documentação não há plano ortodôntico, apenas suposição.'
       }
     ]
   },
@@ -347,6 +355,10 @@ export const TRATAMENTOS = [
       {
         q: 'Quanto tempo leva entre o implante e o dente definitivo?',
         r: 'O intervalo existe porque o osso precisa integrar ao implante, e varia conforme a região da boca e a resposta de cada pessoa. O plano de tratamento traz a sequência prevista para o seu caso.'
+      },
+      {
+        q: 'Vou ficar sem dente aparente durante o tratamento?',
+        r: 'Na maior parte dos casos existe solução provisória para a região visível durante a fase de integração. Se isso é possível no seu caso, e de que forma, é parte do que o plano de tratamento responde antes de começar.'
       }
     ]
   },
@@ -374,11 +386,15 @@ export const TRATAMENTOS = [
     duvidas: [
       {
         q: 'Clareamento estraga o esmalte?',
-        r: 'Feito com protocolo, concentração adequada e acompanhamento profissional, o clareamento não tem por objetivo desgastar estrutura. O que exige cuidado é o uso sem avaliação, com produto de origem incerta ou por tempo maior que o orientado.'
+        r: 'O gel clareador age sobre os pigmentos, e não removendo estrutura do dente. O que exige cuidado é o uso sem avaliação, com produto de origem incerta ou por tempo maior que o orientado, situação em que a sensibilidade e a irritação da gengiva deixam de ser controladas.'
       },
       {
         q: 'Posso clarear se tenho restauração na frente?',
         r: 'Pode, mas é preciso saber que a restauração não muda de cor. Depois que o dente atinge a cor desejada e estabiliza, a restauração costuma precisar de troca para acompanhar.'
+      },
+      {
+        q: 'Qual é a diferença entre o clareamento de consultório e o caseiro?',
+        r: 'No de consultório o gel tem concentração mais alta e é aplicado pela equipe, em sessões. No caseiro supervisionado você usa uma moldeira feita para a sua boca, com gel de concentração menor, pelo tempo que o dentista orientar. Muitos casos combinam os dois. A escolha depende do grau de alteração de cor, da sensibilidade e da sua rotina.'
       }
     ]
   },
@@ -411,6 +427,10 @@ export const TRATAMENTOS = [
       {
         q: 'Quantas sessões são necessárias?',
         r: 'Varia com o dente, o número de canais e a condição encontrada. Alguns casos se resolvem em sessão única e outros pedem mais de uma. A previsão entra no plano de tratamento.'
+      },
+      {
+        q: 'Dente que fez canal escurece com o tempo?',
+        r: 'Pode escurecer, principalmente quando o tratamento foi feito há muitos anos ou quando restou pigmento no interior do dente. Há tratamento para isso, e ele é diferente do clareamento comum, porque age de dentro para fora. A avaliação define qual se aplica.'
       }
     ]
   },
@@ -424,7 +444,7 @@ export const TRATAMENTOS = [
     conteudo: [
       {
         h: 'Sangrar ao escovar não é normal',
-        p: 'Gengiva saudável não sangra na escovação nem no fio dental. Sangramento é sinal de inflamação, e inflamação não tratada pode progredir para perda do osso que sustenta o dente. É a fase inicial que responde melhor e custa menos.'
+        p: 'Gengiva saudável não sangra na escovação nem no fio dental. Sangramento é sinal de inflamação, e inflamação não tratada pode progredir para perda do osso que sustenta o dente. Quanto mais cedo se trata, mais simples é o tratamento.'
       },
       {
         h: 'A base de qualquer outro tratamento',
@@ -443,6 +463,10 @@ export const TRATAMENTOS = [
       {
         q: 'Gengiva retraída volta ao lugar?',
         r: 'Depende da causa e da extensão. Há situações com indicação de procedimento de recobrimento e situações em que o objetivo passa a ser estabilizar a retração e tratar o que a provocou.'
+      },
+      {
+        q: 'A limpeza profissional desgasta o esmalte?',
+        r: 'A limpeza remove placa e tártaro, que são depósitos sobre o dente, e não a estrutura do dente. Sensibilidade nos dias seguintes pode acontecer, sobretudo quando havia muito tártaro cobrindo a raiz, e costuma passar. Se persistir, avise a equipe.'
       }
     ]
   },
@@ -464,7 +488,7 @@ export const TRATAMENTOS = [
       },
       {
         h: 'Por que isso muda a conversa',
-        p: 'Decidir um tratamento sem ver o problema é decidir por confiança apenas. Ver a imagem antes muda a natureza da conversa: o plano deixa de ser uma lista de procedimentos e passa a ser uma sequência com motivo visível para cada item.'
+        p: 'Decidir um tratamento sem ver o problema é decidir só na confiança. Ver a imagem antes muda a natureza da conversa: o plano deixa de ser uma lista de procedimentos e passa a ser uma sequência com motivo visível para cada item.'
       }
     ],
     duvidas: [
@@ -475,6 +499,10 @@ export const TRATAMENTOS = [
       {
         q: 'Posso levar as imagens comigo?',
         r: 'As imagens fazem parte do seu prontuário. Peça na consulta e a equipe orienta como o registro é disponibilizado.'
+      },
+      {
+        q: 'Câmera intraoral e escaneamento digital são a mesma coisa?',
+        r: 'Não. A câmera intraoral registra imagem, como uma foto ampliada de dentro da boca. O escaneamento digital captura a forma tridimensional dos dentes e substitui a moldagem com massa em vários procedimentos. Servem a finalidades diferentes e podem ser usados no mesmo caso.'
       }
     ]
   }
