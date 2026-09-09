@@ -152,6 +152,35 @@ function varrerVazamento(caminho, texto) {
    máquina costuma aparecer, e sem esta lista ele nunca era lido. */
 const TEXTO_SEM_EXTENSAO = new Set(['.gitignore', '.gitattributes', '.nojekyll', 'LICENSE', 'CNAME']);
 
+/* ------------------------------------------------------------------ */
+/*  Codificação                                                        */
+/*                                                                     */
+/*  ARMADILHA REGISTRADA: uma ferramenta que lê UTF-8 como se fosse a   */
+/*  página de código do sistema e grava de volta como UTF-8 DOBRA cada  */
+/*  acento. O arquivo continua UTF-8 válido, o Node continua rodando, a */
+/*  build continua passando, e o erro só aparece na tela do visitante.  */
+/*  As sequências da tabela abaixo não existem em português nenhum: são */
+/*  a assinatura dessa dobra.                                          */
+/*                                                                     */
+/*  O BOM entra na mesma regra: o mesmo tipo de ferramenta o acrescenta */
+/*  sozinha, e num .mjs ou num .py ele é lixo no começo do arquivo.     */
+/* ------------------------------------------------------------------ */
+
+const DUPLA_CODIFICACAO = [
+  { marca: '\u00c3\u0082', nome: 'A-circunflexo dobrado' },
+  { marca: '\u00c3\u0083', nome: 'A-til dobrado' },
+  { marca: '\u00c3\u00a7', nome: 'c-cedilha dobrado' },
+  { marca: '\u00c3\u00a3', nome: 'a-til dobrado' },
+  { marca: '\u00c3\u00a1', nome: 'a-agudo dobrado' },
+  { marca: '\u00c3\u00a9', nome: 'e-agudo dobrado' },
+  { marca: '\u00c3\u00ad', nome: 'i-agudo dobrado' },
+  { marca: '\u00c3\u00b3', nome: 'o-agudo dobrado' },
+  { marca: '\u00c3\u00b5', nome: 'o-til dobrado' },
+  { marca: '\u00c3\u00ba', nome: 'u-agudo dobrado' },
+  { marca: '\u00e2\u0080\u0099', nome: 'apostrofo tipografico dobrado' },
+  { marca: '\ufffd', nome: 'caractere de substituicao' }
+];
+
 /* Metadados de imagem: EXIF, XMP e blocos de texto carregam data, câmera,
    GPS, nome de software e, com frequência, o caminho do arquivo original.
    As imagens deste site são geradas por tools/imagens.py e não deveriam ter
@@ -197,11 +226,24 @@ for (const arquivo of arquivosRepo) {
   const ehTexto = PUBLICAVEIS.test(arquivo) || TEXTO_SEM_EXTENSAO.has(nome);
 
   if (ehTexto) {
-    let texto;
-    try { texto = readFileSync(arquivo, 'utf8'); } catch { continue; }
+    let bytes;
+    try { bytes = readFileSync(arquivo); } catch { continue; }
+    const texto = bytes.toString('utf8');
     varridosTexto++;
+
     for (const achado of varrerVazamento(arquivo, texto)) {
       anota(arquivo, `vazamento: ${achado}`);
+    }
+
+    if (bytes.length > 2 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {
+      anota(arquivo, 'marca de ordem de byte (BOM) no começo do arquivo.');
+    }
+    for (const { marca, nome } of DUPLA_CODIFICACAO) {
+      const onde = texto.indexOf(marca);
+      if (onde >= 0) {
+        anota(arquivo, `codificação dobrada (${nome}): ${JSON.stringify(texto.slice(Math.max(0, onde - 18), onde + 12))}`);
+        break;
+      }
     }
     continue;
   }

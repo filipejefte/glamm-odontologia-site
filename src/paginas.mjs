@@ -21,7 +21,7 @@ import {
   COMPROMISSOS, PUBLICACAO
 } from './dados.mjs';
 import { esc, conf, raizDe, urlCanonica, faqLd, chamada, acordeao, botaoAgendar, icone, idTratamento } from './chrome.mjs';
-import { denteEstatico } from './marca.mjs';
+import { denteEstatico, simbolo } from './marca.mjs';
 
 const MARILIA = POR_ID.marilia;
 const GARCA = POR_ID.garca;
@@ -56,16 +56,25 @@ function cartaoUnidade(u, r, { assunto = null, tratamento = null } = {}) {
   return `<div class="cartao cartao-unidade">
       <p class="rotulo rotulo-ouro">${esc(u.cidade)} &middot; ${esc(u.uf)}</p>
       <h3 class="cartao-titulo">${esc(u.nome)}</h3>
-      <p class="cartao-texto">${esc(u.resumo)}</p>
-      <dl class="dados">
-        <div><dt>${icone('pin', { tamanho: 16 })} Endereço</dt>
-          <dd><address>${esc(u.enderecoLinha)}<br>${esc(u.bairro)}, ${esc(u.cidade)} ${esc(u.uf)}, CEP ${esc(u.cep)}</address></dd></div>
-        <div><dt>${icone('relogio', { tamanho: 16 })} Horário</dt>
-          <dd>${u.horarios.map(h => `${esc(h.dias)}, ${esc(h.abre)} às ${esc(h.fecha)}`).join('<br>')}</dd></div>
-        <div><dt>${icone('telefone', { tamanho: 16 })} Telefone</dt>
-          <dd><a class="elo" href="tel:+${u.e164}">${esc(u.telefone)}</a></dd></div>
-      </dl>
+
+      <address class="unidade-endereco">
+        <span class="unidade-rua">${esc(u.enderecoLinha)}</span>
+        <span class="unidade-bairro">${esc(u.bairro)} &middot; CEP ${esc(u.cep)}</span>
+        <span class="unidade-referencia">${icone('pin', { tamanho: 15 })} ${esc(u.referencia)}</span>
+      </address>
+
+      <table class="unidade-horario">
+        <caption class="so-leitor">Horário da unidade de ${esc(u.cidade)}</caption>
+        <tbody>
+          ${u.horarios.map(h => `<tr><th scope="row">${esc(h.dias)}</th><td>${esc(h.abre)} às ${esc(h.fecha)}</td></tr>`).join('\n          ')}
+        </tbody>
+      </table>
+      <p class="unidade-fechado">${esc(u.fechado)}</p>
+
       <div class="cartao-acoes">
+        <a class="unidade-telefone" href="tel:+${u.e164}">
+          ${icone('telefone', { tamanho: 17 })}<span>${esc(u.telefone)}</span>
+        </a>
         ${botaoAgendar(u, { assunto })}
         <a class="elo elo-seta" href="${r}unidades/${u.slug}/">${tratamento
           ? `${esc(tratamento.nome)} em ${esc(u.cidade)}`
@@ -81,30 +90,28 @@ function cartaoUnidade(u, r, { assunto = null, tratamento = null } = {}) {
    Com JavaScript, passar o cursor ou o foco acende a região correspondente
    do modelo. O modelo é enfeite só quando não faz nada; aqui ele é o índice. */
 function modelo(r, fixa = null) {
+  /* O ÚNICO CONTROLE É INVISÍVEL, e o motivo é uma norma.
+     O modelo gira sozinho e não tem botão na tela, como o desenho pede. Mas
+     movimento que começa sozinho e dura mais de cinco segundos precisa de um
+     jeito de parar (WCAG 2.2.2), e `prefers-reduced-motion` cobre só quem já
+     marcou a preferência no sistema. A saída é o mesmo padrão do atalho "Ir
+     para o conteúdo": um botão que fica fora da tela e aparece quando recebe
+     o foco do teclado. Custo visual zero, norma cumprida. */
+  const parada = `<button class="modelo-parar" type="button" data-modelo-parar aria-pressed="false">
+          <span data-modelo-parar-texto>Pausar a rotação do modelo</span>
+        </button>`;
+
   const palco = `<div class="modelo-palco">
         <div class="modelo-halo" aria-hidden="true"></div>
         <canvas class="modelo-tela" data-modelo-tela width="1" height="1" hidden
           role="img" tabindex="-1"
-          aria-label="Modelo tridimensional de um molar dentro da gengiva${fixa ? `, com ${esc(fixa.parte.toLowerCase())} em destaque` : ''}. Arraste, ou use os botões abaixo, para girar."></canvas>
+          aria-label="Modelo tridimensional de um molar dentro da gengiva${fixa ? `, com ${esc(fixa.parte.toLowerCase())} em destaque` : ''}, girando devagar."></canvas>
         <div class="modelo-reserva${fixa ? ` regiao-${esc(fixa.regiao)}` : ''}" data-modelo-reserva>${denteEstatico()}</div>
-        <p class="modelo-dica" data-modelo-dica hidden>${icone('girar', { tamanho: 15 })} Arraste, ou use os botões</p>
-      </div>
-      <div class="modelo-controles" data-modelo-controles hidden>
-        <button class="modelo-botao" type="button" data-girar="-1">
-          ${icone('setaEsquerda', { tamanho: 18 })}<span class="so-leitor">Girar para a esquerda</span>
-        </button>
-        <button class="modelo-botao" type="button" data-pausar aria-pressed="false">
-          <span class="ico-toca">${icone('pausa', { tamanho: 18 })}</span>
-          <span class="ico-pausa">${icone('toca', { tamanho: 18 })}</span>
-          <span class="so-leitor">Pausar a rotação</span>
-        </button>
-        <button class="modelo-botao" type="button" data-girar="1">
-          ${icone('seta', { tamanho: 18 })}<span class="so-leitor">Girar para a direita</span>
-        </button>
+        ${parada}
       </div>`;
 
-  /* Na página de um tratamento o modelo já nasce com a região daquele
-     tratamento acesa e sem as fichas: ali ele é legenda, não índice. */
+  /* Na página de um tratamento o modelo nasce com a região daquele tratamento
+     acesa, e a legenda diz qual é. */
   if (fixa) {
     return `<div class="modelo modelo-fixo" data-modelo data-regiao-fixa="${esc(fixa.regiao)}">
       ${palco}
@@ -112,33 +119,45 @@ function modelo(r, fixa = null) {
     </div>`;
   }
 
-  const fichas = TRATAMENTOS.map(t => `
-        <a class="regiao" href="${r}tratamentos/${t.slug}/" data-regiao="${esc(t.regiao)}" data-parte="${esc(t.parte)}" data-parte-texto="${esc(t.parteTexto)}">
-          <span class="regiao-nome">${esc(t.nome)}</span>
-          <span class="regiao-parte">${esc(t.parte)}</span>
-          <span class="so-leitor">${esc(t.parteTexto)}</span>
-        </a>`).join('');
-
   return `<div class="modelo" data-modelo>
       ${palco}
-      <div class="modelo-indice">
-        <p class="modelo-legenda" data-modelo-legenda>
-          <strong>O dente, por dentro.</strong>
-          <span data-modelo-legenda-texto>Cada tratamento age numa parte diferente. Escolha uma para ver onde.</span>
-        </p>
-        <nav class="regioes" aria-label="Tratamentos por região do dente">${fichas}
-        </nav>
-      </div>
     </div>`;
 }
 
+/* A coluna da direita não é enfeite de preenchimento: é o resumo que a pessoa
+   procura enquanto lê as dúvidas (particular, quanto dura, onde é) e o caminho
+   para perguntar o que não está na lista. Ela acompanha a rolagem. */
 function secaoDuvidas(lista, r, { titulo = 'Dúvidas frequentes', id = 'duvidas', ver = true } = {}) {
   return `<section class="secao" id="${id}" aria-labelledby="${id}-titulo">
-  <div class="faixa faixa-estreita">
-    <p class="rotulo rotulo-ouro">Antes de agendar</p>
-    <h2 class="titulo-2" id="${id}-titulo">${esc(titulo)}</h2>
-    ${acordeao(lista)}
-    ${ver ? `<p class="mais"><a class="elo elo-seta" href="${r}duvidas/">Ver todas as dúvidas ${icone('seta', { tamanho: 15 })}</a></p>` : ''}
+  <div class="faixa duvidas-grade">
+    <div class="duvidas-coluna">
+      <p class="rotulo rotulo-ouro">Antes de agendar</p>
+      <h2 class="titulo-2" id="${id}-titulo">${esc(titulo)}</h2>
+      ${acordeao(lista)}
+      ${ver ? `<p class="mais"><a class="elo elo-seta" href="${r}duvidas/">Ver todas as dúvidas ${icone('seta', { tamanho: 15 })}</a></p>` : ''}
+    </div>
+
+    <aside class="duvidas-lado" aria-labelledby="${id}-lado">
+      <div class="lado-cartao">
+        <span class="lado-simbolo" aria-hidden="true">${simbolo({ tamanho: 34, cor: 'currentColor' })}</span>
+        <h3 class="lado-titulo" id="${id}-lado">Em resumo</h3>
+        <dl class="lado-fatos">
+          <div><dt>Atendimento</dt><dd>Particular, sem convênio</dd></div>
+          <div><dt>Primeira consulta</dt><dd>Avaliação, ${esc(CONSULTA_DURACAO)}</dd></div>
+          <div><dt>Sai com</dt><dd>Plano de tratamento por escrito</dd></div>
+          <div><dt>Unidades</dt><dd>${UNIDADES.map(x => `${esc(x.cidade)}, ${esc(x.destaqueHorario.toLowerCase())}`).join('<br>')}</dd></div>
+        </dl>
+        <p class="lado-nota">Não achou a sua pergunta? Escreva no WhatsApp da unidade mais perto de você.</p>
+        <div class="lado-acoes">
+          ${UNIDADES.map(x => `<a class="botao botao-vazado botao-pequeno" href="${x.whatsapp}" rel="noopener noreferrer" target="_blank">${icone('conversa', { tamanho: 16 })}<span>${esc(x.cidade)}</span></a>`).join('\n          ')}
+        </div>
+        <p class="lado-urgencia">
+          ${icone('escudo', { tamanho: 15 })}
+          <span>Dor forte, inchaço ou trauma não esperam por agenda.
+            <a class="elo" href="${r}urgencia/">O que fazer numa urgência</a>.</span>
+        </p>
+      </div>
+    </aside>
   </div>
 </section>`;
 }

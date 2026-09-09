@@ -416,10 +416,14 @@ function rodape(rota, raiz) {
       </div>
 ${unidades}
       <nav class="pe-navegacao" aria-label="Rodapé">
-        <h3 class="pe-titulo">Navegar</h3>
-        <ul class="pe-lista">${links}</ul>
-        <h3 class="pe-titulo pe-titulo-2">Tratamentos</h3>
-        <ul class="pe-lista">${tratamentos}</ul>
+        <div class="pe-coluna">
+          <h3 class="pe-titulo">Navegar</h3>
+          <ul class="pe-lista">${links}</ul>
+        </div>
+        <div class="pe-coluna">
+          <h3 class="pe-titulo">Tratamentos</h3>
+          <ul class="pe-lista">${tratamentos}</ul>
+        </div>
       </nav>
     </div>
 
@@ -509,7 +513,7 @@ export function chamada(rota, { titulo = 'Agende uma avaliação', texto = null,
   const cartoes = UNIDADES.map(u => `
       <div class="chamada-unidade">
         <p class="rotulo">${esc(u.cidade)} &middot; ${esc(u.uf)}</p>
-        <p class="chamada-endereco">${esc(u.enderecoLinha)}, ${esc(u.bairro)}</p>
+        <p class="chamada-endereco">${esc(u.enderecoLinha)}<br>${esc(u.bairro)}</p>
         <p class="chamada-horario">${icone('relogio', { tamanho: 16 })} ${esc(u.destaqueHorario)}</p>
         ${botaoAgendar(u, { assunto })}
         <p class="chamada-tel"><a class="elo" href="tel:+${u.e164}">${esc(u.telefone)}</a></p>

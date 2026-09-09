@@ -294,6 +294,12 @@ a { color: inherit; }
   padding-bottom: 3px;
 }
 .elo-seta:hover { color: var(--tinta); border-bottom-color: var(--ouro-esc); }
+/* Na faixa escura o hover não pode ir para a tinta preta: o link sumia contra
+   o fundo. Vai para o ouro claro, que é 7,7:1 ali. */
+.secao-escura .elo-seta,
+.chamada-caixa .elo-seta { color: var(--ouro); border-bottom-color: #3A3F4E; }
+.secao-escura .elo-seta:hover,
+.chamada-caixa .elo-seta:hover { color: var(--tinta-clara); border-bottom-color: var(--ouro); }
 .elo-seta .ico { transition: transform .18s ease; }
 .elo-seta:hover .ico { transform: translateX(4px); }
 
@@ -420,7 +426,7 @@ mark.pendente {
   line-height: 0;
   text-decoration: none;
 }
-.marca-img { width: 128px; height: auto; display: block; }
+.marca-img { width: 150px; height: auto; display: block; }
 
 .menu { margin-left: auto; }
 .menu-lista {
@@ -622,56 +628,52 @@ mark.pendente {
 .modelo-reserva[hidden] { display: none; }
 .dente-reserva { width: 100%; max-width: 300px; height: auto; }
 
-.modelo-dica {
+/* O ÚNICO CONTROLE DO MODELO, e ele é invisível.
+   O desenho pede o dente girando sozinho, sem nada em volta. Mas movimento
+   que começa sozinho e dura mais de cinco segundos precisa de um jeito de
+   parar (WCAG 2.2.2), e a preferência do sistema por menos movimento cobre só
+   quem já a marcou. Este botão usa o mesmo padrão do atalho "Ir para o
+   conteúdo": fica fora da tela e só aparece com o foco do teclado. */
+.modelo-parar {
   position: absolute;
-  bottom: 2px;
   left: 50%;
-  transform: translateX(-50%);
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
+  bottom: 4px;
+  width: 1px;
+  height: 1px;
+  padding: 0;
   margin: 0;
-  padding: 6px 14px;
-  border-radius: var(--r-pill);
-  background: rgba(255, 255, 255, .8);
-  border: 1px solid var(--linha);
-  font-size: .8rem;
-  color: var(--tinta-3);
-  pointer-events: none;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
 }
-.modelo-dica[hidden] { display: none; }
+.modelo-parar:focus {
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  transform: translateX(-50%);
+  z-index: 3;
+  padding: 9px 16px;
+  border: 1px solid var(--linha-botao);
+  border-radius: var(--r-pill);
+  background: var(--papel);
+  color: var(--tinta);
+  font-size: .84rem;
+  font-weight: 600;
+}
+.modelo-parar[hidden] { display: none; }
 
 .modelo-legenda {
-  margin: 0 0 12px;
-  font-size: .95rem;
+  margin: 0;
+  font-size: .93rem;
   color: var(--tinta-2);
-  min-height: 3em;
 }
-.modelo-legenda strong { color: var(--tinta); display: block; }
-
-.regioes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.regiao {
-  display: grid;
-  gap: 1px;
-  padding: 8px 14px;
-  border: 1px solid var(--linha);
-  border-radius: var(--r-p);
-  background: rgba(255, 255, 255, .6);
-  text-decoration: none;
-  transition: border-color .16s ease, background-color .16s ease, transform .16s ease;
-}
-.regiao-nome { font-size: .88rem; font-weight: 600; color: var(--tinta); }
-.regiao-parte { font-size: .74rem; color: var(--tinta-3); }
-.regiao:hover, .regiao:focus-visible, .regiao.e-ativa {
-  border-color: var(--ouro-esc);
-  background: var(--papel);
-  transform: translateY(-1px);
-}
-.regiao:hover .regiao-parte, .regiao.e-ativa .regiao-parte { color: var(--ouro-tinta); }
+.modelo-legenda strong { color: var(--tinta); }
 
 /* ------------------------------------------------------------------ */
 /*  Ilustração de reserva com região destacada                        */
@@ -682,13 +684,9 @@ mark.pendente {
 .modelo-fixo .modelo-palco { max-width: 400px; }
 .modelo-fixo .modelo-legenda {
   text-align: center;
-  font-size: .9rem;
-  min-height: 0;
-  margin: 0;
   max-width: 38ch;
   margin-inline: auto;
 }
-.modelo-fixo .modelo-legenda strong { display: inline; }
 
 [class*='regiao-'] .d-parte { opacity: .34; transition: opacity .2s ease; }
 .regiao-face .d-coroa,
@@ -798,17 +796,74 @@ mark.pendente {
   font-size: 1.7rem;
   font-weight: 500;
   line-height: 1.15;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
-.cartao-unidade .cartao-texto { margin-bottom: 18px; }
+
+/* O endereço é o conteúdo do cartão, e não uma linha de formulário: fica em
+   corpo de leitura, com o bairro e a referência abaixo em tom menor. A versão
+   anterior tinha uma coluna de rótulos em versal de 148 px espremendo tudo, e
+   um resumo que repetia o horário logo abaixo dele. */
+.unidade-endereco {
+  display: grid;
+  gap: 3px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--linha);
+}
+.unidade-rua { font-size: 1.06rem; font-weight: 600; color: var(--tinta); }
+.unidade-bairro { font-size: .95rem; color: var(--tinta-2); }
+.unidade-referencia {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 5px;
+  font-size: .89rem;
+  color: var(--tinta-3);
+}
+.unidade-referencia .ico { color: var(--ouro-esc); flex: none; }
+
+.unidade-horario {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0 0;
+  font-size: .95rem;
+}
+.unidade-horario th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--tinta-2);
+  padding: 3px 12px 3px 0;
+}
+.unidade-horario td {
+  text-align: right;
+  color: var(--tinta);
+  font-variant-numeric: tabular-nums;
+  padding: 3px 0;
+}
+.unidade-fechado { font-size: .87rem; color: var(--tinta-3); margin: 8px 0 0; }
+
+.unidade-telefone {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  font-size: 1.12rem;
+  font-weight: 600;
+  color: var(--tinta);
+  text-decoration: none;
+  padding-bottom: 4px;
+}
+.unidade-telefone .ico { color: var(--ouro-esc); flex: none; }
+.unidade-telefone span { border-bottom: 1px solid var(--linha-2); }
+.unidade-telefone:hover span { border-bottom-color: var(--ouro-esc); }
 .cartao-acoes {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 14px;
   margin-top: auto;
-  padding-top: 20px;
+  padding-top: 22px;
 }
+.cartao-unidade .cartao-acoes { border-top: 1px solid var(--linha); margin-top: 22px; }
 
 /* ------------------------------------------------------------------ */
 /*  Listas de dados                                                   */
@@ -1103,20 +1158,26 @@ mark.pendente {
   grid-template-columns: repeat(auto-fit, minmax(min(216px, 100%), 1fr));
   gap: 14px;
 }
+/* Os dois cartões são colunas de altura igual, e o botão é empurrado para o
+   fim: sem isso, o endereço de Garça quebrava em duas linhas e o botão dela
+   descia sozinho, desalinhado do de Marília. */
 .chamada-unidade {
+  display: flex;
+  flex-direction: column;
   background: rgba(255, 255, 255, .045);
   border: 1px solid var(--linha-escura);
   border-radius: var(--r);
   padding: 22px 20px;
 }
+.chamada-unidade .botao { margin-top: auto; }
 .chamada-unidade .rotulo { color: var(--ouro); margin-bottom: 10px; }
-.chamada-endereco { font-size: .92rem; color: var(--tinta-clara-2); margin: 0 0 8px; }
+.chamada-endereco { font-size: .92rem; color: var(--tinta-clara-2); margin: 0 0 10px; min-height: 2.9em; }
 .chamada-horario {
   display: flex; align-items: center; gap: 7px;
   font-size: .88rem; color: var(--tinta-clara-2); margin: 0 0 16px;
 }
 .chamada-horario .ico { color: var(--ouro); flex: none; }
-.chamada-unidade .botao { width: 100%; }
+.chamada-unidade .botao { display: flex; width: 100%; }
 .chamada-tel { margin: 12px 0 0; font-size: .9rem; text-align: center; }
 .chamada-tel .elo { color: var(--tinta-clara-2); text-decoration-color: #3A3F4E; }
 .chamada-tel .elo:hover { color: var(--ouro); text-decoration-color: var(--ouro); }
@@ -1125,23 +1186,32 @@ mark.pendente {
 /*  Rodapé                                                            */
 /* ------------------------------------------------------------------ */
 
+/* O rodapé era a seção mais alta do site: a lista de tratamentos empilhava
+   sete itens embaixo dos oito da navegação, numa coluna só. Agora as duas
+   listas correm lado a lado, e a altura passa a ser a da maior delas. */
 .pe {
   background: var(--noite-2);
   color: var(--tinta-clara-2);
-  padding: clamp(52px, 6vw, 82px) 0 34px;
-  font-size: .93rem;
+  padding: clamp(40px, 4vw, 58px) 0 26px;
+  font-size: .91rem;
 }
 
 .pe-grade {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) repeat(2, minmax(0, 1fr)) minmax(0, 1fr);
-  gap: clamp(26px, 3vw, 46px);
-  padding-bottom: 44px;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, .95fr) minmax(0, .95fr) minmax(0, 1.5fr);
+  gap: clamp(22px, 2.4vw, 38px);
+  padding-bottom: 30px;
   border-bottom: 1px solid var(--linha-escura);
 }
+.pe-navegacao {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 20px;
+  align-content: start;
+}
 
-.pe-marca-img { width: 132px; height: auto; display: block; margin-bottom: 18px; }
-.pe-resumo { max-width: 34ch; margin-bottom: 14px; }
+.pe-marca-img { width: 124px; height: auto; display: block; margin-bottom: 14px; }
+.pe-resumo { max-width: 32ch; margin-bottom: 12px; }
 
 .pe-titulo {
   font-size: .72rem;
@@ -1151,21 +1221,21 @@ mark.pendente {
   color: var(--ouro);
   margin: 0 0 14px;
 }
-.pe-titulo-2 { margin-top: 26px; }
 
-.pe-endereco { margin-bottom: 10px; }
-.pe-linha { margin: 0 0 8px; }
+
+.pe-endereco { margin-bottom: 8px; }
+.pe-linha { margin: 0 0 6px; }
 .pe-linha .elo { display: inline-flex; align-items: center; gap: 8px; }
 
 .pe .elo { color: var(--tinta-clara-2); text-decoration-color: #3A3F4E; }
 .pe .elo:hover { color: var(--ouro); text-decoration-color: var(--ouro); }
 
-.pe-lista { list-style: none; display: grid; gap: 8px; }
+.pe-lista { list-style: none; display: grid; gap: 6px; align-content: start; }
 
-.pe-legal { padding-top: 30px; font-size: .84rem; color: var(--tinta-3-escura); }
-.pe-legal p { margin: 0 0 8px; }
-.pe-aviso { max-width: 82ch; margin-top: 16px !important; }
-.pe-fim { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px !important; }
+.pe-legal { padding-top: 22px; font-size: .82rem; color: var(--tinta-3-escura); }
+.pe-legal p { margin: 0 0 6px; }
+.pe-aviso { max-width: 88ch; margin-top: 12px !important; }
+.pe-fim { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px !important; }
 
 .pe mark.pendente { background: #4A3C10; color: #F3E3AE; }
 
@@ -1235,10 +1305,10 @@ mark.pendente {
   .duvida-r { padding-right: 8px; }
   .dados > div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
   .capa-acoes .botao { width: 100%; }
-  .marca-img { width: 112px; }
+  .marca-img { width: 128px; }
   .regioes { gap: 7px; }
   .regiao { padding: 7px 11px; }
-  .modelo-legenda { min-height: 0; }
+
 }
 
 /* ------------------------------------------------------------------ */
@@ -1264,7 +1334,7 @@ mark.pendente {
 }
 
 @media print {
-  .topo, .pular, .chamada, .modelo-indice, .faixa-previa, .migalhas { display: none; }
+  .topo, .pular, .chamada, .duvidas-lado, .faixa-previa, .migalhas { display: none; }
   body { font-size: 11pt; background: #fff; }
   .secao-escura, .chamada-caixa { background: #fff !important; color: #000 !important; }
   .pe { background: #fff; color: #000; }
@@ -1309,31 +1379,6 @@ code {
 /*  Só aparecem quando o modelo sobe: sem WebGL não há o que girar.     */
 /* ------------------------------------------------------------------ */
 
-.modelo-controles {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 4px;
-}
-.modelo-controles[hidden] { display: none; }
-
-.modelo-botao {
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  border: 1px solid var(--linha-botao);
-  background: rgba(255, 255, 255, .7);
-  color: var(--tinta);
-  cursor: pointer;
-  transition: border-color .16s ease, background-color .16s ease;
-}
-.modelo-botao:hover { border-color: var(--ouro-esc); background: var(--papel); }
-.modelo-botao .ico { pointer-events: none; }
-.modelo-botao .ico-pausa { display: none; }
-.modelo-botao[aria-pressed="true"] .ico-pausa { display: block; }
-.modelo-botao[aria-pressed="true"] .ico-toca { display: none; }
 
 /* Lista de sinais de alerta da página de urgência. É a única lista com marca
    no site: aqui a marca ajuda a ler em pânico. */
@@ -1384,7 +1429,96 @@ code {
 @media (max-width: 420px) {
   .topo-faixa { gap: 10px; }
   .topo-acoes { gap: 6px; }
-  .marca-img { width: 96px; }
+  .marca-img { width: 112px; }
   .botao-pequeno { padding: 10px 14px; }
   .menu { left: -16px; right: -16px; padding-inline: 16px; }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Dúvidas em duas colunas                                            */
+/*                                                                     */
+/*  A lista de perguntas tem medida de leitura e deixava metade da tela */
+/*  vazia à direita. A coluna que entra ali não é enfeite: é o resumo   */
+/*  que a pessoa procura enquanto lê (particular, quanto dura, onde é)  */
+/*  e o caminho para perguntar o que não está na lista. Acompanha a     */
+/*  rolagem, porque a lista de perguntas é longa.                      */
+/* ------------------------------------------------------------------ */
+
+.pe-coluna { min-width: 0; }
+
+.duvidas-grade {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+  gap: clamp(28px, 4vw, 64px);
+  align-items: start;
+}
+.duvidas-coluna { min-width: 0; }
+
+.duvidas-lado { position: sticky; top: 104px; }
+
+.lado-cartao {
+  position: relative;
+  padding: 30px 28px 26px;
+  border: 1px solid var(--linha);
+  border-radius: var(--r);
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(210, 175, 87, .12), transparent 62%),
+    var(--papel);
+  box-shadow: var(--sombra-1);
+}
+.lado-simbolo {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  color: var(--ouro);
+  opacity: .5;
+  line-height: 0;
+}
+.lado-titulo {
+  font-family: var(--serifada);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--tinta);
+  margin: 0 0 18px;
+}
+
+.lado-fatos { display: grid; gap: 0; margin: 0 0 20px; }
+.lado-fatos > div {
+  display: grid;
+  gap: 2px;
+  padding: 11px 0;
+  border-top: 1px solid var(--linha);
+}
+.lado-fatos dt {
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--tinta-3);
+}
+.lado-fatos dd { margin: 0; font-size: .95rem; color: var(--tinta); }
+
+.lado-nota { font-size: .92rem; color: var(--tinta-2); margin: 0 0 14px; }
+.lado-acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.lado-acoes .botao { width: 100%; }
+
+.lado-urgencia {
+  display: flex;
+  gap: 9px;
+  margin: 18px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--linha);
+  font-size: .87rem;
+  color: var(--tinta-2);
+}
+.lado-urgencia .ico { color: #B4472B; flex: none; margin-top: 2px; }
+
+@media (max-width: 1000px) {
+  .duvidas-grade { grid-template-columns: minmax(0, 1fr); }
+  .duvidas-coluna > * { max-width: var(--estreita); }
+  .duvidas-lado { position: static; max-width: 480px; }
+}
+
+@media (max-width: 1080px) {
+  .pe-navegacao { grid-column: span 2; }
 }

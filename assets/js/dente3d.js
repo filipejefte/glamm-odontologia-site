@@ -31,9 +31,8 @@
 
   var tela = caixa.querySelector('[data-modelo-tela]');
   var reserva = caixa.querySelector('[data-modelo-reserva]');
-  var dica = caixa.querySelector('[data-modelo-dica]');
   var legenda = caixa.querySelector('[data-modelo-legenda-texto]');
-  var controles = caixa.querySelector('[data-modelo-controles]');
+  var parar = caixa.querySelector('[data-modelo-parar]');
   var fichas = [].slice.call(caixa.querySelectorAll('[data-regiao]'));
 
   var legendaPadrao = legenda ? legenda.textContent : '';
@@ -587,9 +586,13 @@
     var guinada = -0.42, inclinacao = 0.12;
     var alvoGuinada = guinada, alvoInclinacao = inclinacao;
     var girando = false, ultimoX = 0, ultimoY = 0, impulso = 0;
-    /* Deriva parada: por gesto da pessoa, pelo botao, ou pela preferencia de
-       menos movimento do sistema. */
+    /* A DERIVA NUNCA PARA EM DEFINITIVO. Arrastar suspende a rotação enquanto
+       o gesto acontece e por um instante depois, e então ela volta sozinha: o
+       modelo gira sem exigir nada de quem chega. O único desligamento
+       permanente é a preferência do sistema por menos movimento, e o botão
+       invisível que existe para cumprir a 2.2.2. */
     var pausada = false;
+    var esperaAte = 0;
     var perdido = false;
     var visivel = true;
 
@@ -685,7 +688,7 @@
         if (Math.abs(impulso) > 0.0001) {
           alvoGuinada += impulso;
           impulso *= 0.93;
-        } else if (!pouco && !pausada) {
+        } else if (!pouco && !pausada && agora > esperaAte) {
           alvoGuinada += dt * 0.20;
         }
       }
@@ -783,8 +786,6 @@
       rodando = false;
       tela.hidden = true;
       if (reserva) { reserva.hidden = false; }
-      if (dica) { dica.hidden = true; }
-      if (controles) { controles.hidden = true; }
     }, false);
 
     /* NAO ha `webglcontextrestored`. Reinicializar aqui recriaria programa,
@@ -816,7 +817,9 @@
       ultimoY = ev.clientY;
       /* Movimento de verdade, e nao qualquer toque: marcar no `pointerdown`
          fazia um deslize de rolagem sobre o modelo matar a deriva. */
-      if (Math.abs(dx) + Math.abs(dy) > 2) { pausada = true; }
+      /* Um segundo e meio de trégua depois do último movimento, e a deriva
+         retoma de onde a pessoa deixou. */
+      if (Math.abs(dx) + Math.abs(dy) > 2) { esperaAte = performance.now() + 1500; }
       alvoGuinada += dx * 0.0088;
       alvoInclinacao = Math.max(-0.62, Math.min(0.62, alvoInclinacao + dy * 0.0060));
       impulso = dx * 0.0088;
@@ -848,28 +851,23 @@
        justamente para quem depende dela. Quem opera sao os botoes abaixo, que
        tambem resolvem a exigencia de alternativa ao gesto de arrasto e o
        controle de parada da rotacao automatica. */
-    function girarPor(passo) { alvoGuinada += passo; }
-
-    if (controles) {
-      controles.hidden = false;
-      var bEsq = controles.querySelector('[data-girar="-1"]');
-      var bDir = controles.querySelector('[data-girar="1"]');
-      var bPausa = controles.querySelector('[data-pausar]');
-      if (bEsq) { bEsq.addEventListener('click', function () { girarPor(-0.45); }); }
-      if (bDir) { bDir.addEventListener('click', function () { girarPor(0.45); }); }
-      if (bPausa) {
-        var mostrarPausa = function () {
-          bPausa.setAttribute('aria-pressed', pausada ? 'true' : 'false');
-          var texto = bPausa.querySelector('.so-leitor');
-          if (texto) { texto.textContent = pausada ? 'Retomar a rotacao' : 'Pausar a rotacao'; }
-        };
-        mostrarPausa();
-        bPausa.addEventListener('click', function () {
-          pausada = !pausada;
-          impulso = 0;
-          mostrarPausa();
-        });
-      }
+    /* O botão de parada fica fora da tela e só aparece com o foco do teclado.
+       É o que cumpre a 2.2.2 sem colocar controle nenhum no desenho. */
+    if (parar) {
+      var mostrarParada = function () {
+        parar.setAttribute('aria-pressed', pausada ? 'true' : 'false');
+        var texto = parar.querySelector('[data-modelo-parar-texto]');
+        if (texto) {
+          texto.textContent = pausada ? 'Retomar a rotação do modelo' : 'Pausar a rotação do modelo';
+        }
+      };
+      mostrarParada();
+      parar.addEventListener('click', function () {
+        pausada = !pausada;
+        impulso = 0;
+        esperaAte = 0;
+        mostrarParada();
+      });
     }
 
     if (regiaoFixa) { aoDestacar(regiaoFixa); }
@@ -877,7 +875,6 @@
     /* --- troca a ilustração pelo modelo --- */
     tela.hidden = false;
     if (reserva) { reserva.hidden = true; }
-    if (dica) { dica.hidden = false; }
 
     medir();
     acordar();
@@ -888,8 +885,7 @@
     if (!tela) { return; }
     tela.hidden = true;
     if (reserva) { reserva.hidden = false; }
-    if (dica) { dica.hidden = true; }
-    if (controles) { controles.hidden = true; }
+    if (parar) { parar.hidden = true; }
   }
 
   /* A montagem custa cerca de 460 mil avaliacoes do campo de distancia. Num

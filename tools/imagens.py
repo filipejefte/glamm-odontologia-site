@@ -179,12 +179,35 @@ def logotipo():
     saturacao = np.where(mx > 0, (mx - mn) / np.maximum(mx, 1e-6), 0.0)
     acromatico = (saturacao < 0.18) & (alfa > 0)
 
-    escura = np.array(origem)
-    escura[acromatico, 0] = ARDOSIA[0]
-    escura[acromatico, 1] = ARDOSIA[1]
-    escura[acromatico, 2] = ARDOSIA[2]
+    # ------------------------------------------------------------------
+    # A VARIANTE DE FUNDO CLARO PRECISA DE MAIS TINTA.
+    #
+    # O manuscrito e um traco de meio pixel em ouro #A8873A, que da 3,35:1
+    # sobre a porcelana: some no cabecalho branco. Duas correcoes, as duas
+    # sobre a arte original, sem redesenhar nada:
+    #
+    #   1. luminancia do ouro multiplicada por 0,78, o que preserva matiz e
+    #      saturacao e leva o traco a ~4,9:1. Continua ouro, e nao vira marrom;
+    #   2. gama no alfa (0,78), que engrossa o traco suavizado sem mover o
+    #      contorno: o mesmo truque usado nos icones de tratamento.
+    #
+    # A palavra ODONTOLOGIA vira ardosia chapada, como antes.
+    # A variante de fundo escuro NAO e tocada: la o ouro original da 8,8:1.
+    # ------------------------------------------------------------------
+    ESCURECER = 0.72
+    GAMA_ALFA = 0.60
 
-    clara = Image.fromarray(escura, 'RGBA')     # para FUNDO claro
+    clara_arr = np.array(origem).astype(np.float32)
+    cromatico = (~acromatico) & (alfa > 0)
+
+    for c in range(3):
+        canal = clara_arr[:, :, c]
+        canal[cromatico] = np.clip(canal[cromatico] * ESCURECER, 0, 255)
+        canal[acromatico] = ARDOSIA[c]
+        clara_arr[:, :, c] = canal
+
+    clara_arr[:, :, 3] = np.clip(np.power(alfa / 255.0, GAMA_ALFA) * 255.0, 0, 255)
+    clara = Image.fromarray(clara_arr.astype(np.uint8), 'RGBA')
 
     # O logotipo aparece a 128 px de largura. 480 px cobre tela de alta
     # densidade com folga e corta o arquivo a um terco.

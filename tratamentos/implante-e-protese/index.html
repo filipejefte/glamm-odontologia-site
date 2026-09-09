@@ -86,21 +86,10 @@
         <div class="modelo-halo" aria-hidden="true"></div>
         <canvas class="modelo-tela" data-modelo-tela width="1" height="1" hidden
           role="img" tabindex="-1"
-          aria-label="Modelo tridimensional de um molar dentro da gengiva, com raiz e osso em destaque. Arraste, ou use os botões abaixo, para girar."></canvas>
+          aria-label="Modelo tridimensional de um molar dentro da gengiva, com raiz e osso em destaque, girando devagar."></canvas>
         <div class="modelo-reserva regiao-raiz" data-modelo-reserva><svg class="dente-reserva" viewBox="0 0 300 340" role="img" aria-labelledby="dente-reserva-titulo" xmlns="http://www.w3.org/2000/svg"><title id="dente-reserva-titulo">Esquema de um molar: coroa com duas cúspides, colo, duas raízes e a câmara pulpar, envolvidos pelo bloco de gengiva.</title><defs><linearGradient id="gengiva-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F0BEC1"/><stop offset="0.42" stop-color="#DE9186"/><stop offset="1" stop-color="#C2603F"/></linearGradient><linearGradient id="esmalte-g" x1="0.15" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.5" stop-color="#F6F3EC"/><stop offset="1" stop-color="#DAD2C3"/></linearGradient><linearGradient id="raiz-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F1EBE0"/><stop offset="1" stop-color="#D8CDBB"/></linearGradient></defs><ellipse cx="150" cy="322" rx="88" ry="9" fill="#5A3E22" opacity="0.10"/><rect class="d-parte d-gengiva" x="30" y="140" width="240" height="176" rx="46" fill="url(#gengiva-g)"/><path class="d-parte d-colar" d="M78 158C96 142 122 136 150 136C178 136 204 142 222 158C204 172 178 178 150 178C122 178 96 172 78 158Z" fill="#F3C9C9" opacity="0.9"/><path class="d-parte d-raiz" d="M96 166L132 166C128 205 118 248 110 274C107 283 97 283 95 274C90 240 90 200 96 166Z" fill="url(#raiz-g)" opacity="0.94"/><path class="d-parte d-raiz" d="M204 166L168 166C172 205 182 248 190 274C193 283 203 283 205 274C210 240 210 200 204 166Z" fill="url(#raiz-g)" opacity="0.94"/><path class="d-parte d-coroa" d="M82 108C82 78 92 54 112 44C128 36 140 46 150 62C160 46 172 36 188 44C208 54 218 78 218 108C218 140 208 164 188 170L112 170C92 164 82 140 82 108Z" fill="url(#esmalte-g)"/><path class="d-parte d-sulco" d="M102 62C124 82 176 82 198 62" fill="none" stroke="#D6CDBB" stroke-width="3.5" stroke-linecap="round"/><g class="d-parte d-polpa" fill="#DF8A80" opacity="0.34"><path d="M150 96C165 96 176 103 177 114C178 126 174 136 170 142L130 142C126 136 122 126 123 114C124 103 135 96 150 96Z"/><path d="M108 140L128 140C122 186 112 232 106 252C104 259 99 258 99 250C100 212 104 174 108 140Z"/><path d="M192 140L172 140C178 186 188 232 194 252C196 259 201 258 201 250C200 212 196 174 192 140Z"/></g></svg></div>
-        <p class="modelo-dica" data-modelo-dica hidden><svg class="ico " width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20.4 4.4v4.2h-4.2"/></svg> Arraste, ou use os botões</p>
-      </div>
-      <div class="modelo-controles" data-modelo-controles hidden>
-        <button class="modelo-botao" type="button" data-girar="-1">
-          <svg class="ico " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M20 12H5"/><path d="M11 6l-6 6 6 6"/></svg><span class="so-leitor">Girar para a esquerda</span>
-        </button>
-        <button class="modelo-botao" type="button" data-pausar aria-pressed="false">
-          <span class="ico-toca"><svg class="ico " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 5.5v13"/><path d="M14.5 5.5v13"/></svg></span>
-          <span class="ico-pausa"><svg class="ico " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 5.2l11 6.8-11 6.8z"/></svg></span>
-          <span class="so-leitor">Pausar a rotação</span>
-        </button>
-        <button class="modelo-botao" type="button" data-girar="1">
-          <svg class="ico " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></svg><span class="so-leitor">Girar para a direita</span>
+        <button class="modelo-parar" type="button" data-modelo-parar aria-pressed="false">
+          <span data-modelo-parar-texto>Pausar a rotação do modelo</span>
         </button>
       </div>
       <p class="modelo-legenda"><strong>Raiz e osso.</strong> <span>O que fica sob a gengiva e sustenta o dente. É o que o implante repõe.</span></p>
@@ -139,16 +128,26 @@
       <div class="cartao cartao-unidade">
       <p class="rotulo rotulo-ouro">Marília &middot; SP</p>
       <h3 class="cartao-titulo">Glamm Odontologia Marília</h3>
-      <p class="cartao-texto">Fica no Fragata, a poucos passos do Fórum Estadual. Atende de segunda a sexta.</p>
-      <dl class="dados">
-        <div><dt><svg class="ico " width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg> Endereço</dt>
-          <dd><address>Rua Marrei Júnior, 49<br>Fragata, Marília SP, CEP 17519-010</address></dd></div>
-        <div><dt><svg class="ico " width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></svg> Horário</dt>
-          <dd>Segunda a quinta, 08:00 às 19:00<br>Sexta, 08:30 às 19:00</dd></div>
-        <div><dt><svg class="ico " width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M6.3 4h3l1.5 3.7-1.9 1.4a11 11 0 0 0 5 5l1.4-1.9L19 13.7v3a1.6 1.6 0 0 1-1.8 1.6C10.4 17.6 6.4 13.6 4.7 5.8A1.6 1.6 0 0 1 6.3 4z"/></svg> Telefone</dt>
-          <dd><a class="elo" href="tel:+5514996181654">(14) 99618-1654</a></dd></div>
-      </dl>
+
+      <address class="unidade-endereco">
+        <span class="unidade-rua">Rua Marrei Júnior, 49</span>
+        <span class="unidade-bairro">Fragata &middot; CEP 17519-010</span>
+        <span class="unidade-referencia"><svg class="ico " width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg> próximo ao Fórum Estadual</span>
+      </address>
+
+      <table class="unidade-horario">
+        <caption class="so-leitor">Horário da unidade de Marília</caption>
+        <tbody>
+          <tr><th scope="row">Segunda a quinta</th><td>08:00 às 19:00</td></tr>
+          <tr><th scope="row">Sexta</th><td>08:30 às 19:00</td></tr>
+        </tbody>
+      </table>
+      <p class="unidade-fechado">Não atende aos sábados e domingos.</p>
+
       <div class="cartao-acoes">
+        <a class="unidade-telefone" href="tel:+5514996181654">
+          <svg class="ico " width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M6.3 4h3l1.5 3.7-1.9 1.4a11 11 0 0 0 5 5l1.4-1.9L19 13.7v3a1.6 1.6 0 0 1-1.8 1.6C10.4 17.6 6.4 13.6 4.7 5.8A1.6 1.6 0 0 1 6.3 4z"/></svg><span>(14) 99618-1654</span>
+        </a>
         <a class="botao botao-solido" href="https://wa.me/5514996181654?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Glamm%20Odontologia.%20Gostaria%20de%20agendar%20uma%20avalia%C3%A7%C3%A3o%20na%20unidade%20de%20Mar%C3%ADlia%20sobre%20implante%20e%20pr%C3%B3tese." rel="noopener noreferrer" target="_blank">
       <svg class="ico " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M20 11.6c0 3.9-3.6 7-8 7a9 9 0 0 1-2.6-.4L4.6 20l1.2-3.6A6.6 6.6 0 0 1 4 11.6c0-3.9 3.6-7 8-7s8 3.1 8 7z"/><path d="M9.2 11.4h.01"/><path d="M12 11.4h.01"/><path d="M14.8 11.4h.01"/></svg><span>Agendar em Marília</span>
     </a>
@@ -158,16 +157,26 @@
       <div class="cartao cartao-unidade">
       <p class="rotulo rotulo-ouro">Garça &middot; SP</p>
       <h3 class="cartao-titulo">Glamm Odontologia Garça</h3>
-      <p class="cartao-texto">Fica ao lado da Prefeitura Municipal. Abre até as 20h e atende aos sábados.</p>
-      <dl class="dados">
-        <div><dt><svg class="ico " width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg> Endereço</dt>
-          <dd><address>Rua Voluntários de 32, 147<br>Williams, Garça SP, CEP 17402-000</address></dd></div>
-        <div><dt><svg class="ico " width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></svg> Horário</dt>
-          <dd>Segunda a sexta, 08:00 às 20:00<br>Sábado, 08:00 às 14:00</dd></div>
-        <div><dt><svg class="ico " width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M6.3 4h3l1.5 3.7-1.9 1.4a11 11 0 0 0 5 5l1.4-1.9L19 13.7v3a1.6 1.6 0 0 1-1.8 1.6C10.4 17.6 6.4 13.6 4.7 5.8A1.6 1.6 0 0 1 6.3 4z"/></svg> Telefone</dt>
-          <dd><a class="elo" href="tel:+5514997577764">(14) 99757-7764</a></dd></div>
-      </dl>
+
+      <address class="unidade-endereco">
+        <span class="unidade-rua">Rua Voluntários de 32, 147</span>
+        <span class="unidade-bairro">Williams &middot; CEP 17402-000</span>
+        <span class="unidade-referencia"><svg class="ico " width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg> ao lado da Prefeitura Municipal</span>
+      </address>
+
+      <table class="unidade-horario">
+        <caption class="so-leitor">Horário da unidade de Garça</caption>
+        <tbody>
+          <tr><th scope="row">Segunda a sexta</th><td>08:00 às 20:00</td></tr>
+          <tr><th scope="row">Sábado</th><td>08:00 às 14:00</td></tr>
+        </tbody>
+      </table>
+      <p class="unidade-fechado">Não atende aos domingos.</p>
+
       <div class="cartao-acoes">
+        <a class="unidade-telefone" href="tel:+5514997577764">
+          <svg class="ico " width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M6.3 4h3l1.5 3.7-1.9 1.4a11 11 0 0 0 5 5l1.4-1.9L19 13.7v3a1.6 1.6 0 0 1-1.8 1.6C10.4 17.6 6.4 13.6 4.7 5.8A1.6 1.6 0 0 1 6.3 4z"/></svg><span>(14) 99757-7764</span>
+        </a>
         <a class="botao botao-solido" href="https://wa.me/5514997577764?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Glamm%20Odontologia.%20Gostaria%20de%20agendar%20uma%20avalia%C3%A7%C3%A3o%20na%20unidade%20de%20Gar%C3%A7a%20sobre%20implante%20e%20pr%C3%B3tese." rel="noopener noreferrer" target="_blank">
       <svg class="ico " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M20 11.6c0 3.9-3.6 7-8 7a9 9 0 0 1-2.6-.4L4.6 20l1.2-3.6A6.6 6.6 0 0 1 4 11.6c0-3.9 3.6-7 8-7s8 3.1 8 7z"/><path d="M9.2 11.4h.01"/><path d="M12 11.4h.01"/><path d="M14.8 11.4h.01"/></svg><span>Agendar em Garça</span>
     </a>
@@ -179,10 +188,11 @@
 </section>
 
 <section class="secao" id="duvidas" aria-labelledby="duvidas-titulo">
-  <div class="faixa faixa-estreita">
-    <p class="rotulo rotulo-ouro">Antes de agendar</p>
-    <h2 class="titulo-2" id="duvidas-titulo">Dúvidas sobre implante e prótese</h2>
-    <div class="duvidas">
+  <div class="faixa duvidas-grade">
+    <div class="duvidas-coluna">
+      <p class="rotulo rotulo-ouro">Antes de agendar</p>
+      <h2 class="titulo-2" id="duvidas-titulo">Dúvidas sobre implante e prótese</h2>
+      <div class="duvidas">
     <details class="duvida" id="p-implante-doi">
       <summary class="duvida-p">
         <h3 class="duvida-titulo">Implante dói?</h3>
@@ -204,7 +214,31 @@
       </summary>
       <div class="duvida-r"><p>Na maior parte dos casos existe solução provisória para a região visível durante a fase de integração. Se isso é possível no seu caso, e de que forma, é parte do que o plano de tratamento responde antes de começar.</p></div>
     </details></div>
-    
+      
+    </div>
+
+    <aside class="duvidas-lado" aria-labelledby="duvidas-lado">
+      <div class="lado-cartao">
+        <span class="lado-simbolo" aria-hidden="true"><svg class="" width="34" height="34" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M26.74 0.01L28.12 0.02L28.68 0.27L49.96 13.98L71.25 0.32L72.08 0.00L73.46 0.07L75.19 1.49L89.93 16.14L90.84 17.24L91.03 19.18L89.94 40.74L88.89 42.95L68.49 94.49L67.10 98.35L66.55 99.34L65.72 99.94L64.06 99.96L63.47 99.63L62.80 98.80L62.57 97.97L51.57 73.64L50.30 70.87L49.96 70.67L49.69 70.89L37.45 97.97L37.25 98.72L36.53 99.63L35.86 99.99L34.48 100.00L33.50 99.35L32.96 98.52L32.82 97.76L30.40 91.61L10.80 42.12L10.10 40.74L8.97 18.07L9.29 16.97L26.01 0.38L26.74 0.01ZM69.87 31.88L52.62 65.35L52.98 66.45L64.62 91.93L65.06 91.61L65.84 89.67L84.98 41.02L84.80 40.73L70.42 31.82L69.87 31.88ZM29.23 32.01L15.24 40.74L15.03 41.29L35.04 91.84L35.31 91.97L35.66 91.61L46.68 67.28L47.24 65.62L29.95 32.45L29.51 31.97L29.23 32.01ZM49.41 19.44L33.65 29.26L33.38 29.68L49.68 60.92L49.96 60.96L66.25 29.41L50.42 19.45L49.96 19.26L49.41 19.44ZM72.08 4.94L63.39 10.61L63.61 11.44L70.09 25.54L70.97 27.10L85.63 36.16L85.87 35.77L86.68 19.45L86.31 18.63L81.33 13.65L72.65 5.08L72.36 4.86L72.08 4.94ZM27.57 4.97L13.39 18.90L13.81 29.68L14.09 32.45L14.15 35.77L14.30 36.14L15.96 35.26L28.68 27.20L36.55 10.88L36.56 10.61L36.14 10.24L27.85 4.88L27.57 4.97ZM40.29 13.17L35.83 22.22L35.86 22.71L45.61 16.69L45.54 16.36L44.82 15.86L40.56 13.10L40.29 13.17ZM59.09 13.28L54.39 16.29L54.25 16.69L63.79 22.63L63.90 22.22L59.80 13.37L59.64 13.10L59.09 13.28Z"/></svg></span>
+        <h3 class="lado-titulo" id="duvidas-lado">Em resumo</h3>
+        <dl class="lado-fatos">
+          <div><dt>Atendimento</dt><dd>Particular, sem convênio</dd></div>
+          <div><dt>Primeira consulta</dt><dd>Avaliação, de quarenta a sessenta minutos</dd></div>
+          <div><dt>Sai com</dt><dd>Plano de tratamento por escrito</dd></div>
+          <div><dt>Unidades</dt><dd>Marília, segunda a sexta<br>Garça, segunda a sábado</dd></div>
+        </dl>
+        <p class="lado-nota">Não achou a sua pergunta? Escreva no WhatsApp da unidade mais perto de você.</p>
+        <div class="lado-acoes">
+          <a class="botao botao-vazado botao-pequeno" href="https://wa.me/5514996181654?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Glamm%20Odontologia%20e%20gostaria%20de%20agendar%20uma%20avalia%C3%A7%C3%A3o%20na%20unidade%20de%20Mar%C3%ADlia." rel="noopener noreferrer" target="_blank"><svg class="ico " width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M20 11.6c0 3.9-3.6 7-8 7a9 9 0 0 1-2.6-.4L4.6 20l1.2-3.6A6.6 6.6 0 0 1 4 11.6c0-3.9 3.6-7 8-7s8 3.1 8 7z"/><path d="M9.2 11.4h.01"/><path d="M12 11.4h.01"/><path d="M14.8 11.4h.01"/></svg><span>Marília</span></a>
+          <a class="botao botao-vazado botao-pequeno" href="https://wa.me/5514997577764?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Glamm%20Odontologia%20e%20gostaria%20de%20agendar%20uma%20avalia%C3%A7%C3%A3o%20na%20unidade%20de%20Gar%C3%A7a." rel="noopener noreferrer" target="_blank"><svg class="ico " width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M20 11.6c0 3.9-3.6 7-8 7a9 9 0 0 1-2.6-.4L4.6 20l1.2-3.6A6.6 6.6 0 0 1 4 11.6c0-3.9 3.6-7 8-7s8 3.1 8 7z"/><path d="M9.2 11.4h.01"/><path d="M12 11.4h.01"/><path d="M14.8 11.4h.01"/></svg><span>Garça</span></a>
+        </div>
+        <p class="lado-urgencia">
+          <svg class="ico " width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M12 3.6l6.6 2.6v5.2c0 4-2.8 7.4-6.6 9-3.8-1.6-6.6-5-6.6-9V6.2z"/><path d="M9.2 12.2l2 2 3.6-3.8"/></svg>
+          <span>Dor forte, inchaço ou trauma não esperam por agenda.
+            <a class="elo" href="../../urgencia/">O que fazer numa urgência</a>.</span>
+        </p>
+      </div>
+    </aside>
   </div>
 </section>
 
@@ -260,7 +294,7 @@
       <div class="chamada-unidades">
       <div class="chamada-unidade">
         <p class="rotulo">Marília &middot; SP</p>
-        <p class="chamada-endereco">Rua Marrei Júnior, 49, Fragata</p>
+        <p class="chamada-endereco">Rua Marrei Júnior, 49<br>Fragata</p>
         <p class="chamada-horario"><svg class="ico " width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></svg> Segunda a sexta</p>
         <a class="botao botao-solido" href="https://wa.me/5514996181654?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Glamm%20Odontologia.%20Gostaria%20de%20agendar%20uma%20avalia%C3%A7%C3%A3o%20na%20unidade%20de%20Mar%C3%ADlia%20sobre%20implante%20e%20pr%C3%B3tese." rel="noopener noreferrer" target="_blank">
       <svg class="ico " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M20 11.6c0 3.9-3.6 7-8 7a9 9 0 0 1-2.6-.4L4.6 20l1.2-3.6A6.6 6.6 0 0 1 4 11.6c0-3.9 3.6-7 8-7s8 3.1 8 7z"/><path d="M9.2 11.4h.01"/><path d="M12 11.4h.01"/><path d="M14.8 11.4h.01"/></svg><span>Agendar em Marília</span>
@@ -269,7 +303,7 @@
       </div>
       <div class="chamada-unidade">
         <p class="rotulo">Garça &middot; SP</p>
-        <p class="chamada-endereco">Rua Voluntários de 32, 147, Williams</p>
+        <p class="chamada-endereco">Rua Voluntários de 32, 147<br>Williams</p>
         <p class="chamada-horario"><svg class="ico " width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></svg> Segunda a sábado</p>
         <a class="botao botao-solido" href="https://wa.me/5514997577764?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Glamm%20Odontologia.%20Gostaria%20de%20agendar%20uma%20avalia%C3%A7%C3%A3o%20na%20unidade%20de%20Gar%C3%A7a%20sobre%20implante%20e%20pr%C3%B3tese." rel="noopener noreferrer" target="_blank">
       <svg class="ico " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M20 11.6c0 3.9-3.6 7-8 7a9 9 0 0 1-2.6-.4L4.6 20l1.2-3.6A6.6 6.6 0 0 1 4 11.6c0-3.9 3.6-7 8-7s8 3.1 8 7z"/><path d="M9.2 11.4h.01"/><path d="M12 11.4h.01"/><path d="M14.8 11.4h.01"/></svg><span>Agendar em Garça</span>
@@ -317,10 +351,14 @@
         <p class="pe-linha"><a class="elo" href="../../unidades/garca/">Ver a unidade de Garça</a></p>
       </div>
       <nav class="pe-navegacao" aria-label="Rodapé">
-        <h3 class="pe-titulo">Navegar</h3>
-        <ul class="pe-lista"><li><a class="elo" href="../../tratamentos/">Tratamentos</a></li><li><a class="elo" href="../../unidades/">Unidades</a></li><li><a class="elo" href="../../a-clinica/">A clínica</a></li><li><a class="elo" href="../../equipe/">Equipe</a></li><li><a class="elo" href="../../duvidas/">Dúvidas</a></li><li><a class="elo" href="../../contato/">Contato</a></li><li><a class="elo" href="../../primeira-consulta/">Primeira consulta</a></li><li><a class="elo" href="../../urgencia/">Urgência</a></li></ul>
-        <h3 class="pe-titulo pe-titulo-2">Tratamentos</h3>
-        <ul class="pe-lista"><li><a class="elo" href="../../tratamentos/lentes-e-facetas/">Lentes e facetas</a></li><li><a class="elo" href="../../tratamentos/ortodontia-e-alinhadores/">Ortodontia e alinhadores</a></li><li><a class="elo" href="../../tratamentos/implante-e-protese/">Implante e prótese</a></li><li><a class="elo" href="../../tratamentos/clareamento-dental/">Clareamento dental</a></li><li><a class="elo" href="../../tratamentos/endodontia/">Endodontia</a></li><li><a class="elo" href="../../tratamentos/periodontia/">Periodontia</a></li><li><a class="elo" href="../../tratamentos/avaliacao-com-camera-intraoral/">Avaliação com câmera intraoral</a></li></ul>
+        <div class="pe-coluna">
+          <h3 class="pe-titulo">Navegar</h3>
+          <ul class="pe-lista"><li><a class="elo" href="../../tratamentos/">Tratamentos</a></li><li><a class="elo" href="../../unidades/">Unidades</a></li><li><a class="elo" href="../../a-clinica/">A clínica</a></li><li><a class="elo" href="../../equipe/">Equipe</a></li><li><a class="elo" href="../../duvidas/">Dúvidas</a></li><li><a class="elo" href="../../contato/">Contato</a></li><li><a class="elo" href="../../primeira-consulta/">Primeira consulta</a></li><li><a class="elo" href="../../urgencia/">Urgência</a></li></ul>
+        </div>
+        <div class="pe-coluna">
+          <h3 class="pe-titulo">Tratamentos</h3>
+          <ul class="pe-lista"><li><a class="elo" href="../../tratamentos/lentes-e-facetas/">Lentes e facetas</a></li><li><a class="elo" href="../../tratamentos/ortodontia-e-alinhadores/">Ortodontia e alinhadores</a></li><li><a class="elo" href="../../tratamentos/implante-e-protese/">Implante e prótese</a></li><li><a class="elo" href="../../tratamentos/clareamento-dental/">Clareamento dental</a></li><li><a class="elo" href="../../tratamentos/endodontia/">Endodontia</a></li><li><a class="elo" href="../../tratamentos/periodontia/">Periodontia</a></li><li><a class="elo" href="../../tratamentos/avaliacao-com-camera-intraoral/">Avaliação com câmera intraoral</a></li></ul>
+        </div>
       </nav>
     </div>
 
