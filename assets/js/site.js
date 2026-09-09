@@ -1,199 +1,120 @@
 /* =========================================================================
-   Comportamento do site. Três coisas, e só três.
+   Melhorias progressivas. A página funciona inteira sem este arquivo.
 
-   1. O menu no celular.
-   2. A mensagem de agendamento, montada no aparelho de quem está lendo.
-   3. Marcar no menu qual seção está na tela.
-   4. Abrir as perguntas antes de imprimir.
-
-   Nada aqui revela conteúdo. Nenhum bloco da página depende deste arquivo
-   para aparecer: se o script não carregar, o site continua inteiro e o
-   agendamento continua funcionando pelos botões de WhatsApp de cada unidade.
-
-   Nada aqui envia dado para lugar nenhum. Não há fetch, não há XHR, não há
-   armazenamento. A CSP da página bloqueia conexão de saída, envio de
-   formulário e origem de terceiro, então essa promessa é verificável e não
-   depende de confiança neste arquivo.
+   Duas regras:
+   1. Nada de conteúdo depende daqui. Nenhum texto é escrito, nenhum bloco é
+      revelado ao rolar. Se este arquivo não carregar, o site continua
+      completo e navegável — inclusive o menu, que só passa a ser recolhível
+      DEPOIS que a classe `js` entra no documento.
+   2. Nenhuma requisição de rede. A política de segurança bloqueia `connect-src`
+      e a página de privacidade promete que nada sai deste domínio.
    ========================================================================= */
 
 (function () {
   'use strict';
 
+  var raiz = document.documentElement;
+  raiz.classList.remove('sem-js');
+  raiz.classList.add('js');
+
   /* ---------------------------------------------------------------- */
-  /* 1. Menu no celular                                               */
+  /*  Menu no celular                                                  */
+  /*                                                                   */
+  /*  O painel só é fechado aqui, depois que a classe `js` já está no   */
+  /*  documento. Assim, sem JavaScript, o menu fica aberto e empilhado  */
+  /*  em vez de sumir.                                                 */
   /* ---------------------------------------------------------------- */
 
-  var botao = document.getElementById('abrir-menu');
-  var nav = document.getElementById('navegacao');
+  var botao = document.querySelector('[data-menu]');
+  var menu = document.getElementById('menu');
+  var acoes = document.querySelector('[data-topo-acoes]');
+  var faixa = menu && menu.parentNode;
+  var estreito = window.matchMedia('(max-width: 860px)');
 
-  if (botao && nav) {
+  /* A ORDEM DO DOM MUDA COM O LAYOUT, e muda de propósito.
+     Na tela larga a barra é [marca] [menu] [agendar], e o DOM segue essa
+     ordem. Na estreita a barra vira [marca] [agendar] [abrir menu] e o painel
+     abre embaixo — se o DOM continuasse o mesmo, quem navega por teclado
+     sairia do último item do menu e voltaria para um botão que está ACIMA
+     dele. Mover o elemento é o que mantém foco e leitura na ordem que se vê. */
+  function ordenar() {
+    if (!menu || !faixa || !acoes) { return; }
+    if (estreito.matches) {
+      if (menu.nextElementSibling !== null) { faixa.appendChild(menu); }
+    } else if (menu.nextElementSibling !== acoes) {
+      faixa.insertBefore(menu, acoes);
+    }
+  }
+
+  function ajustar() {
+    if (!botao || !menu) { return; }
+    ordenar();
+    menu.hidden = estreito.matches;
+    botao.setAttribute('aria-expanded', 'false');
+  }
+
+  if (botao && menu) {
+    ajustar();
+    if (estreito.addEventListener) {
+      estreito.addEventListener('change', ajustar);
+    } else if (estreito.addListener) {
+      estreito.addListener(ajustar);
+    }
+
     botao.addEventListener('click', function () {
-      var aberto = nav.classList.toggle('aberto');
-      botao.setAttribute('aria-expanded', aberto ? 'true' : 'false');
-    });
-
-    /* Esc fecha e devolve o foco ao botão, que é de onde a pessoa veio. */
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && nav.classList.contains('aberto')) {
-        nav.classList.remove('aberto');
-        botao.setAttribute('aria-expanded', 'false');
-        botao.focus();
+      var aberto = botao.getAttribute('aria-expanded') === 'true';
+      botao.setAttribute('aria-expanded', aberto ? 'false' : 'true');
+      menu.hidden = aberto;
+      var texto = botao.querySelector('.so-leitor');
+      if (texto) { texto.textContent = aberto ? 'Abrir o menu' : 'Fechar o menu'; }
+      if (!aberto) {
+        var primeiro = menu.querySelector('a');
+        if (primeiro) { primeiro.focus(); }
       }
     });
 
-    /* Ao voltar para a largura de mesa o menu não pode ficar preso aberto. */
-    var largura = window.matchMedia('(min-width: 60.0625rem)');
-    var aoMudar = function (m) {
-      if (m.matches) {
-        nav.classList.remove('aberto');
-        botao.setAttribute('aria-expanded', 'false');
-      }
-    };
-    if (largura.addEventListener) { largura.addEventListener('change', aoMudar); }
-  }
-
-  /* ---------------------------------------------------------------- */
-  /* 2. Mensagem de agendamento                                       */
-  /* ---------------------------------------------------------------- */
-
-  var form = document.getElementById('form-agenda');
-
-  if (form) {
-    var previa = document.getElementById('previa-mensagem');
-    var enviar = document.getElementById('enviar-whatsapp');
-
-    /* Os dados das unidades vêm do próprio HTML já publicado, lidos dos
-       botões de rádio, e não de uma cópia escrita aqui. Um telefone só
-       existe em src/dados.mjs; se ele mudar lá, muda em todo lugar. */
-    var unidades = {};
-    Array.prototype.forEach.call(form.querySelectorAll('input[name="unidade"]'), function (input) {
-      var corpo = input.closest('.radio');
-      unidades[input.value] = {
-        cidade: corpo.querySelector('.radio-cidade').textContent.trim()
-      };
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key !== 'Escape') { return; }
+      if (!estreito.matches || menu.hidden) { return; }
+      menu.hidden = true;
+      botao.setAttribute('aria-expanded', 'false');
+      botao.focus();
     });
 
-    /* O número de cada unidade sai do link de WhatsApp que já está no
-       rodapé desta mesma página, um por unidade, na mesma ordem dos rádios. */
-    var linksZap = document.querySelectorAll('.rp-unidade .rp-links-unid a[href*="wa.me/"]');
-    var ordem = Object.keys(unidades);
-    Array.prototype.forEach.call(linksZap, function (a, i) {
-      var casa = a.getAttribute('href').match(/wa\.me\/(\d+)/);
-      if (casa && ordem[i]) { unidades[ordem[i]].numero = casa[1]; }
-    });
-
-    var valor = function (id) {
-      var el = document.getElementById(id);
-      return el ? el.value.trim() : '';
-    };
-
-    var montar = function () {
-      var escolhida = form.querySelector('input[name="unidade"]:checked');
-      var id = escolhida ? escolhida.value : ordem[0];
-      var u = unidades[id] || {};
-
-      var nome = valor('ag-nome');
-      var assunto = valor('ag-assunto');
-      var periodo = valor('ag-periodo');
-      var obs = valor('ag-obs');
-
-      var linhas = [];
-      linhas.push('Olá! Vim pelo site da Glamm Odontologia'
-        + (u.cidade ? ' e gostaria de agendar uma avaliação na unidade de ' + u.cidade + '.' : '.'));
-      if (nome) { linhas.push('Meu nome é ' + nome + '.'); }
-      linhas.push(assunto
-        ? 'O que me trouxe até aqui: ' + assunto + '.'
-        : 'Ainda não sei do que preciso, queria começar por uma avaliação.');
-      if (periodo) { linhas.push('Consigo ir melhor ' + periodo + '.'); }
-      if (obs) { linhas.push(obs); }
-
-      return { texto: linhas.join('\n'), numero: u.numero };
-    };
-
-    var atualizar = function () {
-      var m = montar();
-      if (previa) { previa.textContent = m.texto; }
-      if (enviar && m.numero) {
-        enviar.setAttribute('href', 'https://wa.me/' + m.numero + '?text=' + encodeURIComponent(m.texto));
-      }
-    };
-
-    form.addEventListener('input', atualizar);
-    form.addEventListener('change', atualizar);
-
-    /* O formulário não envia nada. Se algum navegador tentar submeter por
-       Enter, a submissão morre aqui, além de já morrer na CSP. */
-    form.addEventListener('submit', function (e) { e.preventDefault(); });
-
-    atualizar();
-  }
-
-  /* ---------------------------------------------------------------- */
-  /* 3. Qual seção está na tela                                       */
-  /* ---------------------------------------------------------------- */
-
-  /* O site é uma página só, então o menu precisa dizer onde a pessoa está.
-     É acréscimo puro: sem script os links continuam levando às âncoras. */
-  var links = [].slice.call(document.querySelectorAll('.topo-nav a[href^="#"]'));
-  if (links.length && 'IntersectionObserver' in window) {
-    var porId = {};
-    var secoes = [];
-    links.forEach(function (a) {
-      var id = a.getAttribute('href').slice(1);
-      var el = document.getElementById(id);
-      if (el) { porId[id] = a; secoes.push(el); }
-    });
-
-    var visiveis = {};
-    var marcar = function () {
-      var atual = null;
-      secoes.forEach(function (el) { if (visiveis[el.id]) { atual = atual || el.id; } });
-      links.forEach(function (a) {
-        var meu = a.getAttribute('href').slice(1) === atual;
-        a.classList.toggle('atual', meu);
-        if (meu) { a.setAttribute('aria-current', 'true'); } else { a.removeAttribute('aria-current'); }
-      });
-    };
-
-    var obs = new IntersectionObserver(function (es) {
-      es.forEach(function (e) { visiveis[e.target.id] = e.isIntersecting; });
-      marcar();
-    }, { rootMargin: '-30% 0px -60% 0px' });
-    secoes.forEach(function (el) { obs.observe(el); });
-  }
-
-  /* Fechar o menu do celular ao seguir uma âncora: senão ele cobre o
-     destino e a pessoa cai numa lista de links. */
-  if (nav && botao) {
-    nav.addEventListener('click', function (e) {
-      if (e.target.closest('a') && nav.classList.contains('aberto')) {
-        nav.classList.remove('aberto');
+    menu.addEventListener('click', function (ev) {
+      if (!estreito.matches) { return; }
+      var alvo = ev.target;
+      while (alvo && alvo !== menu && alvo.tagName !== 'A') { alvo = alvo.parentNode; }
+      if (alvo && alvo.tagName === 'A') {
+        menu.hidden = true;
         botao.setAttribute('aria-expanded', 'false');
       }
     });
   }
 
   /* ---------------------------------------------------------------- */
-  /* 4. Imprimir com as perguntas abertas                             */
+  /*  Âncora dentro de uma pergunta fechada                            */
+  /*                                                                   */
+  /*  Se alguém chegar por um link direto para uma resposta, abre o     */
+  /*  <details> em vez de rolar até um bloco fechado.                   */
   /* ---------------------------------------------------------------- */
 
-  var abrirTudo = function () {
-    Array.prototype.forEach.call(document.querySelectorAll('details'), function (d) {
-      if (!d.open) {
-        d.open = true;
-        d.setAttribute('data-reabrir', '');
-      }
-    });
-  };
-  var fecharDeVolta = function () {
-    Array.prototype.forEach.call(document.querySelectorAll('details[data-reabrir]'), function (d) {
-      d.open = false;
-      d.removeAttribute('data-reabrir');
-    });
-  };
-
-  if (window.addEventListener) {
-    window.addEventListener('beforeprint', abrirTudo);
-    window.addEventListener('afterprint', fecharDeVolta);
+  function abrirAlvo() {
+    var id = location.hash.slice(1);
+    if (!id) { return; }
+    var alvo = null;
+    try { alvo = document.getElementById(decodeURIComponent(id)); } catch (e) { alvo = null; }
+    if (!alvo) { return; }
+    var det = alvo;
+    while (det && det.tagName !== 'DETAILS') { det = det.parentNode; }
+    if (det && det.tagName === 'DETAILS') {
+      det.open = true;
+      /* O navegador já rolou até o elemento FECHADO antes deste código rodar.
+         Depois de abrir, a posição mudou, e é preciso rolar de novo. */
+      if (det.scrollIntoView) { det.scrollIntoView({ block: 'center' }); }
+    }
   }
-})();
+
+  abrirAlvo();
+  window.addEventListener('hashchange', abrirAlvo);
+}());

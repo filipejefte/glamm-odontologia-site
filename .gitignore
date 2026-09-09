@@ -1,14 +1,14 @@
 # Material de trabalho e notas internas. O repositorio e' publico: nada daqui
 # pode chegar ao cliente nem a quem buscar a clinica no Google. Contem os tres
-# documentos de diagnostico, que trazem analise de reputacao de terceiros e a
-# arte original da marca.
+# documentos de diagnostico, a arte original da marca, o retrato em tamanho
+# cheio e a versao anterior do site.
 interno/
 NOTAS-INTERNAS.md
 
-# Os TTF completos VAO para o repositorio, de proposito: sem eles
-# tools/fontes.mjs nao roda numa copia nova, e o recorte deixa de ser
-# reproduzivel. Sao ~630 KB e a licenca (OFL, em assets/fonts/) permite
-# redistribuir. O site servido nao os carrega: so os woff2 recortados.
+# Os TTF completos das duas familias VAO para o repositorio, de proposito: sem
+# eles tools/fontes.mjs nao roda numa copia nova e o recorte deixa de ser
+# reproduzivel. As licencas (OFL) estao em assets/fonts/. O site servido nao os
+# carrega: so os woff2 recortados.
 
 # Configuracao local de ferramentas.
 .claude/
@@ -19,3 +19,16 @@ dist/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Acidentes comuns: nada disso existe hoje, e a lista existe para que continue
+# assim depois de qualquer sessao de trabalho.
+.env
+.env.*
+*.log
+*.bak
+*.tmp
+__pycache__/
+*.pyc
+.venv/
+.vscode/
+.idea/

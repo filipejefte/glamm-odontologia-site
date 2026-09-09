@@ -1,12 +1,13 @@
 {
   "name": "Glamm Odontologia",
   "short_name": "Glamm",
+  "description": "Clínica odontológica com unidades em Marília e Garça, SP.",
   "lang": "pt-BR",
   "start_url": "./",
   "scope": "./",
-  "display": "browser",
-  "background_color": "#E7E2DA",
-  "theme_color": "#E7E2DA",
+  "display": "standalone",
+  "background_color": "#FAF8F5",
+  "theme_color": "#FAF8F5",
   "icons": [
     {
       "src": "assets/img/icone-192.png",
@@ -16,8 +17,7 @@
     {
       "src": "assets/img/icone-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "assets/img/icone-mascara.png",

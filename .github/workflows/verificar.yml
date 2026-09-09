@@ -1,8 +1,9 @@
-name: verificar
+name: Verificar
 
-# Roda a mesma verificação que roda na máquina, a cada envio. Duas coisas:
-# que o HTML publicado e' exatamente o que o gerador produz (ninguem editou
-# HTML na mao), e que ele passa em tools/check.mjs.
+# Só leitura: este fluxo confere, não publica. A publicação é feita pelo
+# GitHub Pages a partir do próprio branch.
+permissions:
+  contents: read
 
 on:
   push:
@@ -10,30 +11,43 @@ on:
   pull_request:
   workflow_dispatch:
 
-# Só leitura. Este fluxo não publica nada e não precisa de escrita.
-permissions:
-  contents: read
+concurrency:
+  group: verificar-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   verificar:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
+        with:
+          # Sem isto o checkout deixa o GITHUB_TOKEN gravado em .git/config, e
+          # os passos seguintes executam código vindo do head do pull request.
+          persist-credentials: false
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
 
+      # O HTML é gerado e vai versionado, porque o GitHub Pages serve o branch.
+      # Este passo regenera e exige que nada mude: é o que impede o HTML
+      # publicado de se descolar de src/dados.mjs.
       - name: Gerar o site
         run: node build.mjs --preview
 
-      - name: O HTML publicado tem de ser o que o gerador produz
+      - name: O HTML publicado bate com a fonte
         run: |
           if ! git diff --exit-code --stat; then
-            echo "O HTML no repositorio difere do que build.mjs gera."
-            echo "Rode 'node build.mjs --preview' e envie o resultado."
+            echo "::error::O HTML versionado está diferente do que a build gera. Rode 'node build.mjs --preview' e commite."
             exit 1
           fi
 
-      - name: Verificacao completa
+      # Vazamento de dado pessoal, telefone trocado, link quebrado, âncora sem
+      # destino, contraste, dado estruturado, CSP. Sai com código 1 se falhar.
+      # Sem --exigir-identificadores: interno/identificadores.txt não existe no
+      # clone, e não pode existir. Aqui rodam só os padrões genéricos, e o
+      # próprio script avisa disso na saída. A verificação que autoriza a
+      # publicação é a local, com a bandeira.
+      - name: Verificar
         run: node tools/check.mjs

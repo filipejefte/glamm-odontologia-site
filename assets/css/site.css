@@ -1,991 +1,1390 @@
 /* =========================================================================
-   Glamm Odontologia
+   Glamm Odontologia — folha de estilo única.
 
-   A LINGUAGEM
-   Fundo claro e quente, composição em cartões de tamanhos diferentes, um
-   acento sólido só, cantos bem arredondados, tipografia grande e pesada,
-   e recortes de número soltos pela página. É o vocabulário de landing page
-   contemporânea, e é o que o cliente pediu.
+   DIREÇÃO
+   Porcelana e ouro. O branco quente e o filete de ouro vêm da identidade que
+   a clínica já tem (mármore, ouro e o manuscrito); o que é novo é o ar entre
+   as coisas, a tipografia serifada em itálico como acento e a faixa escura
+   que faz o ouro brilhar. Moderno sem apagar a marca.
 
-   As duas versões anteriores erraram por motivos opostos: a primeira era
-   editorial demais e não parecia um site; a segunda ficou escura e séria
-   demais para uma marca chamada Glamm. Esta fica clara, mas o ouro da marca
-   continua tendo onde brilhar, porque aparece como FORMA PREENCHIDA, não
-   como cor de texto: o disco de acento, os botões, os realces do modelo 3D.
-   É assim que a referência usa o laranja dela.
-
-   PALETA
-   As duas cores de marca saíram da arte oficial:
-     ardósia  #4C526A  medida no núcleo do traço do símbolo (ícone de 512 px)
-     ouro     #A38434 e #D2AF57, as paradas literais do gradiente declarado
-                      nos SVG que a clínica publica
-
-   O resto deriva daí, e cada par foi conferido contra a WCAG antes de entrar.
-   Números anotados linha a linha. O ouro só carrega TEXTO sobre o escuro
-   (8,47:1); sobre o claro ele é fundo, com tinta escura por cima.
-
-   TIPOGRAFIA
-   Hanken Grotesk, variável, uma família só. Peso 800 nos títulos, 400 no
-   texto: o contraste vem do peso e do corpo, não de misturar duas fontes.
+   COR: O OURO É FORMA, NÃO É TINTA DE TEXTO PEQUENO
+   O ouro da marca (#A38434) dá 3,35:1 sobre a porcelana. Isso passa para
+   texto grande (≥ 24 px) e não passa para texto pequeno. Então:
+     - título e itálico grande usam #A38434;
+     - rótulo, legenda e texto pequeno usam #7A5F1F (4,9:1);
+     - botão de ouro é FORMA preenchida com tinta quase preta por cima
+       (5,1:1 no extremo escuro do gradiente, 8,6:1 no claro).
+   Todos os pares foram calculados, não estimados.
 
    MOVIMENTO
-   Nada aqui esconde conteúdo. Nenhum bloco começa em opacity 0 esperando
-   rolagem. Transição só em hover e foco, desligada em prefers-reduced-motion.
+   Nada aparece ao rolar. Conteúdo escondido atrás de observador de interseção
+   fica invisível quando o script falha, e some para quem lê por leitor de
+   tela. Movimento aqui só existe em resposta a gesto: passar o cursor, focar,
+   arrastar o modelo.
    ========================================================================= */
+
+/* ------------------------------------------------------------------ */
+/*  Fontes                                                            */
+/*  Servidas deste domínio, recortadas ao texto que o site escreve.    */
+/*  Nenhuma requisição sai daqui: a política de segurança não abre     */
+/*  para terceiro e a página de privacidade promete isso.              */
+/* ------------------------------------------------------------------ */
 
 @font-face {
   font-family: 'Hanken';
-  src: url('../fonts/hanken.woff2') format('woff2-variations');
+  src: url('../fonts/hanken.woff2') format('woff2');
   font-weight: 300 800;
   font-style: normal;
   font-display: swap;
 }
 
-/* ------------------------------------------------------------------ */
-/* Fichas                                                              */
-/* ------------------------------------------------------------------ */
+@font-face {
+  font-family: 'Cormorant';
+  src: url('../fonts/cormorant.woff2') format('woff2');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
 
-:root {
-  --fundo: #E7E2DA;
-  --fundo-2: #E1D9CD;
-  --cartao: #DDD6CB;
-  --papel: #F4F1EB;
-  --escuro: #16181C;
-
-  --tinta: #16181C;          /* 13,79:1 sobre o fundo */
-  --tinta-2: #4C5058;        /*  6,28:1 sobre o fundo */
-  --creme: #F4F1EB;          /* 15,77:1 sobre o escuro */
-  --creme-2: #B9B5AD;        /*  8,70:1 sobre o escuro */
-
-  --ardosia: #4C526A;
-  --ouro: #D2AF57;           /* 8,47:1 de tinta escura POR CIMA dele */
-  --ouro-esc: #A38434;
-  --ouro-txt: #7A5F1F;       /* 4,68:1 sobre o fundo, para rótulo pequeno */
-
-  --linha: #CFC7BA;
-  --linha-clara: #E3DCD1;
-
-  --raio: 26px;
-  --raio-p: 16px;
-  --env: 78rem;
-  --passo: clamp(4.5rem, 8vw, 8.5rem);
-
-  --fonte: 'Hanken', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif;
-
-  color-scheme: light;
+@font-face {
+  font-family: 'Cormorant';
+  src: url('../fonts/cormorant-italico.woff2') format('woff2');
+  font-weight: 300 700;
+  font-style: italic;
+  font-display: swap;
 }
 
 /* ------------------------------------------------------------------ */
-/* Base                                                                */
+/*  Tokens                                                            */
+/* ------------------------------------------------------------------ */
+
+:root {
+  /* superfícies */
+  --porcelana: #FAF8F5;
+  --papel: #FFFFFF;
+  --areia: #F3EEE6;
+  --areia-2: #EDE6DA;
+  --noite: #15171F;
+  --noite-2: #1E212B;
+
+  /* tinta */
+  --tinta: #191B22;
+  --tinta-2: #565C6B;
+  /* #7C8290 dava 3,63:1 sobre a porcelana e reprovava em migalha, rótulo de
+     dado, nota e legenda. #5F6575 dá 5,49 na porcelana, 5,04 na areia e 4,69
+     no painel do retrato. */
+  --tinta-3: #5F6575;
+  /* A mesma função, do lado escuro: #7C8290 sobre o rodapé dava 4,17:1. */
+  --tinta-3-escura: #9AA0AD;
+  --tinta-clara: #F3F1EC;
+  --tinta-clara-2: #B9BCC6;
+
+  /* marca */
+  --ardosia: #4C526A;
+  --ouro: #D2AF57;
+  --ouro-esc: #A38434;
+  --ouro-tinta: #7A5F1F;
+  --ouro-fraco: #EFE3C7;
+  --rosa: #EFD8D5;
+  --rosa-esc: #B9736A;
+
+  /* linhas */
+  --linha: #E6DFD3;
+  --linha-2: #D8CFC0;
+  --linha-escura: #2C303C;
+  /* Borda de componente, não de decoração: a WCAG pede 3:1 para o que
+     identifica um controle. #D8CFC0 dava 1,46:1 e o botão vazado lia como
+     texto solto. Estes dão 3,18:1 no claro e 3,83:1 no escuro. */
+  --linha-botao: #948B78;
+  --linha-botao-escura: #6E7484;
+
+  /* medidas */
+  --faixa: 1200px;
+  --estreita: 748px;
+  --gap: 24px;
+  --r: 18px;
+  --r-p: 12px;
+  --r-pill: 999px;
+
+  /* sombra: baixa e quente, nunca cinza puro */
+  --sombra-1: 0 1px 2px rgba(60, 48, 28, .05), 0 6px 18px rgba(60, 48, 28, .05);
+  --sombra-2: 0 2px 4px rgba(60, 48, 28, .06), 0 18px 44px rgba(60, 48, 28, .09);
+
+  --fonte: 'Hanken', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --serifada: 'Cormorant', Georgia, 'Times New Roman', serif;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Base                                                              */
 /* ------------------------------------------------------------------ */
 
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
-  font-size: 100%;
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
-  scroll-padding-top: 6.5rem;
+  scroll-padding-top: 96px;
 }
 
 body {
   margin: 0;
-  background: linear-gradient(180deg, var(--fundo) 0%, var(--fundo) 42%, var(--fundo-2) 100%);
-  background-attachment: fixed;
-  color: var(--tinta-2);
+  background: var(--porcelana);
+  color: var(--tinta);
   font-family: var(--fonte);
-  font-size: 1.0625rem;
-  line-height: 1.6;
+  font-size: 17px;
+  line-height: 1.68;
+  font-weight: 400;
   font-synthesis-weight: none;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-wrap: break-word;
 }
 
-h1, h2 {
-  font-weight: 800;
-  color: var(--tinta);
-  line-height: 0.95;
-  letter-spacing: -0.035em;
-  margin: 0 0 0.5em;
-  text-wrap: balance;
-}
-h1 { font-size: clamp(2.7rem, 1.5rem + 5vw, 5.2rem); }
-h2 { font-size: clamp(2.3rem, 1.3rem + 4vw, 4.4rem); }
-h3 {
-  font-size: 1.125rem;
-  font-weight: 700;
-  line-height: 1.35;
-  letter-spacing: -0.012em;
-  color: var(--tinta);
-  margin: 0 0 0.5em;
-}
+img, svg, canvas { max-width: 100%; }
+img { height: auto; border: 0; }
 
-p { margin: 0 0 1.1em; }
+h1, h2, h3, h4 { margin: 0; font-weight: 500; }
+p { margin: 0 0 1em; }
 p:last-child { margin-bottom: 0; }
-
-a { color: var(--ouro-txt); text-decoration-thickness: 1px; text-underline-offset: 0.22em; }
-a:hover { color: var(--tinta); }
-
-img { max-width: 100%; height: auto; }
 ul, ol { margin: 0; padding: 0; }
-li { list-style: none; }
-table { border-collapse: collapse; }
+address { font-style: normal; }
 
-:focus-visible { outline: 2px solid var(--ouro-txt); outline-offset: 3px; border-radius: 2px; }
-.rodape :focus-visible, .cartao-3d :focus-visible { outline-color: var(--ouro); }
-::selection { background: var(--ouro); color: var(--escuro); }
+a { color: inherit; }
 
-/* Atalho de teclado. SEM TRANSIÇÃO, de propósito: havia um `transition: top`
-   aqui e ele não rodava, porque o elemento fica fora da tela, o navegador não
-   o pinta e a transição nunca começa. O atalho jamais aparecia. */
-.pular {
-  position: absolute; left: 0.75rem; top: -6rem; z-index: 60;
-  background: var(--escuro); color: var(--creme);
-  padding: 0.75rem 1.2rem; border-radius: 999px;
-  font-weight: 700; text-decoration: none;
+:focus-visible {
+  outline: 2px solid var(--ouro-esc);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
-.pular:focus { top: 0.75rem; color: var(--creme); }
 
-.env { width: min(100% - 3rem, var(--env)); margin-inline: auto; }
-@media (max-width: 40rem) { .env { width: min(100% - 2rem, var(--env)); } }
+::selection { background: var(--ouro-fraco); color: var(--tinta); }
 
-/* ------------------------------------------------------------------ */
-/* Cartão: a peça que estrutura a página inteira                       */
-/* ------------------------------------------------------------------ */
-
-.cartao {
-  position: relative;
-  border-radius: var(--raio);
-  background: linear-gradient(150deg, #DCD5C9 0%, #D3CABC 100%);
-  border: 1px solid rgb(255 255 255 / 0.4);
+.so-leitor {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
   overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
+/* Atalho de teclado. SEM transição, de propósito: com transição o link não
+   volta à tela de forma confiável quando recebe o foco, e o primeiro
+   elemento focável da página é justamente este. */
+.pular {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 200;
+  transform: translateY(-160%);
+  background: var(--noite);
+  color: var(--tinta-clara);
+  padding: 12px 20px;
+  border-radius: var(--r-pill);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.pular:focus { transform: translateY(0); }
+
 /* ------------------------------------------------------------------ */
-/* Rótulo com fio e disco                                              */
+/*  Tipografia                                                        */
 /* ------------------------------------------------------------------ */
 
-.etiqueta {
-  display: flex; align-items: center; gap: 0.85rem;
-  margin: 0 0 2rem;
-  font-size: 0.9375rem;
+.titulo-1 {
+  font-family: var(--serifada);
+  font-weight: 500;
+  font-size: clamp(2.55rem, 1.55rem + 3.5vw, 4.5rem);
+  line-height: 1.03;
+  letter-spacing: -0.012em;
+  margin: 0 0 20px;
+}
+
+.titulo-2 {
+  font-family: var(--serifada);
+  font-weight: 500;
+  font-size: clamp(1.95rem, 1.3rem + 2.1vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.008em;
+  margin: 0 0 18px;
+}
+
+.titulo-3 {
+  font-family: var(--fonte);
+  font-weight: 600;
+  font-size: clamp(1.14rem, 1.04rem + .4vw, 1.34rem);
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+  margin: 34px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.titulo-3 .ico { color: var(--ouro-esc); flex: none; }
+
+/* O itálico serifado em ouro é o acento da marca. Só aparece dentro de
+   título, onde o corpo é grande o bastante para 3:1 bastar. */
+.titulo-1 em,
+.titulo-2 em {
+  font-style: italic;
+  color: var(--ouro-esc);
+}
+.titulo-lugar { display: inline-block; font-size: .78em; }
+
+.rotulo {
+  font-size: .69rem;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--tinta-3);
+  margin: 0 0 14px;
+}
+.rotulo-ouro { color: var(--ouro-tinta); }
+.rotulo-ouro-claro { color: var(--ouro); }
+
+.prosa {
   color: var(--tinta-2);
+  max-width: 66ch;
+  margin: 0 0 1.1em;
 }
-/* O texto vai num só elemento porque o pai é flex: solto, o trecho antes
-   do negrito e o negrito viravam DOIS itens de flex, e no celular a
-   linha quebrava em duas colunas em vez de quebrar como frase. */
-.etiqueta-txt { min-width: 0; }
-.etiqueta b { color: var(--tinta); font-weight: 700; }
-.etiqueta-fio { width: clamp(1.5rem, 4vw, 3.5rem); height: 1px; background: var(--tinta); flex: none; }
-.etiqueta-disco {
-  display: grid; place-items: center;
-  width: 2rem; height: 2rem; flex: none;
-  border: 1px solid var(--tinta);
-  border-radius: 50%;
+
+.resposta {
+  font-size: clamp(1.09rem, 1.02rem + .35vw, 1.28rem);
+  line-height: 1.62;
   color: var(--tinta);
+  max-width: 62ch;
+  margin: 0;
 }
-.etiqueta-disco .ico { width: 1rem; height: 1rem; }
 
-.eyebrow {
-  display: flex; align-items: center; gap: 0.85rem;
-  font-size: 0.75rem; font-weight: 700;
-  letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--ouro-txt);
-  margin: 0 0 1.4rem;
+.nota {
+  font-size: .92rem;
+  color: var(--tinta-3);
+  max-width: 62ch;
 }
-.eyebrow::after {
-  content: ''; flex: 1; max-width: 5rem; height: 1px;
-  background: linear-gradient(90deg, var(--linha), transparent);
+
+.papel-rotulo, .papel {
+  font-size: .95rem;
+  color: var(--ouro-tinta);
+  font-weight: 600;
+  letter-spacing: .01em;
+  margin: 0 0 20px;
+}
+
+.mais { margin: 26px 0 0; }
+
+.elo {
+  color: var(--tinta);
+  text-decoration: underline;
+  text-decoration-color: var(--linha-2);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+.elo:hover { text-decoration-color: var(--ouro-esc); color: var(--ouro-tinta); }
+
+.elo-seta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: .96rem;
+  text-decoration: none;
+  color: var(--ouro-tinta);
+  border-bottom: 1px solid var(--linha-2);
+  padding-bottom: 3px;
+}
+.elo-seta:hover { color: var(--tinta); border-bottom-color: var(--ouro-esc); }
+.elo-seta .ico { transition: transform .18s ease; }
+.elo-seta:hover .ico { transform: translateX(4px); }
+
+mark.pendente {
+  background: #FBEFC8;
+  color: #5A4409;
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-size: .88em;
+  font-weight: 600;
+  box-decoration-break: clone;
 }
 
 /* ------------------------------------------------------------------ */
-/* Faixa de prévia                                                     */
+/*  Estrutura                                                         */
 /* ------------------------------------------------------------------ */
 
-.previa { background: var(--escuro); color: var(--creme-2); }
-.previa p {
-  width: min(100% - 3rem, var(--env));
-  margin: 0 auto; padding: 0.85rem 0;
-  font-size: 0.875rem; line-height: 1.5;
+.faixa {
+  width: min(100% - 40px, var(--faixa));
+  margin-inline: auto;
 }
-.previa strong { color: var(--ouro); }
+
+/* A faixa estreita NÃO é uma coluna centrada: é a mesma faixa larga, com o
+   conteúdo limitado em medida de leitura. Assim a borda esquerda de toda
+   seção da página cai na mesma vertical, o que uma coluna centrada quebra a
+   cada troca de largura. */
+.faixa-estreita { width: min(100% - 40px, var(--faixa)); }
+.faixa-estreita > * { max-width: var(--estreita); }
+.faixa-estreita > .ficha,
+.faixa-estreita > .tabela-rolagem,
+.faixa-estreita > .passos,
+.faixa-estreita > .grade-unidades { max-width: none; }
+
+.secao { padding: clamp(64px, 8vw, 118px) 0; }
+.secao-topo { padding-top: clamp(40px, 5vw, 68px); }
+
+.secao-clara {
+  background: var(--areia);
+  border-block: 1px solid var(--linha);
+}
+
+.secao-escura {
+  background: var(--noite);
+  color: var(--tinta-clara);
+  border-block: 1px solid var(--linha-escura);
+}
+.secao-escura .prosa,
+.secao-escura .secao-texto { color: var(--tinta-clara-2); }
+.secao-escura .titulo-2 em { color: var(--ouro); }
+
+.secao-cabeca {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+  gap: clamp(20px, 4vw, 64px);
+  align-items: end;
+  margin-bottom: clamp(34px, 4vw, 56px);
+}
+.secao-cabeca .titulo-2 { margin-bottom: 0; }
+.secao-texto {
+  color: var(--tinta-2);
+  font-size: 1.02rem;
+  margin: 0;
+  padding-bottom: 6px;
+}
+
+.cabecalho {
+  padding: clamp(38px, 6vw, 84px) 0 clamp(16px, 2vw, 26px);
+}
+.cabecalho .titulo-1 { margin-bottom: 22px; }
+
+.cabecalho-grade {
+  display: grid;
+  grid-template-columns: minmax(0, 1.32fr) minmax(0, .68fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: center;
+}
+.cabecalho-tratamento { padding-bottom: clamp(24px, 3vw, 40px); }
+
+.conteudo { display: block; }
+.conteudo:focus { outline: none; }
 
 /* ------------------------------------------------------------------ */
-/* Cabeçalho                                                           */
+/*  Faixa de prévia                                                   */
+/* ------------------------------------------------------------------ */
+
+.faixa-previa {
+  margin: 0;
+  padding: 9px 20px;
+  text-align: center;
+  background: var(--noite);
+  color: var(--ouro);
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Topo                                                              */
 /* ------------------------------------------------------------------ */
 
 .topo {
-  position: sticky; top: 0; z-index: 50;
-  background: rgb(231 226 218 / 0.82);
-  backdrop-filter: blur(16px) saturate(1.3);
-  border-bottom: 1px solid rgb(22 24 28 / 0.08);
-}
-.topo-linha { display: flex; align-items: center; gap: 1.5rem; min-height: 5.4rem; }
-.topo-marca { display: block; flex: none; }
-.topo-nav { margin-left: auto; }
-.topo-nav ul { display: flex; gap: clamp(1rem, 2.4vw, 2.2rem); }
-.topo-nav a {
-  display: block; padding: 0.45rem 0;
-  color: var(--tinta-2);
-  font-size: 0.9375rem; font-weight: 500;
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: color 0.18s ease, border-color 0.18s ease;
-}
-.topo-nav a:hover, .topo-nav a.atual { color: var(--tinta); border-bottom-color: var(--tinta); }
-.topo-acao { flex: none; }
-.topo-botao { display: none; }
-
-/* ------------------------------------------------------------------ */
-/* Botões                                                              */
-/* ------------------------------------------------------------------ */
-
-.btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  gap: 0.6rem;
-  padding: 0.95rem 1.75rem;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  font-family: var(--fonte);
-  font-size: 0.9375rem; font-weight: 700;
-  line-height: 1.2; text-decoration: none; cursor: pointer;
-  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
-}
-.btn-principal { background: var(--escuro); color: var(--creme); }
-.btn-principal:hover { background: var(--ouro); color: var(--escuro); }
-.btn-secundario { background: transparent; color: var(--tinta); border-color: rgb(22 24 28 / 0.28); }
-.btn-secundario:hover { border-color: var(--tinta); background: rgb(255 255 255 / 0.4); color: var(--tinta); }
-.btn-discreto { background: transparent; color: var(--tinta-2); padding-inline: 0.5rem; }
-.btn-discreto:hover { color: var(--tinta); }
-
-.link-seta {
-  display: inline-flex; align-items: center; gap: 0.45rem;
-  font-weight: 700; font-size: 0.9375rem; text-decoration: none;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(250, 248, 245, .88);
+  -webkit-backdrop-filter: saturate(1.4) blur(14px);
+  backdrop-filter: saturate(1.4) blur(14px);
   border-bottom: 1px solid var(--linha);
-  padding-bottom: 0.2rem;
-  transition: border-color 0.18s ease, gap 0.18s ease;
-}
-.link-seta:hover { border-bottom-color: var(--tinta); gap: 0.7rem; }
-.link-seta .ico { width: 1.05em; height: 1.05em; }
-
-.hero-acoes, .unid-acoes, .form-acoes { display: flex; flex-wrap: wrap; gap: 0.8rem; }
-
-/* ------------------------------------------------------------------ */
-/* Marca e ícones                                                      */
-/* ------------------------------------------------------------------ */
-
-.logo { display: block; width: clamp(9.75rem, 7.5rem + 5vw, 12.5rem); height: auto; }
-.logo-rodape { width: clamp(11rem, 8rem + 6vw, 14rem); }
-.simbolo { display: block; width: 1em; height: 1em; color: var(--ouro-esc); flex: none; }
-.simbolo-grande { width: 4.5rem; height: 4.5rem; }
-.ico { width: 1.2em; height: 1.2em; flex: none; }
-
-/* ------------------------------------------------------------------ */
-/* Hero                                                                */
-/* ------------------------------------------------------------------ */
-
-.hero { padding-block: clamp(2.5rem, 5vw, 4.5rem) clamp(3rem, 6vw, 5rem); }
-.hero-grade {
-  display: grid;
-  grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.16fr);
-  gap: clamp(2rem, 4vw, 4rem);
-  align-items: start;
-}
-.hero h1 { margin-bottom: 0.55em; }
-.hero-acoes { margin-bottom: clamp(2.5rem, 5vw, 4rem); }
-
-/* Cartão de número, embaixo à esquerda. */
-.cartao-numero { padding: clamp(1.5rem, 3vw, 2.1rem); max-width: 26rem; }
-.numero-n {
-  font-size: clamp(2rem, 1.4rem + 2.4vw, 2.9rem);
-  font-weight: 800; letter-spacing: -0.035em; line-height: 1;
-  color: var(--tinta); margin-bottom: 0.35rem;
-}
-.numero-n span { font-size: 0.5em; font-weight: 700; letter-spacing: -0.01em; }
-.numero-l { font-size: 0.9375rem; color: var(--tinta-2); max-width: 24ch; margin: 0; }
-/* Onda: o mesmo gesto de linha fina da referência, desenhada em gradiente
-   cônico repetido para não precisar de imagem. */
-.numero-onda {
-  display: block; height: 2px; margin-top: 1.4rem;
-  background:
-    radial-gradient(circle at 25% 100%, transparent 6px, var(--tinta) 6px, var(--tinta) 7px, transparent 7px) 0 0 / 24px 12px repeat-x,
-    radial-gradient(circle at 75% 0, transparent 6px, var(--tinta) 6px, var(--tinta) 7px, transparent 7px) 12px 0 / 24px 12px repeat-x;
-  opacity: 0.35;
 }
 
-/* --- a colagem da direita ------------------------------------------- */
-
-.hero-colagem {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  grid-auto-rows: minmax(0, auto);
-  gap: clamp(0.75rem, 1.6vw, 1.1rem);
-  position: relative;
-}
-/* O cartão do modelo ocupava as colunas 3 a 7 e a legenda as colunas 1 a 4:
-   as duas se cruzavam na coluna 3, e como o cartão vem depois no documento,
-   ele cobria o terço direito da legenda. A frase perdia a palavra do meio e
-   nem parecia cortada — parecia mal escrita. Agora a colagem empilha: o
-   cartão grande em cima, os dois blocos pequenos embaixo, e a única peça que
-   se sobrepõe é o disco, que é sólido e não tem texto atrás. */
-.cartao-rotulo {
-  grid-column: 1 / 4; grid-row: 2;
-  padding: clamp(1.1rem, 2.2vw, 1.6rem);
-  display: flex; flex-direction: column; justify-content: space-between;
-  min-height: 9rem;
-}
-.cartao-rotulo p { font-size: 0.9375rem; color: var(--tinta); font-weight: 500; margin: 0; }
-/* Grade de quadradinhos, o grafismo de canto da referência. */
-.rotulo-grade {
-  display: block; width: 5.5rem; height: 1.4rem; margin-bottom: 1.2rem;
-  background:
-    linear-gradient(var(--tinta), var(--tinta)) 0 0 / 6px 6px no-repeat,
-    linear-gradient(var(--tinta), var(--tinta)) 10px 8px / 6px 6px no-repeat,
-    linear-gradient(var(--tinta), var(--tinta)) 20px 0 / 6px 6px no-repeat,
-    linear-gradient(var(--tinta), var(--tinta)) 30px 8px / 6px 6px no-repeat,
-    linear-gradient(var(--tinta), var(--tinta)) 40px 0 / 6px 6px no-repeat,
-    linear-gradient(var(--tinta), var(--tinta)) 50px 8px / 6px 6px no-repeat;
-  opacity: 0.55;
+.topo-faixa {
+  width: min(100% - 40px, var(--faixa));
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-height: 76px;
 }
 
-/* O disco de acento: a peça que na referência é o círculo laranja. Aqui é o
-   ouro da marca, chapado, com a seta em tinta escura por cima (8,47:1). */
-.disco-acento {
-  grid-column: 5 / 7; grid-row: 1;
-  justify-self: end; align-self: start;
-  z-index: 3;
-  margin: -1.5rem -1rem 0 0;
-  display: grid; place-items: center;
-  width: clamp(4rem, 8vw, 5.5rem); aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--ouro);
-  color: var(--escuro);
+.marca {
+  display: block;
+  flex: none;
+  line-height: 0;
   text-decoration: none;
-  transition: transform 0.22s ease, background-color 0.18s ease;
 }
-.disco-acento:hover { transform: rotate(45deg); background: var(--ouro-esc); color: var(--escuro); }
-.disco-acento .ico { width: 45%; height: 45%; stroke-width: 1.6; }
+.marca-img { width: 128px; height: auto; display: block; }
 
-.cartao-3d {
-  grid-column: 1 / 7; grid-row: 1;
-  z-index: 2;
-  background: linear-gradient(158deg, #22262E 0%, #14161A 62%, #1B1E26 100%);
-  border-color: rgb(210 175 87 / 0.22);
-  min-height: clamp(19rem, 34vw, 27rem);
+.menu { margin-left: auto; }
+.menu-lista {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2vw, 30px);
+  list-style: none;
 }
+.menu-link {
+  display: inline-block;
+  padding: 6px 0;
+  font-size: .96rem;
+  font-weight: 500;
+  color: var(--tinta-2);
+  text-decoration: none;
+  border-bottom: 1.5px solid transparent;
+}
+.menu-link:hover { color: var(--tinta); border-bottom-color: var(--ouro-esc); }
+.menu-link.e-aqui { color: var(--tinta); border-bottom-color: var(--ouro-esc); }
 
-.canto-numero { grid-column: 4 / 7; grid-row: 2; align-self: end; justify-self: end; text-align: right; }
-.canto-l { border-top-width: 1px; }
-.canto-n {
-  font-size: clamp(2.4rem, 1.6rem + 2.6vw, 3.4rem);
-  font-weight: 800; letter-spacing: -0.045em; line-height: 1;
-  color: var(--tinta); margin: 0;
+.topo-acoes { display: flex; align-items: center; gap: 10px; flex: none; }
+
+.menu-botao {
+  display: none;
+  width: 44px; height: 44px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--linha-2);
+  border-radius: var(--r-pill);
+  color: var(--tinta);
+  cursor: pointer;
 }
-.canto-l {
-  font-size: 0.75rem; font-weight: 700;
-  letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--tinta-2); margin: 0.35rem 0 0;
-  padding-top: 0.6rem; border-top: 1px solid var(--linha);
+.menu-barras { display: block; width: 17px; }
+.menu-barras span {
+  display: block;
+  height: 1.5px;
+  background: currentColor;
+  border-radius: 2px;
 }
-@media (max-width: 62rem) {
-  .hero-grade { grid-template-columns: 1fr; }
-  .hero-colagem { margin-top: 1rem; }
-}
-@media (max-width: 40rem) {
-  .cartao-rotulo { grid-column: 1 / 7; grid-row: 2; min-height: 0; }
-  .cartao-3d { min-height: 19rem; }
-  .canto-numero { grid-column: 1 / 7; grid-row: 3; justify-self: start; text-align: left; }
-  .hero-acoes { flex-direction: column; align-items: stretch; }
-  .hero-acoes .btn { width: 100%; }
-}
+.menu-barras span + span { margin-top: 5px; }
 
 /* ------------------------------------------------------------------ */
-/* O modelo 3D                                                         */
+/*  Botões                                                            */
 /* ------------------------------------------------------------------ */
 
-.dente-palco {
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 14px 24px;
+  border-radius: var(--r-pill);
+  font-size: .97rem;
+  font-weight: 600;
+  letter-spacing: .005em;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .18s ease, background-color .18s ease, border-color .18s ease;
+}
+.botao .ico { flex: none; }
+
+/* Ouro como FORMA, tinta quase preta por cima. 5,1:1 no extremo escuro do
+   gradiente e 8,6:1 no claro. */
+.botao-solido {
+  background-image: linear-gradient(105deg, var(--ouro) 0%, var(--ouro-esc) 100%);
+  color: #1B1608;
+  box-shadow: var(--sombra-1);
+}
+.botao-solido:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--sombra-2);
+}
+
+.botao-vazado {
+  background: transparent;
+  color: var(--tinta);
+  border-color: var(--linha-botao);
+}
+.botao-vazado:hover { border-color: var(--ouro-esc); background: rgba(163, 132, 52, .06); }
+
+.botao-pequeno { padding: 10px 18px; font-size: .9rem; }
+
+.secao-escura .botao-vazado { color: var(--tinta-clara); border-color: var(--linha-botao-escura); }
+.secao-escura .botao-vazado:hover { border-color: var(--ouro); background: rgba(210, 175, 87, .12); }
+
+/* ------------------------------------------------------------------ */
+/*  Migalhas                                                          */
+/* ------------------------------------------------------------------ */
+
+.migalhas {
+  width: min(100% - 40px, var(--faixa));
+  margin: 18px auto 0;
+  font-size: .84rem;
+  color: var(--tinta-3);
+}
+.migalhas ol { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.migalhas li + li::before { content: '/'; margin-right: 8px; color: var(--linha-2); }
+.migalhas a { color: var(--tinta-3); text-decoration: none; }
+.migalhas a:hover { color: var(--ouro-tinta); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ------------------------------------------------------------------ */
+/*  Capa                                                              */
+/* ------------------------------------------------------------------ */
+
+.capa {
+  padding: clamp(30px, 4vw, 56px) 0 clamp(50px, 6vw, 76px);
+  background:
+    radial-gradient(900px 520px at 78% 22%, rgba(210, 175, 87, .13), transparent 65%),
+    radial-gradient(700px 460px at 6% 74%, rgba(76, 82, 106, .07), transparent 62%);
+}
+
+.capa-grade {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr);
+  gap: clamp(28px, 4vw, 60px);
+  align-items: center;
+}
+
+.capa-texto { padding-block: 10px; }
+.capa-linha {
+  font-size: clamp(1.06rem, 1rem + .35vw, 1.22rem);
+  line-height: 1.62;
+  color: var(--tinta-2);
+  max-width: 52ch;
+  margin: 0 0 30px;
+}
+
+.capa-acoes { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 30px; }
+
+.capa-provas {
+  list-style: none;
+  display: grid;
+  gap: 9px;
+  padding-top: 24px;
+  border-top: 1px solid var(--linha);
+}
+.capa-provas li {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: .95rem;
+  color: var(--tinta-2);
+}
+.capa-provas .ico { color: var(--ouro-esc); flex: none; }
+
+/* ------------------------------------------------------------------ */
+/*  Modelo tridimensional                                             */
+/* ------------------------------------------------------------------ */
+
+.modelo { display: grid; gap: 18px; }
+
+.modelo-palco {
   position: relative;
-  width: 100%; height: 100%;
-  min-height: inherit;
-  /* A linha que faz a peça funcionar no celular: o gesto vertical continua
-     rolando a página, e só o horizontal gira o modelo. */
-  touch-action: pan-y;
+  aspect-ratio: 1 / 1;
+  max-width: 540px;
+  margin-inline: auto;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+
+.modelo-halo {
+  position: absolute;
+  inset: 6% 6% 4%;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0) 72%),
+    radial-gradient(closest-side, rgba(210, 175, 87, .2), rgba(210, 175, 87, 0) 70%);
+  z-index: -1;
+}
+.modelo-palco::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  width: 54%;
+  height: 26px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(80, 56, 30, .22), rgba(80, 56, 30, 0) 72%);
+  z-index: -1;
+}
+
+.modelo-tela {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: pan-y pinch-zoom;
   cursor: grab;
+  border-radius: var(--r);
 }
-.dente-palco:active { cursor: grabbing; }
-.dente-tela { display: block; width: 100%; height: 100%; }
-.cartao-3d .dente-palco { position: absolute; inset: 0; }
+.modelo-tela:active { cursor: grabbing; }
+.modelo-tela[hidden] { display: none; }
 
-/* Antes de o script confirmar que há WebGL, o cartão fica com o grafismo do
-   fundo e nada quebra. A lista de tratamentos, que é o conteúdo, está numa
-   seção própria e independe disto. */
-.dente-marcador, .dente-dica { display: none; }
-.dente-pronto .dente-marcador, .dente-pronto .dente-dica { display: block; }
+.modelo-reserva { width: 100%; display: grid; place-items: center; }
+.modelo-reserva[hidden] { display: none; }
+.dente-reserva { width: 100%; max-width: 300px; height: auto; }
 
-.dente-marcador {
-  position: absolute; transform: translate(-50%, -50%);
-  padding: 0.3rem 0.75rem;
-  background: var(--ouro); color: var(--escuro);
-  border-radius: 999px;
-  font-size: 0.6875rem; font-weight: 800;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  white-space: nowrap; pointer-events: none;
-  opacity: 0; transition: opacity 0.25s ease;
-}
-.dente-marcador.on { opacity: 1; }
-.dente-dica {
-  position: absolute; left: 50%; bottom: 1rem; transform: translateX(-50%);
+.modelo-dica {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   margin: 0;
-  font-size: 0.6875rem; letter-spacing: 0.2em; text-transform: uppercase;
-  /* 0,42 dava 3,6:1 sobre o gradiente do cartão, medido no navegador.
-     Em 0,62 dá 6,1:1, e continua sendo uma dica discreta. */
-  color: rgb(244 241 235 / 0.62);
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, .8);
+  border: 1px solid var(--linha);
+  font-size: .8rem;
+  color: var(--tinta-3);
   pointer-events: none;
 }
+.modelo-dica[hidden] { display: none; }
 
-/* ------------------------------------------------------------------ */
-/* Faixa das unidades                                                  */
-/* ------------------------------------------------------------------ */
+.modelo-legenda {
+  margin: 0 0 12px;
+  font-size: .95rem;
+  color: var(--tinta-2);
+  min-height: 3em;
+}
+.modelo-legenda strong { color: var(--tinta); display: block; }
 
-.faixa-unid { padding-bottom: clamp(1rem, 3vw, 2rem); }
-.faixa-unid-grade {
+.regioes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.regiao {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-  gap: clamp(0.75rem, 1.6vw, 1.1rem);
+  gap: 1px;
+  padding: 8px 14px;
+  border: 1px solid var(--linha);
+  border-radius: var(--r-p);
+  background: rgba(255, 255, 255, .6);
+  text-decoration: none;
+  transition: border-color .16s ease, background-color .16s ease, transform .16s ease;
 }
-.faixa-unid-item {
-  display: grid; gap: 0.3rem;
-  padding: clamp(1.4rem, 2.6vw, 2rem);
-  border-radius: var(--raio);
-  background: rgb(255 255 255 / 0.34);
-  border: 1px solid rgb(255 255 255 / 0.55);
-  text-decoration: none; color: var(--tinta-2);
-  transition: background-color 0.2s ease, transform 0.2s ease;
+.regiao-nome { font-size: .88rem; font-weight: 600; color: var(--tinta); }
+.regiao-parte { font-size: .74rem; color: var(--tinta-3); }
+.regiao:hover, .regiao:focus-visible, .regiao.e-ativa {
+  border-color: var(--ouro-esc);
+  background: var(--papel);
+  transform: translateY(-1px);
 }
-.faixa-unid-item:hover { background: rgb(255 255 255 / 0.62); color: var(--tinta-2); }
-.faixa-unid-cidade {
-  font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.1rem);
-  font-weight: 800; letter-spacing: -0.035em; line-height: 1.05;
-  color: var(--tinta);
-}
-.faixa-unid-end, .faixa-unid-tel { font-size: 0.9375rem; }
-.faixa-unid-tel { color: var(--tinta); font-weight: 700; }
-.faixa-unid-mais {
-  display: inline-flex; align-items: center; gap: 0.45rem;
-  margin-top: 0.6rem;
-  font-size: 0.75rem; font-weight: 700;
-  letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--ouro-txt);
-}
-.faixa-unid-mais .ico { width: 1em; height: 1em; }
+.regiao:hover .regiao-parte, .regiao.e-ativa .regiao-parte { color: var(--ouro-tinta); }
 
 /* ------------------------------------------------------------------ */
-/* Seções                                                              */
+/*  Ilustração de reserva com região destacada                        */
 /* ------------------------------------------------------------------ */
 
-.sec { padding-block: var(--passo); }
-.sec-cabeca { max-width: 46rem; margin-bottom: clamp(2.5rem, 5vw, 4rem); }
-
-/* Seção em duas colunas: título de um lado, conteúdo do outro.
-
-   O texto corrido, a lista de dúvidas e o formulário têm medida de leitura —
-   entre 40 e 74 caracteres —, e numa tela de 1440 px isso deixava mais de um
-   terço da largura vazia à direita, com o título sozinho em cima. Não é que
-   a medida esteja errada: é que ela pede uma coluna ao lado, e não um vão. */
-.sec-dupla > .env { display: grid; gap: clamp(2rem, 4vw, 3.5rem); }
-@media (min-width: 62rem) {
-  .sec-dupla > .env {
-    grid-template-columns: minmax(15rem, 0.8fr) minmax(0, 1.35fr);
-    column-gap: clamp(2.5rem, 5vw, 5rem);
-    align-items: start;
-  }
-  /* Tudo que vem depois do cabeçalho vai para a coluna da direita. Sem
-     esta linha, um corpo com dois blocos (a lista de razões e o texto
-     corrido, na seção da clínica) jogava o segundo de volta para baixo do
-     título, numa coluna estreita. */
-  .sec-dupla > .env > * { grid-column: 2; }
-  .sec-dupla > .env > .sec-cabeca { grid-column: 1; grid-row: 1; margin-bottom: 0; }
-  .sec-dupla .faq, .sec-dupla .form, .sec-dupla .prosa { max-width: none; }
+/* Na página de um tratamento o modelo entra menor e sem as fichas: a região
+   já vem acesa e a legenda diz qual é. */
+.modelo-fixo .modelo-palco { max-width: 400px; }
+.modelo-fixo .modelo-legenda {
+  text-align: center;
+  font-size: .9rem;
+  min-height: 0;
+  margin: 0;
+  max-width: 38ch;
+  margin-inline: auto;
 }
-.sec-intro {
-  max-width: 50ch;
-  font-size: clamp(1.0625rem, 1rem + 0.4vw, 1.25rem);
-  color: var(--tinta-2); margin-bottom: 0;
-}
+.modelo-fixo .modelo-legenda strong { display: inline; }
 
-.cabeca { padding-block: clamp(3rem, 6vw, 5rem) clamp(2rem, 4vw, 3rem); }
-.cabeca-sub {
-  max-width: 54ch;
-  font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.25rem);
-  color: var(--tinta-2); margin-bottom: 0;
-}
-.cabeca-marca { display: block; margin-bottom: 1.5rem; }
-
-.prosa { max-width: 62ch; }
-.prosa-larga { max-width: 68ch; }
-/* Página inteira feita de texto corrido, sem coluna ao lado para
-   equilibrar: aí a medida de leitura fica no meio, e não encostada na
-   esquerda com um terço da tela vazio. */
-.prosa-centro { margin-inline: auto; }
-.prosa h3 { margin-top: 2.25rem; }
-.prosa h3:first-child { margin-top: 0; }
-.prosa h2 { margin-top: 2.5rem; font-size: clamp(1.6rem, 1.3rem + 1.4vw, 2.2rem); }
-.prosa h2:first-child { margin-top: 0; }
+[class*='regiao-'] .d-parte { opacity: .34; transition: opacity .2s ease; }
+.regiao-face .d-coroa,
+.regiao-face .d-sulco,
+.regiao-esmalte .d-coroa,
+.regiao-esmalte .d-sulco,
+.regiao-raiz .d-raiz,
+.regiao-polpa .d-polpa,
+.regiao-gengiva .d-gengiva,
+.regiao-gengiva .d-colar,
+.regiao-visivel .d-coroa,
+.regiao-visivel .d-sulco,
+.regiao-visivel .d-gengiva,
+.regiao-visivel .d-colar,
+.regiao-tudo .d-parte { opacity: 1; }
 
 /* ------------------------------------------------------------------ */
-/* Partes da arcada                                                    */
+/*  Cartões                                                           */
 /* ------------------------------------------------------------------ */
 
-.dente-grade { margin-bottom: clamp(2.5rem, 5vw, 3.5rem); }
-.dente-partes {
+.cartao {
+  background: var(--papel);
+  border: 1px solid var(--linha);
+  border-radius: var(--r);
+  padding: 26px;
+}
+
+.grade-tratamentos {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-  gap: clamp(0.6rem, 1.4vw, 0.9rem);
+  grid-template-columns: repeat(auto-fill, minmax(min(236px, 100%), 1fr));
+  gap: 16px;
 }
-.dente-parte {
-  display: flex; align-items: center; gap: 0.9rem;
-  width: 100%;
-  padding: 1rem 1.1rem;
-  border-radius: var(--raio-p);
-  background: rgb(255 255 255 / 0.32);
-  border: 1px solid rgb(255 255 255 / 0.55);
+
+/* Cartão em coluna, e não em linha: com quatro colunas na tela larga, a versão
+   em linha espremia o resumo em oito palavras por linha. */
+.cartao-tratamento {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 26px 24px 22px;
+  text-decoration: none;
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.cartao-tratamento:hover {
+  border-color: var(--linha-2);
+  box-shadow: var(--sombra-2);
+  transform: translateY(-2px);
+}
+.cartao-ico {
+  width: 56px; height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(150deg, #FFFDF8, #F6EFE1);
+  border: 1px solid var(--linha);
+  flex: none;
+  margin-bottom: 18px;
+  transition: border-color .18s ease, transform .18s ease;
+}
+.cartao-tratamento:hover .cartao-ico { border-color: var(--ouro); transform: scale(1.04); }
+.cartao-ico img { width: 40px; height: 40px; display: block; }
+.cartao-corpo { display: grid; gap: 6px; min-width: 0; margin-bottom: 18px; }
+.cartao-titulo {
   font-family: var(--fonte);
-  text-align: left; color: var(--tinta-2);
-  cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
-}
-.dente-parte:hover { background: rgb(255 255 255 / 0.6); }
-.dente-parte.on { background: var(--escuro); border-color: var(--escuro); color: var(--creme-2); }
-.dente-parte.on .dente-parte-nome { color: var(--ouro); }
-.dente-parte-ico { display: block; color: var(--ouro-txt); flex: none; }
-.dente-parte.on .dente-parte-ico { color: var(--ouro); }
-.dente-parte-ico .ico { width: 1.6rem; height: 1.6rem; stroke-width: 1.3; }
-.dente-parte-txt { display: grid; gap: 0.1rem; }
-.dente-parte-nome { font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.015em; color: var(--tinta); line-height: 1.2; }
-.dente-parte-trat { font-size: 0.8125rem; }
-
-/* ------------------------------------------------------------------ */
-/* Tratamentos, acordeão                                               */
-/* ------------------------------------------------------------------ */
-
-.trat-lista { display: grid; gap: 0.75rem; }
-.trat {
-  border-radius: var(--raio-p);
-  background: rgb(255 255 255 / 0.3);
-  border: 1px solid rgb(255 255 255 / 0.55);
-  overflow: hidden;
-  transition: background-color 0.2s ease;
-}
-.trat[open] { background: rgb(255 255 255 / 0.62); }
-
-.trat > summary {
-  display: flex; align-items: center; gap: clamp(0.9rem, 2vw, 1.4rem);
-  padding: clamp(1.1rem, 2.2vw, 1.5rem) clamp(1rem, 2vw, 1.6rem);
-  cursor: pointer; list-style: none;
-}
-.trat > summary::-webkit-details-marker { display: none; }
-.trat-ico { display: block; color: var(--ouro-txt); flex: none; }
-.trat-ico .ico { width: 2rem; height: 2rem; stroke-width: 1.25; }
-.trat-cabeca { display: grid; gap: 0.15rem; flex: 1; }
-.trat-nome {
-  font-size: clamp(1.2rem, 1rem + 0.9vw, 1.6rem);
-  font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;
+  font-size: 1.06rem;
+  font-weight: 600;
   color: var(--tinta);
+  line-height: 1.3;
+  text-wrap: balance;
 }
-.trat-resumo { font-size: 0.9375rem; color: var(--tinta-2); }
-.trat > summary::after {
-  content: ''; flex: none;
-  width: 2.2rem; height: 2.2rem;
+.cartao-texto { font-size: .91rem; color: var(--tinta-2); line-height: 1.55; }
+.cartao-seta {
+  margin-top: auto;
+  width: 32px; height: 32px;
+  display: grid; place-items: center;
   border-radius: 50%;
   border: 1px solid var(--linha);
-  background:
-    linear-gradient(var(--tinta), var(--tinta)) center / 0.85rem 1px no-repeat,
-    linear-gradient(var(--tinta), var(--tinta)) center / 1px 0.85rem no-repeat;
-  transition: transform 0.25s ease, background-color 0.2s ease;
+  color: var(--tinta-3);
+  transition: color .18s ease, border-color .18s ease, background-color .18s ease, transform .18s ease;
 }
-.trat[open] > summary::after { transform: rotate(45deg); background-color: var(--ouro); border-color: var(--ouro); }
+.cartao-tratamento:hover .cartao-seta {
+  color: #1B1608;
+  border-color: transparent;
+  background-image: linear-gradient(105deg, var(--ouro), var(--ouro-esc));
+  transform: translateX(3px);
+}
 
-.trat-corpo { padding: 0 clamp(1rem, 2vw, 1.6rem) clamp(1.6rem, 3vw, 2.2rem); }
-.trat-descricao {
-  max-width: 66ch;
-  font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.2rem);
+.cartao-tratamento.e-grande { padding: 32px 30px 28px; }
+.cartao-tratamento.e-grande .cartao-ico { width: 66px; height: 66px; }
+.cartao-tratamento.e-grande .cartao-ico img { width: 48px; height: 48px; }
+.cartao-tratamento.e-grande .cartao-titulo { font-size: 1.2rem; }
+.cartao-tratamento.e-grande .cartao-texto { font-size: .96rem; }
+.grade-tratamentos-hub { grid-template-columns: repeat(auto-fill, minmax(min(304px, 100%), 1fr)); }
+
+/* `min(320px, 100%)` e não `320px`: numa faixa de 288 px a trilha fixa em
+   320 px produzia 16 px de rolagem horizontal. */
+.grade-unidades {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  gap: 18px;
+}
+.grade-unidades-1 { grid-template-columns: minmax(0, 520px); }
+
+.cartao-unidade { display: flex; flex-direction: column; padding: 30px; }
+.cartao-unidade .cartao-titulo {
+  font-family: var(--serifada);
+  font-size: 1.7rem;
+  font-weight: 500;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+.cartao-unidade .cartao-texto { margin-bottom: 18px; }
+.cartao-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Listas de dados                                                   */
+/* ------------------------------------------------------------------ */
+
+.dados { display: grid; gap: 14px; margin: 0 0 4px; }
+.dados > div {
+  display: grid;
+  grid-template-columns: 148px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--linha);
+}
+.dados > div:last-child { border-bottom: 0; padding-bottom: 0; }
+.dados dt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--tinta-3);
+  padding-top: 2px;
+}
+.dados dt .ico { color: var(--ouro-esc); flex: none; }
+.dados dd { margin: 0; font-size: .97rem; color: var(--tinta); }
+.dados-largo > div { grid-template-columns: 220px minmax(0, 1fr); }
+
+.regras { display: grid; gap: 0; margin: 26px 0 22px; }
+.regras > div { padding: 22px 0; border-top: 1px solid var(--linha); }
+.regras > div:last-child { border-bottom: 1px solid var(--linha); }
+.regras dt {
+  font-family: var(--serifada);
+  font-size: 1.44rem;
+  font-weight: 500;
   color: var(--tinta);
-  padding-bottom: 1.3rem;
-  border-bottom: 1px solid var(--linha-clara);
+  margin-bottom: 8px;
 }
-.trat-duvidas { margin-top: 2rem; }
-.trat-duvidas-tit {
-  font-size: 0.75rem; font-weight: 700;
-  letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--ouro-txt); margin-bottom: 0.4rem;
-}
-.trat-extra { margin-top: 2rem; max-width: 60ch; font-size: 0.9375rem; }
+.regras dd { margin: 0; color: var(--tinta-2); max-width: 66ch; }
 
-.aviso-clinico {
-  display: flex; gap: 0.9rem; align-items: flex-start;
-  max-width: 68ch; margin-top: 2rem;
-  padding: 1.2rem 1.4rem;
-  border-radius: var(--raio-p);
-  background: rgb(210 175 87 / 0.16);
-}
-.aviso-clinico .ico { color: var(--ouro-txt); margin-top: 0.2rem; }
-.aviso-clinico p { font-size: 0.9375rem; }
-
-/* ------------------------------------------------------------------ */
-/* Etapas                                                              */
-/* ------------------------------------------------------------------ */
-
-.etapas {
+.compromissos { list-style: none; display: grid; gap: 16px; margin: 28px 0 0; }
+.compromissos li {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
-  gap: clamp(1.5rem, 3vw, 2.2rem);
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 2px;
 }
-.etapa {
-  padding: clamp(1.4rem, 2.6vw, 1.9rem);
-  border-radius: var(--raio-p);
-  background: rgb(255 255 255 / 0.3);
-  border: 1px solid rgb(255 255 255 / 0.55);
-}
-.etapa-n {
+.compromisso-ico {
+  grid-row: span 2;
+  width: 26px; height: 26px;
   display: grid; place-items: center;
-  width: 2.6rem; height: 2.6rem; margin-bottom: 1.2rem;
   border-radius: 50%;
-  background: var(--escuro); color: var(--ouro);
-  font-size: 0.875rem; font-weight: 800;
+  background: var(--ouro-fraco);
+  color: var(--ouro-tinta);
+  margin-top: 2px;
 }
-.etapa h3 { margin-bottom: 0.4em; }
-.etapa p { font-size: 0.9375rem; }
+.compromissos strong { font-size: .99rem; font-weight: 600; }
+.compromissos span:not(.compromisso-ico) { font-size: .93rem; color: var(--tinta-2); }
 
 /* ------------------------------------------------------------------ */
-/* A clínica                                                           */
+/*  Passos                                                            */
 /* ------------------------------------------------------------------ */
 
-.razoes {
+.passos {
+  list-style: none;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-  gap: clamp(1.5rem, 3vw, 2.4rem);
-  margin-bottom: clamp(3rem, 6vw, 4.5rem);
-}
-.razao { border-top: 1px solid var(--linha); padding-top: 1.4rem; }
-.razao-marca { display: block; font-size: 1.5rem; margin-bottom: 1rem; }
-.razao h3 { margin-bottom: 0.4em; }
-.razao p { font-size: 0.9375rem; }
-
-/* ------------------------------------------------------------------ */
-/* Equipe                                                              */
-/* ------------------------------------------------------------------ */
-
-.equipe-grade {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
-  gap: clamp(1rem, 2vw, 1.5rem);
-}
-.pessoa {
-  padding: clamp(1.5rem, 3vw, 2.2rem);
-  border-radius: var(--raio);
-  background: var(--papel);
-  border: 1px solid rgb(255 255 255 / 0.7);
-}
-.pessoa-marca { display: block; font-size: 1.7rem; margin-bottom: 1rem; }
-.pessoa h3 { font-size: clamp(1.35rem, 1.15rem + 0.9vw, 1.75rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.2em; }
-.pessoa-papel { font-size: 0.9375rem; color: var(--ouro-txt); font-weight: 700; margin-bottom: 1.3rem; }
-.pessoa-dados { margin: 0; display: grid; gap: 0.9rem; }
-.pessoa-dados > div { border-top: 1px solid var(--linha-clara); padding-top: 0.9rem; }
-.pessoa-dados dt {
-  font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.16em;
-  font-weight: 700; color: var(--tinta-2); margin-bottom: 0.3rem;
-}
-.pessoa-dados dd { margin: 0; font-size: 0.9375rem; color: var(--tinta); }
-.pessoa-vaga { background: rgb(255 255 255 / 0.28); }
-.pessoa-vaga p { font-size: 0.9375rem; }
-.pessoa-nota { font-size: 0.8125rem; padding-top: 1rem; border-top: 1px solid var(--linha-clara); }
-.equipe-nome { margin-top: 2.5rem; max-width: 62ch; font-size: 0.9375rem; }
-.equipe-nome strong { color: var(--tinta); }
-
-.pendente {
-  display: inline-block;
-  padding: 0.1em 0.55em;
-  background: var(--ouro);
-  border-radius: 999px;
-  font-size: 0.85em; font-weight: 700;
-  color: var(--escuro); white-space: nowrap;
-}
-
-/* ------------------------------------------------------------------ */
-/* Unidades                                                            */
-/* ------------------------------------------------------------------ */
-
-.unid-grade {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
-  gap: clamp(1rem, 2vw, 1.5rem);
-  margin-bottom: clamp(2.5rem, 5vw, 3.5rem);
-}
-.unid {
-  border-radius: var(--raio);
-  background: var(--papel);
-  border: 1px solid rgb(255 255 255 / 0.7);
-  padding: clamp(1.6rem, 3vw, 2.3rem);
-}
-.unid-nome {
-  font-size: clamp(2rem, 1.5rem + 1.8vw, 2.8rem);
-  font-weight: 800; letter-spacing: -0.04em; line-height: 1;
-  color: var(--tinta); margin-bottom: 0.2em;
-}
-.unid-ref { font-size: 0.875rem; color: var(--ouro-txt); font-weight: 700; margin-bottom: 1.4rem; }
-.unid-end {
-  font-style: normal; line-height: 1.6;
-  padding-bottom: 1.2rem; border-bottom: 1px solid var(--linha-clara); margin-bottom: 1.2rem;
-}
-.unid-rua { font-weight: 700; color: var(--tinta); }
-.unid-horario { margin: 0 0 0.7rem; display: grid; gap: 0.35rem; }
-.unid-horario > div { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.9375rem; }
-.unid-horario dd { margin: 0; font-weight: 700; color: var(--tinta); font-variant-numeric: tabular-nums; }
-.unid-fechado { font-size: 0.8125rem; margin-bottom: 1.2rem; }
-.unid-tel { display: flex; align-items: center; gap: 0.55rem; font-size: 1.15rem; font-weight: 700; margin-bottom: 1.6rem; }
-.unid-tel a { color: var(--tinta); text-decoration: none; border-bottom: 1px solid var(--linha); }
-.unid-tel a:hover { border-bottom-color: var(--tinta); }
-.unid-tel .ico { color: var(--ouro-txt); }
-
-/* ------------------------------------------------------------------ */
-/* Tabela                                                              */
-/* ------------------------------------------------------------------ */
-
-/* ------------------------------------------------------------------ */
-/* Perguntas                                                           */
-/* ------------------------------------------------------------------ */
-
-.faq { max-width: 74ch; display: grid; gap: 0.6rem; }
-.faq-item {
-  border-radius: var(--raio-p);
-  background: rgb(255 255 255 / 0.3);
-  border: 1px solid rgb(255 255 255 / 0.55);
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+  gap: 2px;
+  background: var(--linha-escura);
+  border: 1px solid var(--linha-escura);
+  border-radius: var(--r);
   overflow: hidden;
 }
-.faq-item[open] { background: rgb(255 255 255 / 0.62); }
-.faq-item summary {
-  display: flex; align-items: flex-start; gap: 0.9rem;
-  padding: 1.1rem 1.2rem;
-  cursor: pointer; list-style: none;
-  font-size: clamp(1.0625rem, 1rem + 0.4vw, 1.2rem);
-  font-weight: 700; letter-spacing: -0.015em;
-  color: var(--tinta); line-height: 1.35;
+.passo { background: var(--noite); padding: 30px 26px 34px; }
+.passo-n {
+  display: block;
+  font-family: var(--serifada);
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--ouro);
+  margin-bottom: 16px;
 }
-.faq-item summary::-webkit-details-marker { display: none; }
-.faq-item summary::before {
-  content: ''; flex: none;
-  width: 0.7rem; height: 0.7rem; margin-top: 0.45em;
-  border-right: 2px solid var(--ouro-txt);
-  border-bottom: 2px solid var(--ouro-txt);
-  transform: rotate(45deg) translate(-0.08rem, -0.08rem);
-  transition: transform 0.22s ease;
-}
-.faq-item[open] summary::before { transform: rotate(-135deg) translate(-0.14rem, -0.14rem); }
-.faq-resp { padding: 0 1.2rem 1.3rem 2.8rem; }
-.faq-resp p { max-width: 66ch; }
-.faq-aninhada { margin-top: 0.4rem; }
+.passo-titulo { font-size: 1.06rem; font-weight: 600; margin-bottom: 8px; }
+.passo-texto { font-size: .93rem; color: var(--tinta-clara-2); margin: 0; }
 
+.passos-claros {
+  background: var(--linha);
+  border-color: var(--linha);
+}
+.passos-claros .passo { background: var(--papel); }
+.passos-claros .passo-n { color: var(--ouro-esc); }
+.passos-claros .passo-texto { color: var(--tinta-2); }
 
 /* ------------------------------------------------------------------ */
-/* Formulário                                                          */
+/*  Retrato                                                           */
 /* ------------------------------------------------------------------ */
 
-.sec-agendar .env > .form {
-  padding: clamp(1.6rem, 3.4vw, 2.6rem);
-  border-radius: var(--raio);
-  background: var(--papel);
-  border: 1px solid rgb(255 255 255 / 0.7);
+.retrato-grade {
+  display: grid;
+  grid-template-columns: minmax(0, .84fr) minmax(0, 1.16fr);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: center;
 }
-.form { max-width: 42rem; display: grid; gap: 1.6rem; }
-.campo { display: grid; gap: 0.5rem; }
-.campo > label, .campo legend {
-  font-size: 0.75rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.16em;
-  color: var(--ouro-txt); padding: 0;
-}
-.opcional { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--tinta-2); }
-.campo-radio { border: 0; padding: 0; margin: 0; }
-.campo legend { margin-bottom: 0.8rem; }
 
-input[type="text"], select, textarea {
+/* O painel é do <figure>; a máscara é só da imagem. Assim a foto, cujo
+   recorte termina na cintura, dissolve no painel em vez de terminar num corte
+   reto, e a moldura continua inteira. */
+.retrato-figura figure {
+  margin: 0;
+  max-width: 420px;
+  margin-inline: auto;
+  border-radius: calc(var(--r) * 1.6) calc(var(--r) * 1.6) var(--r) var(--r);
+  border: 1px solid var(--linha);
+  background:
+    radial-gradient(120% 78% at 50% 8%, #FFFFFF 0%, var(--areia) 58%, var(--areia-2) 100%);
+  overflow: hidden;
+  padding-bottom: 6px;
+}
+.retrato {
+  display: block;
   width: 100%;
-  padding: 0.85rem 1rem;
-  font-family: var(--fonte); font-size: 1rem;
+  -webkit-mask-image: linear-gradient(to bottom, #000 86%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to bottom, #000 86%, rgba(0, 0, 0, 0) 100%);
+}
+.retrato-legenda {
+  display: grid;
+  gap: 2px;
+  text-align: center;
+  margin-top: -8px;
+  padding: 0 20px 24px;
+  font-size: .92rem;
+  color: var(--tinta-2);
+}
+.retrato-legenda strong { color: var(--tinta); font-size: 1.02rem; }
+.retrato-cro { font-size: .86rem; color: var(--tinta-3); }
+
+/* ------------------------------------------------------------------ */
+/*  Tabelas                                                           */
+/* ------------------------------------------------------------------ */
+
+.tabela-rolagem { overflow-x: auto; margin: 26px 0 18px; }
+
+.horario, .comparativo {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .95rem;
+}
+.horario th, .horario td,
+.comparativo th, .comparativo td {
+  text-align: left;
+  padding: 11px 14px 11px 0;
+  border-bottom: 1px solid var(--linha);
+  vertical-align: top;
+}
+.horario th, .comparativo tbody th {
+  font-weight: 600;
+  color: var(--tinta-2);
+  font-size: .88rem;
+}
+.comparativo { min-width: 560px; }
+.comparativo thead th {
+  font-family: var(--serifada);
+  font-size: 1.4rem;
+  font-weight: 500;
   color: var(--tinta);
-  background: #FFFFFF;
-  /* O contorno tem DOIS vizinhos: o branco de dentro e o papel do cartão de
-     fora. A WCAG 1.4.11 pede 3:1 contra o que está ao lado, e a cor anterior
-     só cumpria de um lado (3,24 no branco, 2,87 no papel) — medido no
-     navegador, não estimado. Esta dá 4,02 / 3,56 / 3,12, cobrindo também o
-     caso de o campo cair direto sobre o fundo da página. */
-  border: 1px solid #7B7F87;
-  border-radius: var(--raio-p);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--linha-2);
 }
-textarea { resize: vertical; min-height: 5.5rem; }
-input:focus-visible, select:focus-visible, textarea:focus-visible { border-color: var(--ouro-txt); }
-::placeholder { color: #6D717A; opacity: 1; }
+.comparativo td { padding-right: 24px; }
 
-.radios { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 0.8rem; }
-.radio {
-  display: flex; align-items: flex-start; gap: 0.75rem;
-  padding: 1.05rem 1.15rem;
-  background: #FFFFFF;
-  border: 1px solid #8B8F98;
-  border-radius: var(--raio-p);
+/* Três colunas fixas, e não `auto-fit`: com três blocos numa grade de duas
+   colunas sobra uma célula vazia, e o truque do filete (fundo da grade
+   aparecendo pelo vão) pinta essa sobra de linha. */
+.ficha {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--linha);
+  border: 1px solid var(--linha);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.ficha-bloco { background: var(--papel); padding: 28px 26px 32px; }
+.ficha-bloco .titulo-3 { margin-top: 0; }
+.ficha-bloco .horario th, .ficha-bloco .horario td { font-size: .92rem; }
+
+/* ------------------------------------------------------------------ */
+/*  Dúvidas                                                           */
+/* ------------------------------------------------------------------ */
+
+.duvidas { border-top: 1px solid var(--linha); margin-top: 26px; }
+.duvida { border-bottom: 1px solid var(--linha); }
+.duvida-p {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 2px;
   cursor: pointer;
-  transition: border-color 0.18s ease, background-color 0.18s ease;
+  list-style: none;
 }
-.radio:hover { border-color: var(--tinta); }
-.radio input { margin-top: 0.35rem; accent-color: var(--escuro); flex: none; }
-.radio:has(input:checked) {
-  border-color: var(--escuro); border-width: 2px;
-  padding: calc(1.05rem - 1px) calc(1.15rem - 1px);
-  background: rgb(210 175 87 / 0.14);
+.duvida-p::-webkit-details-marker { display: none; }
+.duvida-titulo {
+  font-family: var(--fonte);
+  font-size: 1.03rem;
+  font-weight: 500;
+  line-height: 1.42;
+  margin: 0;
 }
-.radio-corpo { display: grid; gap: 0.15rem; }
-.radio-cidade { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.025em; color: var(--tinta); }
-.radio-end { font-size: 0.875rem; color: var(--tinta-2); }
-.radio-tel { font-size: 0.875rem; font-weight: 700; color: var(--tinta); }
+.duvida-sinal {
+  flex: none;
+  width: 32px; height: 32px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--linha);
+  color: var(--ouro-tinta);
+  transition: transform .2s ease, border-color .18s ease, background-color .18s ease;
+}
+.duvida-p:hover .duvida-sinal { border-color: var(--ouro-esc); background: var(--ouro-fraco); }
+.duvida[open] .duvida-sinal { transform: rotate(45deg); }
+.duvida-r { padding: 0 60px 24px 2px; }
+.duvida-r p { color: var(--tinta-2); margin: 0; max-width: 68ch; }
 
-.form-previa { padding: 1.3rem 1.5rem; border-radius: var(--raio-p); background: rgb(22 24 28 / 0.06); }
-.form-previa h3 {
-  font-size: 0.75rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.16em;
-  color: var(--ouro-txt); margin-bottom: 0.7rem;
-}
-.form-previa-texto { font-size: 0.9375rem; white-space: pre-line; color: var(--tinta); }
-.form-nota {
-  display: flex; gap: 0.75rem; align-items: flex-start;
-  font-size: 0.875rem;
-  padding-top: 1.3rem; border-top: 1px solid var(--linha-clara);
-}
-.form-nota .ico { color: var(--ouro-txt); margin-top: 0.15rem; }
-.form-nota strong { color: var(--tinta); }
+.grupo-duvidas + .grupo-duvidas { margin-top: 46px; }
+.grupo-duvidas .titulo-3 { margin-top: 0; }
 
 /* ------------------------------------------------------------------ */
-/* Mapa do site na 404                                                 */
+/*  Aviso                                                             */
 /* ------------------------------------------------------------------ */
 
-.mapa-site {
+.aviso {
+  border: 1px solid var(--linha-2);
+  border-left: 3px solid var(--ouro-esc);
+  border-radius: var(--r-p);
+  background: var(--papel);
+  padding: 26px 28px;
+  margin-top: 24px;
+}
+.aviso .titulo-3 { margin-top: 0; }
+.aviso p { color: var(--tinta-2); font-size: .96rem; }
+
+.artigo .titulo-3:first-child { margin-top: 0; }
+
+/* ------------------------------------------------------------------ */
+/*  Chamada                                                           */
+/* ------------------------------------------------------------------ */
+
+.chamada { padding-bottom: clamp(70px, 8vw, 120px); }
+
+.chamada-caixa {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-  gap: 0.1rem 2rem;
-  max-width: 56rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: clamp(28px, 4vw, 56px);
+  align-items: center;
+  padding: clamp(32px, 4vw, 56px);
+  border-radius: calc(var(--r) * 1.4);
+  background:
+    radial-gradient(700px 420px at 12% 0%, rgba(210, 175, 87, .16), transparent 62%),
+    var(--noite);
+  color: var(--tinta-clara);
+  border: 1px solid var(--linha-escura);
 }
-.mapa-site li { border-bottom: 1px solid var(--linha-clara); }
-.mapa-site a { display: block; padding: 0.75rem 0; color: var(--tinta-2); text-decoration: none; }
-.mapa-site a:hover { color: var(--tinta); }
+.chamada-caixa .prosa { color: var(--tinta-clara-2); }
+/* Dentro da caixa escura o ouro escuro dá 2,83:1. O rótulo usa a variante
+   clara, que dá 6,34:1. */
+.chamada-caixa .rotulo-ouro { color: var(--ouro); }
+.chamada-caixa .titulo-2 em { color: var(--ouro); }
+.chamada-nota { font-size: .9rem; color: var(--tinta-clara-2); margin: 20px 0 0; }
 
-/* ------------------------------------------------------------------ */
-/* Rodapé                                                              */
-/* ------------------------------------------------------------------ */
-
-.rodape {
-  margin-top: var(--passo);
-  background: var(--escuro);
-  color: var(--creme-2);
-  border-radius: var(--raio) var(--raio) 0 0;
-  padding-block: clamp(3rem, 6vw, 4.5rem) 2rem;
-  font-size: 0.9375rem;
+/* A orientação de urgência aparece em toda página que traz o bloco de
+   agendamento, e não escondida numa pergunta fechada da FAQ. Quem chega com
+   dor precisa ler isso sem procurar. */
+.chamada-urgencia {
+  margin: 18px 0 0;
+  padding: 14px 16px;
+  border-radius: var(--r-p);
+  border: 1px solid #4A3C10;
+  background: rgba(210, 175, 87, .09);
+  font-size: .88rem;
+  line-height: 1.55;
+  color: var(--tinta-clara);
 }
-.rodape h2 {
-  font-size: 0.75rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.18em;
-  color: var(--ouro); margin-bottom: 1.1rem;
-}
-.rodape a { color: var(--creme); text-decoration: none; border-bottom: 1px solid rgb(244 241 235 / 0.22); }
-.rodape a:hover { border-bottom-color: var(--ouro); color: var(--ouro); }
-.rodape .simbolo { color: var(--ouro); }
+.chamada-urgencia strong { color: var(--ouro); display: block; }
+.chamada-nota .elo { color: var(--ouro); text-decoration-color: var(--ouro); text-decoration-thickness: 1px; }
+.chamada-nota .elo:hover { color: var(--ouro); text-decoration-color: var(--ouro); }
 
-.rp-grade {
+.chamada-unidades {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-  gap: clamp(2rem, 4vw, 3.5rem);
-  padding-bottom: 2.5rem;
-  border-bottom: 1px solid rgb(244 241 235 / 0.14);
+  grid-template-columns: repeat(auto-fit, minmax(min(216px, 100%), 1fr));
+  gap: 14px;
 }
-.rp-marca { max-width: 22rem; }
-.rp-tagline { margin: 1.4rem 0 1rem; }
-.rp-social { font-size: 0.875rem; }
-.rp-unidades { display: grid; gap: 2rem; }
-.rp-unidade h2 { margin-bottom: 0.6rem; }
-.rp-unidade h2 a { color: var(--ouro); border-bottom-color: rgb(210 175 87 / 0.4); }
-.rp-end { margin-bottom: 0.6rem; line-height: 1.6; }
-.rp-tel { font-size: 1.0625rem; font-weight: 700; margin-bottom: 0.6rem; }
-.rp-tel a { color: var(--creme); }
-.rp-links-unid { display: flex; flex-wrap: wrap; gap: 1.1rem; font-size: 0.875rem; }
-.rp-links-unid a { display: inline-flex; align-items: center; gap: 0.4rem; }
-.rp-links-unid .ico { width: 1.05em; height: 1.05em; }
-.rp-lista { display: grid; gap: 0.4rem; }
-.rp-lista a { display: inline-block; padding-block: 0.3rem; }
-
-.rp-emergencia {
-  display: flex; gap: 0.9rem; align-items: flex-start;
-  margin: 2.5rem 0 0;
-  padding: 1.2rem 1.4rem;
-  border-radius: var(--raio-p);
-  background: rgb(210 175 87 / 0.1);
-  font-size: 0.875rem;
+.chamada-unidade {
+  background: rgba(255, 255, 255, .045);
+  border: 1px solid var(--linha-escura);
+  border-radius: var(--r);
+  padding: 22px 20px;
 }
-.rp-emergencia .ico { color: var(--ouro); margin-top: 0.15rem; }
-.rp-emergencia b { color: var(--creme); }
-
-.rp-legal {
-  margin-top: 2.5rem; padding-top: 1.75rem;
-  border-top: 1px solid rgb(244 241 235 / 0.14);
-  font-size: 0.8125rem; line-height: 1.6;
-  color: rgb(244 241 235 / 0.6);
-  display: grid; gap: 0.9rem;
+.chamada-unidade .rotulo { color: var(--ouro); margin-bottom: 10px; }
+.chamada-endereco { font-size: .92rem; color: var(--tinta-clara-2); margin: 0 0 8px; }
+.chamada-horario {
+  display: flex; align-items: center; gap: 7px;
+  font-size: .88rem; color: var(--tinta-clara-2); margin: 0 0 16px;
 }
-.rp-legal p { margin: 0; max-width: 82ch; }
-.rp-ident { color: rgb(244 241 235 / 0.78); }
-.rodape .pendente { background: var(--ouro); color: var(--escuro); }
+.chamada-horario .ico { color: var(--ouro); flex: none; }
+.chamada-unidade .botao { width: 100%; }
+.chamada-tel { margin: 12px 0 0; font-size: .9rem; text-align: center; }
+.chamada-tel .elo { color: var(--tinta-clara-2); text-decoration-color: #3A3F4E; }
+.chamada-tel .elo:hover { color: var(--ouro); text-decoration-color: var(--ouro); }
 
 /* ------------------------------------------------------------------ */
-/* Navegação no celular                                                */
+/*  Rodapé                                                            */
 /* ------------------------------------------------------------------ */
 
-@media (max-width: 62rem) {
-  .topo-botao {
-    display: inline-flex; align-items: center; gap: 0.5rem;
-    margin-left: auto;
-    padding: 0.6rem 1rem;
-    background: transparent;
-    border: 1px solid rgb(22 24 28 / 0.24);
-    border-radius: 999px;
-    font-family: var(--fonte); font-size: 0.875rem; font-weight: 700;
-    color: var(--tinta); cursor: pointer;
+.pe {
+  background: var(--noite-2);
+  color: var(--tinta-clara-2);
+  padding: clamp(52px, 6vw, 82px) 0 34px;
+  font-size: .93rem;
+}
+
+.pe-grade {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) repeat(2, minmax(0, 1fr)) minmax(0, 1fr);
+  gap: clamp(26px, 3vw, 46px);
+  padding-bottom: 44px;
+  border-bottom: 1px solid var(--linha-escura);
+}
+
+.pe-marca-img { width: 132px; height: auto; display: block; margin-bottom: 18px; }
+.pe-resumo { max-width: 34ch; margin-bottom: 14px; }
+
+.pe-titulo {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ouro);
+  margin: 0 0 14px;
+}
+.pe-titulo-2 { margin-top: 26px; }
+
+.pe-endereco { margin-bottom: 10px; }
+.pe-linha { margin: 0 0 8px; }
+.pe-linha .elo { display: inline-flex; align-items: center; gap: 8px; }
+
+.pe .elo { color: var(--tinta-clara-2); text-decoration-color: #3A3F4E; }
+.pe .elo:hover { color: var(--ouro); text-decoration-color: var(--ouro); }
+
+.pe-lista { list-style: none; display: grid; gap: 8px; }
+
+.pe-legal { padding-top: 30px; font-size: .84rem; color: var(--tinta-3-escura); }
+.pe-legal p { margin: 0 0 8px; }
+.pe-aviso { max-width: 82ch; margin-top: 16px !important; }
+.pe-fim { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px !important; }
+
+.pe mark.pendente { background: #4A3C10; color: #F3E3AE; }
+
+/* ------------------------------------------------------------------ */
+/*  Adaptação                                                         */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 1080px) {
+  .pe-grade { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 960px) {
+  .capa-grade,
+  .retrato-grade,
+  .chamada-caixa,
+  .secao-cabeca,
+  .cabecalho-grade { grid-template-columns: minmax(0, 1fr); }
+  .secao-cabeca { align-items: start; gap: 16px; }
+  .secao-texto { padding-bottom: 0; }
+  .retrato-figura { max-width: 380px; margin-inline: auto; }
+  .dados-largo > div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .ficha { grid-template-columns: minmax(0, 1fr); }
+  .modelo-fixo .modelo-palco { max-width: 320px; }
+}
+
+/* Menu em coluna. O painel só é escondido quando há JavaScript: sem ele o
+   menu continua na página, empilhado, e nada fica inalcançável. */
+/* O painel do menu sai do fluxo do cabeçalho fixo. Se ele empurrasse a barra,
+   o cabeçalho passaria de 400 px de altura com o menu aberto e cobriria
+   qualquer elemento que recebesse foco por rolagem — o `scroll-padding-top` de
+   96 px não daria conta. Assim a barra continua com 66 px e o painel flutua. */
+@media (max-width: 860px) {
+  .menu-botao { display: flex; }
+  .topo-faixa { position: relative; min-height: 66px; padding-block: 10px; }
+  .menu {
+    position: absolute;
+    top: 100%;
+    left: -20px;
+    right: -20px;
+    margin-left: 0;
+    padding: 0 20px 12px;
+    background: var(--porcelana);
+    border-bottom: 1px solid var(--linha);
+    box-shadow: var(--sombra-2);
+    max-height: 72vh;
+    overflow-y: auto;
   }
-  .topo-nav {
-    display: none; order: 3; width: 100%;
-    margin-left: 0; padding-bottom: 1rem;
+  .menu-lista {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 6px 0 0;
     border-top: 1px solid var(--linha);
   }
-  .topo-nav.aberto { display: block; }
-  .topo-nav ul { flex-direction: column; gap: 0; }
-  .topo-nav a { padding: 0.95rem 0; border-bottom: 1px solid var(--linha-clara); }
-  .topo-linha { flex-wrap: wrap; padding-block: 0.9rem; min-height: 0; }
-  .topo-acao { display: none; }
+  .menu-link { padding: 13px 2px; border-bottom: 1px solid var(--linha); }
+  .menu-link:last-child { border-bottom: 0; }
+  .topo-acoes { margin-left: auto; }
+  .js .menu[hidden] { display: none; }
+}
+
+@media (max-width: 620px) {
+  body { font-size: 16.5px; }
+  .faixa, .faixa-estreita, .topo-faixa, .migalhas { width: calc(100% - 32px); }
+  .secao { padding: 56px 0; }
+  .cartao, .cartao-unidade, .cartao-tratamento.e-grande { padding: 22px; }
+  .chamada-caixa { padding: 26px 20px; }
+  .duvida-r { padding-right: 8px; }
+  .dados > div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .capa-acoes .botao { width: 100%; }
+  .marca-img { width: 112px; }
+  .regioes { gap: 7px; }
+  .regiao { padding: 7px 11px; }
+  .modelo-legenda { min-height: 0; }
 }
 
 /* ------------------------------------------------------------------ */
-/* Impressão e movimento reduzido                                      */
+/*  Preferências e impressão                                          */
 /* ------------------------------------------------------------------ */
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: .001ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --tinta-2: #3A3F4B;
+    --tinta-3: #4E5462;
+    --linha: #CFC6B6;
+    --linha-2: #B6AB97;
   }
 }
 
 @media print {
-  .topo, .previa, .pular, .form-acoes, .cartao-3d, .disco-acento { display: none; }
-  body { background: #fff; color: #000; font-size: 11pt; }
-  .cartao, .unid, .pessoa, .trat, .faq-item, .etapa, .faixa-unid-item, .rodape {
-    background: #fff; color: #000; border-color: #999; border-radius: 0;
+  .topo, .pular, .chamada, .modelo-indice, .faixa-previa, .migalhas { display: none; }
+  body { font-size: 11pt; background: #fff; }
+  .secao-escura, .chamada-caixa { background: #fff !important; color: #000 !important; }
+  .pe { background: #fff; color: #000; }
+  a[href^='http']::after { content: ' (' attr(href) ')'; font-size: 9pt; word-break: break-all; }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Peças acrescentadas depois da auditoria                            */
+/* ------------------------------------------------------------------ */
+
+code {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: .9em;
+  background: var(--areia);
+  border: 1px solid var(--linha);
+  border-radius: 5px;
+  padding: 1px 6px;
+}
+
+/* O bloco de urgência da página de contato herda o cartão de aviso, mas com
+   a barra em vermelho de gengiva: é o único lugar do site onde a cor serve de
+   alerta, e por isso ela não se repete em nenhum outro. */
+.aviso-urgencia { border-left-color: #B4472B; }
+.aviso-urgencia .titulo-3 { color: #8E3520; }
+
+/* Quebra de linha por CSS, e não por <br>. Com <br> o texto extraído sai
+   colado ("Clareamento dentalem Marília e Garça"), e é assim que rastreador de
+   assistente de IA costuma ler a página. */
+.titulo-quebra { display: block; }
+
+/* ------------------------------------------------------------------ */
+/*  Controles do modelo                                                */
+/*                                                                     */
+/*  Existem por três motivos, todos de acessibilidade:                  */
+/*  1. girar por arrasto é gesto de trajetória; a WCAG 2.2 exige uma    */
+/*     alternativa de toque simples (2.5.7);                            */
+/*  2. a deriva automática é movimento que começa sozinho e dura mais   */
+/*     de cinco segundos, e precisa de um jeito de parar (2.2.2);       */
+/*  3. com botões, a operação por teclado não depende de o canvas ser   */
+/*     focável — e um canvas `role="img"` focável é justamente o que    */
+/*     não funciona em leitor de tela (4.1.2).                          */
+/*  Só aparecem quando o modelo sobe: sem WebGL não há o que girar.     */
+/* ------------------------------------------------------------------ */
+
+.modelo-controles {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+.modelo-controles[hidden] { display: none; }
+
+.modelo-botao {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--linha-botao);
+  background: rgba(255, 255, 255, .7);
+  color: var(--tinta);
+  cursor: pointer;
+  transition: border-color .16s ease, background-color .16s ease;
+}
+.modelo-botao:hover { border-color: var(--ouro-esc); background: var(--papel); }
+.modelo-botao .ico { pointer-events: none; }
+.modelo-botao .ico-pausa { display: none; }
+.modelo-botao[aria-pressed="true"] .ico-pausa { display: block; }
+.modelo-botao[aria-pressed="true"] .ico-toca { display: none; }
+
+/* Lista de sinais de alerta da página de urgência. É a única lista com marca
+   no site: aqui a marca ajuda a ler em pânico. */
+.lista-alerta { list-style: none; display: grid; gap: 8px; margin: 14px 0 0; }
+.lista-alerta li {
+  position: relative;
+  padding-left: 20px;
+  color: var(--tinta-2);
+  font-size: .96rem;
+}
+.lista-alerta li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: .62em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #B4472B;
+}
+
+/* A nota que fecha um artigo precisa de ar: sem isto ela encosta no último
+   parágrafo e lê como continuação dele. */
+.artigo + .nota { margin-top: 22px; }
+
+/* ------------------------------------------------------------------ */
+/*  A barra do topo em tela de 320 px                                  */
+/*                                                                     */
+/*  Na página de uma unidade o botão diz "Agendar em Garça", e a linha  */
+/*  marca + botão + abrir menu passava de 320 px: a página inteira      */
+/*  ganhava rolagem horizontal, que é falha de refluxo da WCAG. A       */
+/*  cidade sai da TELA, e não do nome acessível: quem lê por leitor de  */
+/*  tela continua ouvindo "Agendar em Garça".                          */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 560px) {
+  .topo-cidade {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
   }
-  h1, h2, h3, .trat-nome, .unid-nome, .faixa-unid-cidade, .rodape a, .rodape h2 { color: #000; }
-  a[href^="http"]::after { content: ' (' attr(href) ')'; font-size: 9pt; word-break: break-all; }
+}
+
+@media (max-width: 420px) {
+  .topo-faixa { gap: 10px; }
+  .topo-acoes { gap: 6px; }
+  .marca-img { width: 96px; }
+  .botao-pequeno { padding: 10px 14px; }
+  .menu { left: -16px; right: -16px; padding-inline: 16px; }
 }

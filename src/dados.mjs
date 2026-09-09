@@ -1,27 +1,25 @@
 /* =========================================================================
    FONTE ÚNICA DE VERDADE do site da Glamm Odontologia.
 
-   Nada de conteúdo factual é escrito direto no HTML: tudo sai daqui. Para
-   corrigir um telefone, um endereço ou um horário, mexa neste arquivo e rode
-   `node build.mjs --preview` de novo.
+   Nenhum dado factual é escrito direto no HTML: tudo sai daqui. Para corrigir
+   um telefone, um endereço ou um horário, mexa neste arquivo e rode a build
+   de novo.
 
    REGRA DOS CAMPOS `null`
    Campo com valor `null` é dado que ninguém confirmou com a clínica. Na
    prévia ele vira uma marcação visível "a confirmar"; na build de produção
    ele derruba o processo. É de propósito: um site que não publica é melhor
-   que um site que publica o telefone errado de uma unidade. Foi exatamente
-   isso que o diagnóstico encontrou no site atual.
+   que um site que publica o telefone errado de uma unidade.
 
    PROCEDÊNCIA
-   Cada bloco diz de onde veio o dado, com as marcas usadas no dossiê:
+   Cada bloco diz de onde veio o dado:
      [receita]  Receita Federal, fichas da matriz e da filial
      [site]     dragabrielatukasan.com.br, site atual da clínica
      [maps]     fichas do Google Maps das duas unidades
      [meta]     Biblioteca de Anúncios da Meta
      [insta]    perfis @glammodontologia e @dragabrielatukasan
      [rdap]     consulta RDAP no Registro.br
-   Onde as fontes divergem, está escrito qual venceu e por quê. O detalhamento
-   está em interno/NOTAS-INTERNAS.md.
+   Onde as fontes divergem, está escrito qual venceu e por quê.
    ========================================================================= */
 
 /* -------------------------------------------------------------------------
@@ -41,8 +39,8 @@ export const CLINICA = {
   assinatura: 'Clínica odontológica',
 
   /* Nome sob o qual a profissional é conhecida hoje no Google e no
-     Instagram. Aparece no site UMA vez, na página da equipe, para ligar as
-     duas identidades sem competir com a marca. `[maps]` `[insta]` */
+     Instagram. Aparece no site como `alternateName` e uma vez na página da
+     equipe, para ligar as duas identidades sem competir com a marca. */
   nomeAnterior: 'Dra. Gabriela Tukasan',
 
   /* `[receita]` matriz e filial, situação ativa nas duas. */
@@ -59,15 +57,18 @@ export const CLINICA = {
      número de inscrição do responsável técnico.
 
      Os dois números existem e estão publicados pela própria clínica, mas em
-     canais diferentes e colados a entidades diferentes:
-       site       "registrada sobre o CRO-SP nº 125.985"  (pessoa física)
-       Instagram  "CROCL 033836 RT: @dragabrielatukasanreis"
-       anúncios   "RT: Gabriela Vera Tukasan dos Reis / CRO: 033836"
-     A leitura provável é que 033836 seja o registro da CLÍNICA (o prefixo
-     CROCL na bio do Instagram indica pessoa jurídica) e 125.985 o da
-     PROFISSIONAL. Provável não basta para publicar identificação obrigatória
-     em nome de terceiro: os dois campos ficam `null` até ela confirmar.
-     `[site]` `[insta]` `[meta]` */
+     canais diferentes e colados a entidades diferentes, de um jeito que não
+     permite dizer com certeza qual é de quem. Provável não basta para publicar
+     identificação obrigatória em nome de terceiro: os dois campos ficam `null`
+     até a clínica confirmar.
+
+     OS NÚMEROS NÃO SÃO ESCRITOS AQUI, e o motivo é o mesmo que os mantém fora
+     das páginas. Este repositório é público e o GitHub Pages serve TODO
+     arquivo dele, inclusive src/ e README.md: um número de terceiro num
+     comentário está tão publicado quanto no rodapé. A leitura de cada canal, a
+     inferência e a fonte estão em interno/NOTAS-INTERNAS.md, que não é
+     versionado. `tools/check.mjs` recusa a verificação se um número com cara
+     de inscrição no CRO aparecer em arquivo publicável. */
   croClinica: null,
   responsavelTecnica: 'Gabriela Vera Tukasan dos Reis',
   croResponsavel: null,
@@ -78,8 +79,8 @@ export const CLINICA = {
   /* Onde este site vai morar enquanto for proposta. O domínio da marca já é
      dela: glammodontologia.com.br, registrado em 27/02/2026, pago até
      27/02/2027, apontando para o DNS automático do Registro.br e sem
-     resolver (NXDOMAIN). Ela é titular E contato técnico dos dois domínios,
-     então não há nada a comprar nem a negociar para publicar. `[rdap]` */
+     resolver. Ela é titular E contato técnico dos dois domínios, então não há
+     nada a comprar nem a negociar para publicar. `[rdap]` */
   origem: 'https://filipejefte.github.io/glamm-odontologia-site',
   dominioProprio: 'glammodontologia.com.br',
   dominioAnterior: 'dragabrielatukasan.com.br',
@@ -97,18 +98,15 @@ export const CLINICA = {
   /* Política de atendimento, publicada pela própria clínica na FAQ. Dizer que
      não há convênio é permitido e é informação de serviço (art. 43 §1º IV).
      Condição de pagamento NÃO entra: art. 44, I veda expressamente anunciar
-     preços, gratuidade e modalidades de pagamento. O site atual anuncia
-     parcelamento na FAQ. Aqui não entra. `[site]` */
+     preços, gratuidade e modalidades de pagamento. */
   convenios: false,
 
-  /* A afirmação "1.000+ pacientes atendidos" do site atual não entra: não há
-     como conferir, e número de atendimento usado como argumento comercial é
-     terreno do art. 44. Nota e contagem de avaliação também não entram, por
-     duas razões somadas: o material de origem veda expressamente reproduzir,
-     e o art. 44 trata de publicidade que comercializa a Odontologia. */
-
   /* Ano de abertura da matriz. `[receita]` */
-  desde: 2024
+  desde: 2024,
+
+  /* Idioma e região, usados em hreflang, JSON-LD e Open Graph. */
+  lang: 'pt-BR',
+  regiao: 'Centro-oeste paulista'
 };
 
 /* -------------------------------------------------------------------------
@@ -144,7 +142,11 @@ export const UNIDADES = [
     cidade: 'Marília',
     uf: 'SP',
     nome: 'Glamm Odontologia Marília',
-    resumo: 'A unidade de Marília fica no Fragata, a poucos passos do Fórum Estadual.',
+    resumo: 'Fica no Fragata, a poucos passos do Fórum Estadual. Atende de segunda a sexta.',
+    /* Coordenada NÃO é publicada: as duas fichas do Google carregam endereço
+       divergente e não há levantamento próprio. `geo` sem conferência é pior
+       que `geo` ausente, porque o mapa passa a mandar gente para o lugar
+       errado com a autoridade do dado estruturado. */
 
     /* `[receita]` grafa "Marrey Junior"; o site e o Google grafam "Marrei
        Júnior". Publicamos a grafia dos canais públicos, que é a que o
@@ -156,6 +158,7 @@ export const UNIDADES = [
     bairro: 'Fragata',
     cep: '17519-010',
     referencia: 'próximo ao Fórum Estadual',
+    comoChegar: 'A rua sai da Avenida Sampaio Vidal, no sentido do Fórum Estadual. Há vaga na via em frente e no quarteirão seguinte.',
 
     /* `[maps]` `[site]` `[meta]`. Confirmado nas três superfícies. */
     telefone: '(14) 99618-1654',
@@ -170,6 +173,7 @@ export const UNIDADES = [
       { dias: 'Sexta', abre: '08:30', fecha: '19:00', diasIso: ['Friday'] }
     ],
     fechado: 'Não atende aos sábados e domingos.',
+    destaqueHorario: 'Segunda a sexta',
 
     get enderecoLinha() { return `${this.logradouro}, ${this.numero}`; },
     get enderecoCompleto() {
@@ -178,6 +182,9 @@ export const UNIDADES = [
     get mapa() { return mapa(`${this.logradouro}, ${this.numero}, ${this.bairro}, ${this.cidade}, ${this.uf}, ${this.cep}`); },
     get whatsapp() {
       return zap(this.e164, 'Olá! Vim pelo site da Glamm Odontologia e gostaria de agendar uma avaliação na unidade de Marília.');
+    },
+    whatsappPara(assunto) {
+      return zap(this.e164, `Olá! Vim pelo site da Glamm Odontologia. Gostaria de agendar uma avaliação na unidade de Marília sobre ${assunto}.`);
     }
   },
   {
@@ -186,7 +193,7 @@ export const UNIDADES = [
     cidade: 'Garça',
     uf: 'SP',
     nome: 'Glamm Odontologia Garça',
-    resumo: 'A unidade de Garça fica ao lado da Prefeitura Municipal e atende também aos sábados.',
+    resumo: 'Fica ao lado da Prefeitura Municipal. Abre até as 20h e atende aos sábados.',
 
     /* `[receita]` e `[site]` dizem bairro Williams, CEP 17402-000. `[maps]`
        diz Centro, CEP 17400-000, e ainda quebra o nome da rua como
@@ -198,6 +205,7 @@ export const UNIDADES = [
     bairro: 'Williams',
     cep: '17402-000',
     referencia: 'ao lado da Prefeitura Municipal',
+    comoChegar: 'Fica na quadra da Prefeitura Municipal, a duas quadras da Praça Prudente de Moraes, no centro de Garça.',
 
     /* `[maps]` e o botão "agendar em Garça" do próprio site atual apontam
        este número. O RODAPÉ do site atual publica o de Marília para as duas
@@ -213,6 +221,7 @@ export const UNIDADES = [
       { dias: 'Sábado', abre: '08:00', fecha: '14:00', diasIso: ['Saturday'] }
     ],
     fechado: 'Não atende aos domingos.',
+    destaqueHorario: 'Segunda a sábado',
 
     get enderecoLinha() { return `${this.logradouro}, ${this.numero}`; },
     get enderecoCompleto() {
@@ -221,48 +230,59 @@ export const UNIDADES = [
     get mapa() { return mapa(`${this.logradouro}, ${this.numero}, ${this.bairro}, ${this.cidade}, ${this.uf}, ${this.cep}`); },
     get whatsapp() {
       return zap(this.e164, 'Olá! Vim pelo site da Glamm Odontologia e gostaria de agendar uma avaliação na unidade de Garça.');
+    },
+    whatsappPara(assunto) {
+      return zap(this.e164, `Olá! Vim pelo site da Glamm Odontologia. Gostaria de agendar uma avaliação na unidade de Garça sobre ${assunto}.`);
     }
   }
 ];
 
 export const POR_ID = Object.fromEntries(UNIDADES.map(u => [u.id, u]));
+export const CIDADES = UNIDADES.map(u => u.cidade).join(' e ');
 
 /* -------------------------------------------------------------------------
    3. Tratamentos
 
-   Os sete estão publicados na copy do site atual. Cada um ganha URL própria,
-   que é o conserto do achado "página única, sem rota por cidade nem por
-   tratamento": hoje todo o conteúdo vive em `/` e não há nada para o
-   buscador ranquear por tratamento.
+   Cada um ganha URL própria, que é o conserto do achado "página única, sem
+   rota por cidade nem por tratamento": no site atual todo o conteúdo vive em
+   `/` e não há nada para o buscador ranquear por tratamento.
 
    O TEXTO FOI REESCRITO, não copiado. Três coisas saíram de propósito:
 
-   1. Superlativo e promessa de resultado. "Elimina de vez a dor",
-      "resultado visível já nas primeiras sessões" e "câmera intraoral de
-      última geração" viram descrição do que o procedimento é. O art. 44, III
-      veda anunciar equipamento e técnica como diferencial não comprovado.
+   1. Superlativo e promessa de resultado. "Elimina de vez a dor" e
+      "câmera intraoral de última geração" viram descrição do que o
+      procedimento é. O art. 44, III veda anunciar equipamento e técnica como
+      diferencial não comprovado.
    2. A palavra "especialista" como atributo da clínica. O art. 43 §2º só
       permite a pessoa jurídica anunciar especialidade se tiver profissional
       inscrito naquela especialidade no CRO E disponibilizar ao público a
-      relação desses profissionais com suas qualificações. Enquanto a relação
-      não existir, o site fala de TRATAMENTOS, não de especialistas.
-   3. Preço, parcelamento e "antes e depois". Art. 44, I.
+      relação desses profissionais com suas qualificações.
+   3. Preço, parcelamento e "antes e depois". Art. 44, I e Resolução
+      CFO-196/2019.
 
-   `conteudo` é o que a página desenvolve. Nada aqui é diagnóstico nem
-   indicação: é esclarecimento, que é justamente a finalidade que o art. 44,
-   V preserva.
+   CAMPO `regiao`
+   Liga o tratamento à parte do dente que o modelo tridimensional destaca.
+   Valores aceitos: 'face', 'esmalte', 'raiz', 'polpa', 'gengiva', 'tudo',
+   'visivel'. É o que transforma o modelo de enfeite em índice anatômico.
+
+   CAMPO `resposta`
+   Uma ou duas frases que respondem sozinhas à pergunta implícita do título.
+   É o primeiro parágrafo da página e é o trecho que assistente de IA cita.
    ------------------------------------------------------------------------- */
 
 export const TRATAMENTOS = [
   {
     slug: 'lentes-e-facetas',
     nome: 'Lentes e facetas',
-    nomeLongo: 'Lentes e facetas de resina',
-    icone: 'lente',
+    nomeLongo: 'Lentes e facetas dentais',
+    icone: 'faceta',
+    regiao: 'face',
     parte: 'Face do dente',
     parteTexto: 'A camada externa da coroa, a que aparece quando você sorri.',
     resumo: 'Lâminas finas aplicadas sobre a face do dente para mudar formato, tamanho e cor.',
-    descricao: 'Uma faceta é uma lâmina fina fixada sobre a superfície do dente para alterar formato, tamanho, alinhamento aparente ou cor. O material e a espessura mudam conforme o caso, e são definidos na avaliação.',
+    resposta: 'Faceta é uma lâmina fina fixada sobre a superfície visível do dente para alterar formato, tamanho, alinhamento aparente ou cor. "Lente de contato dental" é o nome comercial da faceta muito fina: tecnicamente são a mesma família de procedimento, e o que muda de um caso para outro é a espessura, o material e o quanto de preparo o dente precisa.',
+    titulo: 'Lentes e facetas em Marília e Garça',
+    descricao: 'Facetas em Marília e Garça: o que é, quando é indicada, a diferença entre resina e porcelana e o que a avaliação precisa checar antes.',
     conteudo: [
       {
         h: 'O que a faceta resolve',
@@ -270,7 +290,7 @@ export const TRATAMENTOS = [
       },
       {
         h: 'Resina ou porcelana',
-        p: 'A resina composta é esculpida na própria consulta, sobre o dente, e pode ser ajustada, reparada e repolida depois. A porcelana é fabricada em laboratório a partir de uma moldagem. As duas têm indicação, custo de manutenção e durabilidade diferentes, e a escolha depende do caso. Na avaliação a diferença é explicada com o seu dente na frente, não no abstrato.'
+        p: 'A resina composta é esculpida na própria consulta, sobre o dente, e pode ser ajustada, reparada e repolida depois. A porcelana é fabricada em laboratório a partir de uma moldagem. As duas têm indicação, exigência de manutenção e durabilidade diferentes, e a escolha depende do caso. Na avaliação a diferença é explicada com o seu dente na frente, não no abstrato.'
       },
       {
         h: 'O que a avaliação precisa checar antes',
@@ -290,17 +310,21 @@ export const TRATAMENTOS = [
         q: 'Faceta e lente de contato dental são a mesma coisa?',
         r: '"Lente de contato dental" é o nome comercial que se popularizou para a faceta muito fina. Tecnicamente as duas são facetas: lâminas aplicadas sobre a face do dente. O que muda de um caso para outro é a espessura, o material e o quanto de preparo o dente precisa, e isso se define no exame, não pelo nome.'
       }
-    ]
+    ],
+    relacionados: ['clareamento-dental', 'periodontia', 'ortodontia-e-alinhadores']
   },
   {
     slug: 'ortodontia-e-alinhadores',
     nome: 'Ortodontia e alinhadores',
     nomeLongo: 'Ortodontia, aparelho fixo e alinhadores',
     icone: 'alinhador',
+    regiao: 'tudo',
     parte: 'Posição na arcada',
     parteTexto: 'O dente inteiro, movido dentro do osso até a posição certa.',
     resumo: 'Correção da posição dos dentes e da mordida, com aparelho fixo ou com alinhadores transparentes.',
-    descricao: 'Ortodontia é a área que move dentes e corrige a mordida. O movimento pode ser conduzido por aparelho fixo, colado aos dentes, ou por alinhadores transparentes removíveis, trocados em sequência.',
+    resposta: 'Ortodontia é a área que move dentes e corrige a mordida. O movimento pode ser conduzido por aparelho fixo, colado aos dentes, ou por alinhadores transparentes removíveis, trocados em sequência. Qual dos dois serve para o seu caso é definido depois da documentação ortodôntica, que reúne radiografias, fotografias e modelos.',
+    titulo: 'Ortodontia e alinhadores em Marília e Garça',
+    descricao: 'Ortodontia em Marília e Garça: aparelho fixo ou alinhador transparente, o que a documentação ortodôntica responde e o que define o tempo.',
     conteudo: [
       {
         h: 'Não é só estética',
@@ -328,17 +352,21 @@ export const TRATAMENTOS = [
         q: 'Preciso de documentação ortodôntica antes de começar?',
         r: 'Sim. A documentação reúne radiografias, fotografias e modelos dos seus dentes, e é ela que permite planejar o movimento e estimar o tempo. Sem documentação não há plano ortodôntico, apenas suposição.'
       }
-    ]
+    ],
+    relacionados: ['periodontia', 'lentes-e-facetas', 'implante-e-protese']
   },
   {
     slug: 'implante-e-protese',
     nome: 'Implante e prótese',
     nomeLongo: 'Implante dentário e prótese',
     icone: 'implante',
+    regiao: 'raiz',
     parte: 'Raiz e osso',
     parteTexto: 'O que fica sob a gengiva e sustenta o dente. É o que o implante repõe.',
     resumo: 'Reposição de dentes perdidos, de um único dente à arcada completa.',
-    descricao: 'O implante é um pino de titânio instalado no osso, que passa a fazer o papel da raiz. Sobre ele se instala a prótese, que é a parte visível. Quando o implante não é indicado, a reposição pode ser feita por prótese fixa ou removível.',
+    resposta: 'O implante é um pino de titânio instalado no osso, que passa a fazer o papel da raiz. Sobre ele se instala a prótese, que é a parte visível. Quando o implante não é indicado, a reposição pode ser feita por prótese fixa ou removível, apoiada nos dentes que restaram.',
+    titulo: 'Implante dentário em Marília e Garça',
+    descricao: 'Implante em Marília e Garça: como funciona, o que o planejamento precisa saber antes e a diferença entre prótese sobre implante e convencional.',
     conteudo: [
       {
         h: 'Por que repor um dente que ninguém vê',
@@ -366,17 +394,21 @@ export const TRATAMENTOS = [
         q: 'Vou ficar sem dente aparente durante o tratamento?',
         r: 'Na maior parte dos casos existe solução provisória para a região visível durante a fase de integração. Se isso é possível no seu caso, e de que forma, é parte do que o plano de tratamento responde antes de começar.'
       }
-    ]
+    ],
+    relacionados: ['periodontia', 'endodontia', 'ortodontia-e-alinhadores']
   },
   {
     slug: 'clareamento-dental',
     nome: 'Clareamento dental',
     nomeLongo: 'Clareamento dental',
     icone: 'clareamento',
+    regiao: 'esmalte',
     parte: 'Cor do esmalte',
     parteTexto: 'A face oclusal e o esmalte, onde o pigmento se acumula.',
     resumo: 'Clareamento acompanhado por cirurgião-dentista, em consultório, caseiro supervisionado ou combinado.',
-    descricao: 'O clareamento age por um gel à base de peróxido que atravessa o esmalte e quebra as moléculas responsáveis pela cor. Pode ser feito em consultório, em casa com moldeira sob supervisão, ou nos dois formatos combinados.',
+    resposta: 'O clareamento age por um gel à base de peróxido que atravessa o esmalte e quebra as moléculas responsáveis pela cor. Pode ser feito em consultório, em casa com moldeira sob supervisão, ou nos dois formatos combinados. Restaurações e facetas não clareiam junto com o dente, o que muda a ordem do tratamento.',
+    titulo: 'Clareamento dental em Marília e Garça',
+    descricao: 'Clareamento de consultório, caseiro supervisionado e combinado: o que avaliar antes, como a sensibilidade é gerenciada e como manter o resultado.',
     conteudo: [
       {
         h: 'Antes de clarear, avaliar',
@@ -404,17 +436,21 @@ export const TRATAMENTOS = [
         q: 'Qual é a diferença entre o clareamento de consultório e o caseiro?',
         r: 'No de consultório o gel tem concentração mais alta e é aplicado pela equipe, em sessões. No caseiro supervisionado você usa uma moldeira feita para a sua boca, com gel de concentração menor, pelo tempo que o dentista orientar. Muitos casos combinam os dois. A escolha depende do grau de alteração de cor, da sensibilidade e da sua rotina.'
       }
-    ]
+    ],
+    relacionados: ['lentes-e-facetas', 'periodontia', 'avaliacao-com-camera-intraoral']
   },
   {
     slug: 'endodontia',
     nome: 'Endodontia',
     nomeLongo: 'Endodontia, o tratamento de canal',
     icone: 'canal',
+    regiao: 'polpa',
     parte: 'Polpa e canais',
     parteTexto: 'O interior do dente, onde ficam o nervo e os vasos.',
     resumo: 'Tratamento da polpa do dente, para manter o dente natural em boca.',
-    descricao: 'Endodontia é o tratamento do interior do dente. Quando a polpa, o tecido que contém nervo e vasos, é atingida por cárie profunda, trauma ou trinca, o tratamento de canal remove esse tecido, limpa e sela o espaço interno.',
+    resposta: 'Endodontia é o tratamento do interior do dente. Quando a polpa, o tecido que contém nervo e vasos, é atingida por cárie profunda, trauma ou trinca, o tratamento de canal remove esse tecido, limpa e sela o espaço interno. O objetivo é conservar o dente natural em função, em vez de extraí-lo.',
+    titulo: 'Tratamento de canal em Marília e Garça',
+    descricao: 'Tratamento de canal em Marília e Garça: o que é, quais sinais levam até ele e por que o dente costuma precisar de uma coroa depois.',
     conteudo: [
       {
         h: 'Para que serve',
@@ -442,17 +478,21 @@ export const TRATAMENTOS = [
         q: 'Dente que fez canal escurece com o tempo?',
         r: 'Pode escurecer, principalmente quando o tratamento foi feito há muitos anos ou quando restou pigmento no interior do dente. Há tratamento para isso, e ele é diferente do clareamento comum, porque age de dentro para fora. A avaliação define qual se aplica.'
       }
-    ]
+    ],
+    relacionados: ['implante-e-protese', 'avaliacao-com-camera-intraoral', 'periodontia']
   },
   {
     slug: 'periodontia',
     nome: 'Periodontia',
     nomeLongo: 'Periodontia, o cuidado com a gengiva',
     icone: 'gengiva',
+    regiao: 'gengiva',
     parte: 'Colo e gengiva',
     parteTexto: 'A junção entre a coroa e a raiz, e o tecido que a envolve.',
     resumo: 'Tratamento da gengiva e do osso que sustentam os dentes, da limpeza profissional ao contorno estético.',
-    descricao: 'Periodontia cuida do que segura o dente: gengiva, ligamento e osso. Vai da limpeza profissional e do tratamento da gengivite e da periodontite até procedimentos que ajustam o contorno gengival.',
+    resposta: 'Periodontia cuida do que segura o dente: gengiva, ligamento e osso. Vai da limpeza profissional e do tratamento da gengivite e da periodontite até procedimentos que ajustam o contorno gengival. Gengiva saudável não sangra na escovação nem no fio dental, e sangramento é sinal de inflamação, não de escovação forte.',
+    titulo: 'Tratamento de gengiva em Marília e Garça',
+    descricao: 'Tratamento de gengiva em Marília e Garça: sangramento, limpeza profissional, gengivite e periodontite, e por que ela vem primeiro no plano.',
     conteudo: [
       {
         h: 'Sangrar ao escovar não é normal',
@@ -480,17 +520,21 @@ export const TRATAMENTOS = [
         q: 'A limpeza profissional desgasta o esmalte?',
         r: 'A limpeza remove placa e tártaro, que são depósitos sobre o dente, e não a estrutura do dente. Sensibilidade nos dias seguintes pode acontecer, sobretudo quando havia muito tártaro cobrindo a raiz, e costuma passar. Se persistir, avise a equipe.'
       }
-    ]
+    ],
+    relacionados: ['lentes-e-facetas', 'implante-e-protese', 'avaliacao-com-camera-intraoral']
   },
   {
     slug: 'avaliacao-com-camera-intraoral',
     nome: 'Avaliação com câmera intraoral',
     nomeLongo: 'Avaliação com câmera intraoral',
     icone: 'camera',
+    regiao: 'visivel',
     parte: 'Superfície visível',
     parteTexto: 'Tudo que a luz alcança dentro da boca, ampliado numa tela.',
     resumo: 'A câmera mostra na tela o que você não enxerga no espelho, durante a consulta de avaliação.',
-    descricao: 'A câmera intraoral é uma câmera pequena que registra o interior da boca e projeta a imagem ampliada numa tela, durante a consulta. Ela é ferramenta de exame e de comunicação, e integra a avaliação.',
+    resposta: 'A câmera intraoral é uma câmera pequena que registra o interior da boca e projeta a imagem ampliada numa tela, durante a consulta. Ela é ferramenta de exame e de comunicação: registra superfície, e não substitui radiografia nem exame de imagem tridimensional.',
+    titulo: 'Câmera intraoral em Marília e Garça',
+    descricao: 'Câmera intraoral em Marília e Garça: o que ela mostra na consulta, o que não substitui e por que ver a imagem muda a conversa sobre o plano.',
     conteudo: [
       {
         h: 'Para que serve na consulta',
@@ -518,14 +562,50 @@ export const TRATAMENTOS = [
         q: 'Câmera intraoral e escaneamento digital são a mesma coisa?',
         r: 'Não. A câmera intraoral registra imagem, como uma foto ampliada de dentro da boca. O escaneamento digital captura a forma tridimensional dos dentes e substitui a moldagem com massa em vários procedimentos. Servem a finalidades diferentes e podem ser usados no mesmo caso.'
       }
-    ]
+    ],
+    relacionados: ['periodontia', 'endodontia', 'clareamento-dental']
   }
 ];
 
 export const TRATAMENTO_POR_SLUG = Object.fromEntries(TRATAMENTOS.map(t => [t.slug, t]));
 
 /* -------------------------------------------------------------------------
-   4. Equipe
+   4. A consulta de avaliação
+
+   O diagnóstico da jornada apontou que a etapa entre "quero" e "agendei" era
+   a mais frágil: a pessoa não sabia o que ia acontecer. Descrever a consulta
+   passo a passo é o conserto, e é conteúdo que assistente de IA cita bem
+   porque responde a uma pergunta inteira.
+   ------------------------------------------------------------------------- */
+
+export const CONSULTA = [
+  {
+    n: '01',
+    h: 'Conversa antes do exame',
+    p: 'A consulta começa pelo que levou você até lá: o que incomoda, há quanto tempo, o que já tentou, o que você gostaria de mudar. Histórico de saúde, medicação em uso e medo de dentista entram aqui, porque mudam a condução.'
+  },
+  {
+    n: '02',
+    h: 'Exame clínico e imagem',
+    p: 'Exame dos dentes, da gengiva e da mordida. Quando ajuda, a câmera intraoral mostra na tela o que está sendo examinado, e exames de imagem são solicitados conforme o caso.'
+  },
+  {
+    n: '03',
+    h: 'Explicação com a imagem na frente',
+    p: 'O que foi encontrado é explicado com a imagem à vista, com o nome do que é e o que acontece se nada for feito. Perguntar é parte da consulta, não interrupção dela.'
+  },
+  {
+    n: '04',
+    h: 'Plano de tratamento por escrito',
+    p: 'Você sai com a sequência do que precisa ser feito, em que ordem e por quê, incluindo o que é urgente, o que pode esperar e quais são as alternativas quando existe mais de um caminho.'
+  }
+];
+
+/* Duração média da consulta de avaliação, publicada pela própria clínica. */
+export const CONSULTA_DURACAO = 'de quarenta a sessenta minutos';
+
+/* -------------------------------------------------------------------------
+   5. Equipe
 
    Este bloco é curto de propósito, e o motivo precisa ficar registrado.
 
@@ -534,16 +614,11 @@ export const TRATAMENTO_POR_SLUG = Object.fromEntries(TRATAMENTOS.map(t => [t.sl
    e endodontista, sem nome, CRO, foto ou biografia de nenhum deles. A única
    pessoa com credencial publicada é a fundadora.
 
-   Isso não é só uma perda de confiança na etapa de decisão: o art. 43 §2º do
+   Isso não é só perda de confiança na etapa de decisão: o art. 43 §2º do
    Código de Ética Odontológica exige que a pessoa jurídica que ilustra
    especialidades tenha profissional inscrito naquela especialidade E
    disponibilize ao público a relação desses profissionais com as respectivas
    qualificações. Sem a relação, a afirmação não pode ser feita.
-
-   Os pacientes, por outro lado, já nomeiam a equipe espontaneamente nas
-   avaliações públicas das duas unidades. Os nomes existem e circulam. O que
-   falta é sobrenome, CRO, especialidade registrada e autorização de uso de
-   imagem e nome. Nada disso se inventa: fica `null` e trava a produção.
    ------------------------------------------------------------------------- */
 
 export const EQUIPE = [
@@ -561,7 +636,11 @@ export const EQUIPE = [
        anunciar especialidade sem registro no Conselho. O título só entra
        quando o número do registro de especialista for confirmado. */
     especialidade: null,
-    especialidadeRotulo: 'Especialidade registrada no CRO'
+    especialidadeRotulo: 'Especialidade registrada no CRO',
+    retrato: 'assets/img/fundadora.webp',
+    retratoLargura: 934,
+    retratoAltura: 1280,
+    retratoAlt: 'Retrato da cirurgiã-dentista fundadora da Glamm Odontologia, de jaleco branco, sorrindo.'
   }
 ];
 
@@ -571,14 +650,13 @@ export const EQUIPE = [
 export const EQUIPE_PENDENTE = 'Nome completo, número de inscrição no CRO, especialidade registrada e autorização de uso de nome e imagem dos demais profissionais.';
 
 /* -------------------------------------------------------------------------
-   5. Perguntas frequentes
+   6. Perguntas frequentes
 
    Bloco pensado para duas leituras ao mesmo tempo: a pessoa que quer a
    resposta, e o assistente de IA que monta a entidade a partir de pergunta e
    resposta em texto. Todas viram JSON-LD do tipo FAQPage.
 
-   As quatro primeiras estão publicadas no site atual, reescritas. A pergunta
-   sobre parcelamento saiu inteira: art. 44, I.
+   A pergunta sobre parcelamento saiu inteira: art. 44, I.
    ------------------------------------------------------------------------- */
 
 export const DUVIDAS = [
@@ -600,7 +678,7 @@ export const DUVIDAS = [
   },
   {
     q: 'Como faço para agendar?',
-    r: 'Pelo WhatsApp da unidade em que você quer ser atendido. Cada unidade tem o seu próprio número, e o botão de agendamento desta página já abre a conversa com a unidade escolhida.'
+    r: 'Pelo WhatsApp da unidade em que você quer ser atendido. Cada unidade tem o seu próprio número, e os botões de agendamento deste site já abrem a conversa com a unidade escolhida.'
   },
   {
     q: 'Preciso levar exames ou documentos na primeira consulta?',
@@ -612,28 +690,75 @@ export const DUVIDAS = [
   },
   {
     q: 'Vocês atendem urgência?',
-    r: 'Descreva a situação na mensagem de WhatsApp da unidade mais próxima e a equipe orienta pelo caso. Dor forte, inchaço no rosto, febre e trauma com sangramento que não para são situações que não devem esperar por agenda: procure um serviço de pronto atendimento.'
+    r: 'Antes de tudo: dor forte, inchaço no rosto, febre e trauma com sangramento que não para NÃO devem esperar por agenda. Procure um serviço de pronto atendimento. Dente permanente que caiu por trauma também é urgência de minutos: guarde o dente em leite ou soro, sem esfregar a raiz, e procure atendimento imediatamente. Fora desses casos, descreva a situação no WhatsApp da unidade mais próxima e a equipe orienta o encaixe na agenda.'
+  },
+  {
+    q: 'Vocês atendem crianças?',
+    r: 'Sim, mediante avaliação. Diga a idade e o motivo da consulta na mensagem de agendamento: é o que permite reservar o tempo certo e, se o caso pedir odontopediatria, indicar o encaminhamento na própria consulta. Nada é definido por mensagem: quem define é o exame presencial.'
+  },
+  {
+    q: 'A Glamm Odontologia é a mesma clínica da Dra. Gabriela Tukasan?',
+    r: 'Sim. Glamm Odontologia é o nome da clínica, com unidades em Marília e em Garça. A fundadora e responsável técnica é a Dra. Gabriela Tukasan Reis, nome sob o qual a clínica aparecia no Google e no domínio anterior.'
   }
 ];
 
 /* -------------------------------------------------------------------------
-   6. Navegação
+   7. Compromissos
+
+   O que a clínica se compromete a fazer na relação com o paciente. É a
+   substituição honesta dos depoimentos e da nota de avaliação, que saíram por
+   norma. Nada aqui é promessa de resultado clínico.
    ------------------------------------------------------------------------- */
 
-/* O site é UMA página. O menu aponta para seções, não para arquivos.
-
-   Vale registrar o que se perde, porque foi decisão consciente: o diagnóstico
-   apontava a página única do site atual como problema, e com ela vão embora as
-   URLs por tratamento e por cidade, que são as que ranqueiam busca de cauda
-   longa ("lente de contato dental em Marília"). O que segura o prejuízo é que
-   todo o conteúdo continua na página, cada seção tem âncora própria e o dado
-   estruturado descreve as duas unidades e os sete tratamentos como entidades.
-   Se um dia as páginas voltarem, o conteúdo já está escrito e separado por
-   tratamento em `TRATAMENTOS`. */
-export const MENU = [
-  { path: '#tratamentos', rotulo: 'Tratamentos' },
-  { path: '#unidades', rotulo: 'Unidades' },
-  { path: '#a-clinica', rotulo: 'A clínica' },
-  { path: '#equipe', rotulo: 'Equipe' },
-  { path: '#duvidas', rotulo: 'Dúvidas' }
+export const COMPROMISSOS = [
+  {
+    h: 'Plano por escrito, sempre',
+    p: 'Você sai da avaliação com a sequência do tratamento em mãos, com o que é urgente separado do que pode esperar.'
+  },
+  {
+    h: 'Alternativas na mesa',
+    p: 'Quando existe mais de um caminho para o mesmo problema, os dois são apresentados, com a diferença entre eles explicada.'
+  },
+  {
+    h: 'Você vê o que o dentista vê',
+    p: 'A imagem da câmera intraoral e os exames são mostrados durante a explicação, e não guardados no prontuário.'
+  },
+  {
+    h: 'Ritmo de quem tem medo',
+    p: 'O que vai acontecer é dito antes de acontecer, e o atendimento para quando você pede para parar.'
+  }
 ];
+
+/* -------------------------------------------------------------------------
+   8. Navegação e páginas
+
+   O site é multipágina de propósito: é isso que devolve à clínica as URLs de
+   cauda longa por tratamento e por cidade, que hoje não existem porque tudo
+   vive numa página só.
+   ------------------------------------------------------------------------- */
+
+export const MENU = [
+  { path: 'tratamentos/', rotulo: 'Tratamentos' },
+  { path: 'unidades/', rotulo: 'Unidades' },
+  { path: 'a-clinica/', rotulo: 'A clínica' },
+  { path: 'equipe/', rotulo: 'Equipe' },
+  { path: 'duvidas/', rotulo: 'Dúvidas' },
+  { path: 'contato/', rotulo: 'Contato' }
+];
+
+/* -------------------------------------------------------------------------
+   9. Estado da publicação
+
+   Enquanto o site for proposta, ele não pode ser indexado: a clínica tem um
+   site no ar e dois sites concorrendo pelo mesmo nome prejudicam os dois.
+   Trocar para 'producao' quando o cliente aprovar e o domínio for apontado.
+   ------------------------------------------------------------------------- */
+
+export const PUBLICACAO = {
+  modo: 'proposta',                 /* 'proposta' | 'producao' */
+  robots: 'noindex, nofollow',      /* em produção: 'index, follow, max-image-preview:large' */
+  faixa: 'Prévia de apresentação. Conteúdo em revisão com a clínica.',
+  /* Data da última revisão de conteúdo, em ISO. Vai para `dateModified` e
+     para o sitemap. Atualizar quando a copy mudar. */
+  revisadoEm: '2026-09-08'
+};

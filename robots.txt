@@ -1,2 +1,10 @@
+# Site em apresentação ao cliente, ainda não aprovado.
+#
+# O rastreamento fica LIBERADO de propósito, e a página é que traz
+# `noindex`. Com `Disallow: /` o robô não chega a ler a meta, e um
+# endereço linkado de fora pode acabar indexado só pela URL — que é
+# exatamente o que se quer evitar enquanto a clínica tem outro site no ar.
 User-agent: *
-Disallow: /
+Allow: /
+
+# Sem Sitemap enquanto for prévia: nada aqui deve ser proposto para índice.

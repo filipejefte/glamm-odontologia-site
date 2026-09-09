@@ -1,353 +1,444 @@
 # Glamm Odontologia
 
 Site institucional da **Glamm Odontologia**, clínica odontológica com unidades
-em Marília e em Garça, no interior de São Paulo.
+em **Marília** e **Garça**, interior de São Paulo.
 
-Site estático, sem dependência de nada. Nenhum `npm install`, nenhum framework,
-nenhum arquivo carregado de terceiro. O que está publicado são arquivos HTML,
-CSS, JS, fontes e imagens, gerados por um script de umas cem linhas.
+No ar em <https://filipejefte.github.io/glamm-odontologia-site/>, **em modo de
+apresentação**: `noindex` em todas as 20 páginas e um aviso no `llms.txt`.
+Enquanto a clínica tiver outro site publicado, dois endereços disputando o mesmo
+nome prejudicam os dois.
+
+O `robots.txt` **libera** o rastreamento de propósito. Com `Disallow: /` o robô
+não chega a ler o `noindex`, e um endereço linkado de fora pode acabar indexado
+só pela URL — exatamente o que se quer evitar. Quem barra é a página.
 
 ---
 
-## Como mexer
+## Sumário
 
-```bash
-node build.mjs --preview   # gera o site em modo prévia (noindex)
-node tools/fontes.mjs      # recorta as fontes para os caracteres usados
-node tools/check.mjs       # verifica tudo antes de publicar
+- [O que este site resolve](#o-que-este-site-resolve)
+- [Como ele é feito](#como-ele-é-feito)
+- [Comandos](#comandos)
+- [O modelo tridimensional](#o-modelo-tridimensional)
+- [Desenho](#desenho)
+- [Busca, e assistente de IA](#busca-e-assistente-de-ia)
+- [As normas que moldaram a copy](#as-normas-que-moldaram-a-copy)
+- [Pendências que travam a produção](#pendências-que-travam-a-produção)
+- [Segurança e privacidade](#segurança-e-privacidade)
+- [Ir para produção](#ir-para-produção)
+- [Origem do material e licenças](#origem-do-material-e-licenças)
+- [Mapa dos arquivos](#mapa-dos-arquivos)
+
+---
+
+## O que este site resolve
+
+Cada linha abaixo saiu do diagnóstico de presença digital da clínica.
+
+| Achado no site atual | O que este site faz |
+|---|---|
+| O rodapé publica o telefone de Marília como se fosse também o de Garça | Telefone lido só de `src/dados.mjs`, um por unidade. `tools/check.mjs` derruba a verificação se qualquer arquivo do repositório contiver um número, um `wa.me` ou um `tel:` que não seja um dos dois conferidos, **e** se o telefone de uma unidade aparecer no corpo da página da outra sem estar identificado |
+| Três nomes públicos disputando a mesma identidade | "Glamm Odontologia" em todo lugar. O nome anterior aparece como `alternateName` no dado estruturado e uma vez na página de equipe, para ligar as duas identidades sem competir com a marca |
+| Página única: nada para o buscador ranquear por tratamento nem por cidade | 20 páginas, cada uma com title, description, canonical, trilha e dado estruturado próprios. Sete tratamentos e duas unidades têm URL, e existem `/urgencia/` e `/primeira-consulta/`, que respondem pergunta inteira |
+| Zero H1, sem meta description, sem Open Graph, sem JSON-LD | Tudo presente, e o verificador derruba a build se faltar |
+| Achabilidade de Garça: 3 de 12 | Página própria, endereço por extenso, telefone próprio, WhatsApp próprio, horário completo e `Dentist` em JSON-LD, com o mesmo peso de Marília |
+| O site não linka para o Instagram | Instagram no rodapé e em `sameAs` |
+| Bio cita `@dragabrielatukasanreis`, perfil que não existe | Só `@glammodontologia` é linkado |
+| 138 KB de pixel do Meta, 47% da página | Nenhum rastreador. A política de segurança de conteúdo proíbe |
+| Copy duplicada ao vivo na etapa 02 | A etapa foi reescrita |
+
+---
+
+## Como ele é feito
+
+**Sem npm, sem dependência, sem framework.** Node puro gera HTML estático.
+
+```
+src/dados.mjs      fonte única de verdade: identidade, unidades, tratamentos,
+                   equipe, dúvidas. Nada factual é escrito no HTML
+src/marca.mjs      o símbolo em SVG, os ícones de interface, a ilustração de
+                   reserva do modelo tridimensional
+src/chrome.mjs     cabeça, topo, rodapé e o grafo de dado estruturado
+src/paginas.mjs    o corpo de cada página
+build.mjs          monta tudo e escreve robots.txt, sitemap.xml, llms.txt
+                   e site.webmanifest
 ```
 
-Nesta ordem, sempre que a copy mudar. O recorte de fonte lê o HTML já gerado,
-então rodar antes da build recorta para o texto antigo.
+**A trava dos campos `null`.** Campo com valor `null` em `src/dados.mjs` é dado
+que ninguém confirmou com a clínica. Na prévia ele vira uma marcação amarela
+visível na página; na build de produção ele **derruba o processo**. É de
+propósito: um site que não publica é melhor que um site que publica o telefone
+errado de uma unidade, que foi exatamente o que o diagnóstico encontrou.
+
+O HTML gerado **vai versionado**, porque o GitHub Pages serve o branch. O fluxo
+do GitHub Actions regenera e exige que nada mude, o que impede o HTML publicado
+de se descolar da fonte.
+
+---
+
+## Comandos
+
+Sempre nesta ordem quando a copy mudar:
 
 ```bash
-node build.mjs             # produção: indexável, e RECUSA dado pendente
-python tools/imagens.py    # regenera ícones e imagem de compartilhamento
+node build.mjs --preview                      # gera as páginas com as pendências marcadas
+node tools/fontes.mjs                         # recorta as fontes ao texto do HTML já gerado
+node tools/check.mjs --exigir-identificadores # verifica antes de publicar
 ```
 
-### A regra que organiza o projeto
+**`--exigir-identificadores` não é opcional antes de publicar.** Os padrões
+pessoais desta máquina ficam em `interno/identificadores.txt`, que não vai para
+o repositório — e, portanto, **não existe no GitHub Actions**. Lá a varredura
+roda só com os padrões genéricos e diz isso alto na saída. A verificação que
+autoriza a publicação é a local, com a bandeira, que **falha** se o arquivo não
+estiver no lugar.
 
-`src/dados.mjs` é a **fonte única de verdade**. Nenhum telefone, endereço,
-horário ou número de registro é escrito direto no HTML.
+O recorte de fonte **lê o HTML gerado**. Rodar antes da build recorta para o
+texto antigo, e a fonte perde glifo em silêncio.
 
-Campo com valor `null` é dado que ninguém confirmou com a clínica. Ele vira uma
-marcação visível "a confirmar" na prévia e **derruba a build de produção**.
+Ao mexer em ícone, na marca ou no retrato:
 
-Isso não é zelo decorativo. O diagnóstico que originou este site encontrou, no
-site atual da clínica, o rodapé publicando o telefone de Marília como se fosse
-também o de Garça. Quem lê o rodapé e liga para Garça cai em Marília. Aqui,
-`tools/check.mjs` varre **todo arquivo do repositório** e derruba a verificação
-se encontrar qualquer telefone, link `wa.me` ou link `tel:` que não seja um dos
-dois números conferidos.
+```bash
+python tools/imagens.py      # depende de Pillow e numpy
+```
+
+Para gerar a versão de produção, sem marcações de pendência:
+
+```bash
+node build.mjs               # recusa rodar enquanto houver campo null
+```
+
+### O que `tools/check.mjs` verifica
+
+Sai com código 1 e é o que o GitHub Actions roda.
+
+1. **Vazamento.** Nenhum caminho da máquina de trabalho, nome de usuário,
+   e-mail pessoal ou pasta local em arquivo publicável. Os padrões pessoais
+   ficam em `interno/identificadores.txt`, que não vai para o repositório; no
+   script público só há padrões genéricos.
+2. **Telefone.** Qualquer número, `wa.me` ou `tel:` precisa ser um dos dois
+   conferidos, e o telefone de uma unidade não pode aparecer na página da outra
+   sem estar identificado. No dado estruturado, cada nó `Dentist` é conferido
+   contra o endereço e o telefone da unidade a que pertence.
+3. **O que o navegador não reclama.** Texto solto dentro de `<svg>` (que ele não
+   desenha e não registra), caminho SVG com número colado em número, link
+   interno quebrado, âncora sem destino, `<img>` sem `alt` ou sem `width`/`height`.
+4. **Cabeça.** Um `h1` por página, sem salto de nível de título, title,
+   description, canonical única, Open Graph, `noindex` coerente com o modo de
+   publicação, JSON-LD que parseia e traz `Organization` e `Dentist`.
+5. **Terceiros.** Nenhum `<script>`, `<link>`, `url()` de CSS ou domínio fora da
+   lista prevista. Nenhum rastreador.
+6. **Contraste.** Os pares de cor são **calculados** a partir dos valores
+   declarados na folha de estilo, contra o mínimo da WCAG. Não são estimados.
+7. **Dado estruturado.** Toda referência `@id` resolve dentro do mesmo grafo,
+   o telefone de cada nó `Dentist` é o E.164 da unidade a que ele pertence, e o
+   endereço bate com o cadastro.
+8. **Imagem.** O `width`/`height` declarado no HTML é comparado com as medidas
+   lidas do próprio arquivo (cabeçalho `IHDR` do PNG, blocos `VP8X`/`VP8`/`VP8L`
+   do WebP). Sem isso, `src/dados.mjs` e `tools/imagens.py` podem se descolar em
+   silêncio.
+9. **Metadado de imagem.** Nenhum bloco `tEXt`, `iTXt`, `eXIf`, `iCCP`, `XMP` nas
+   imagens publicadas: eles carregam data, câmera, GPS e caminho do arquivo
+   original. Os binários também são varridos por sequência legível.
+10. **Ele mesmo.** Um verificador que procura padrões pessoais contém os padrões
+   que procura, e por isso se acusaria. O bloco de padrões é recortado do
+   próprio arquivo antes da varredura, e a exceção tem três travas: o bloco não
+   pode passar de 1800 bytes (senão o recorte é desligado e o arquivo inteiro é
+   varrido), o que sobra dele fora de literais tem que estar limpo, e um
+   autoteste planta um vazamento logo **depois** da marca de fim e confere que a
+   varredura o encontra.
 
 ---
 
-## Pendências que travam a build de produção
+## O modelo tridimensional
 
-Oito itens. Enquanto qualquer um estiver aberto, `node build.mjs` sai com erro.
+O molar que gira na capa **não é um arquivo de modelo**. Não há biblioteca, não
+há `.glb`, não há textura, não há requisição. A geometria nasce em
+`assets/js/dente3d.js`, de um campo de distância com sinal, e é poligonizada por
+*surface nets* no próprio navegador, em WebGL 1 puro. São 14 KB de código, e
+nenhum byte de malha.
 
-| # | Pendência | Por que trava |
+Três motivos, somados:
+
+1. a política de segurança do site é `default-src 'none'` e não abre para
+   terceiro; um modelo de banco de imagens exigiria licença e, na prática, uma
+   requisição a outro domínio;
+2. o arquivo inteiro pesa menos que qualquer malha exportada;
+3. **como a forma é uma fórmula, a região que cada tratamento toca é calculada,
+   e não pintada à mão num mapa de textura.** É isso que permite o próximo item.
+
+**Ele é um índice, não um enfeite.** Na capa, cada ficha de tratamento ao lado
+do modelo é um link comum com um atributo `data-regiao`. Passar o cursor ou o
+foco acende a parte correspondente do dente: face, esmalte, colo, raiz, polpa ou
+gengiva. Em endodontia o esmalte fica translúcido e a câmara pulpar aparece por
+dentro. Na página de cada tratamento o mesmo modelo entra já com a região
+daquele tratamento acesa.
+
+**A conta é fatiada.** São cerca de 460 mil avaliações do campo de distância, e
+num bloco único isso trava a entrada por centenas de milissegundos num celular
+modesto — justamente enquanto a pessoa tenta tocar em "Agendar". Cada malha é
+uma tarefa separada, o contexto WebGL é criado antes de qualquer conta (sem ele
+não há por que gastá-la), o laço de animação para quando o modelo sai da tela ou
+a aba fica escondida, e a perda de contexto devolve a ilustração de reserva em
+vez de deixar um retângulo quebrado.
+
+Sem JavaScript, as fichas continuam sendo links para as páginas dos tratamentos
+— que é o que o buscador lê — e uma ilustração em SVG fica no lugar do modelo,
+com a mesma região destacada por CSS.
+
+As medidas estão em milímetros no código, de um primeiro molar inferior: coroa
+de 10,4 mm no sentido mésio-distal por 9,4 mm no vestíbulo-lingual, 7,5 mm de
+altura de coroa e duas raízes de cerca de 11 mm. A gengiva é translúcida de
+propósito: é o que deixa a raiz visível dentro do alvéolo sem recorrer ao truque
+de banco de imagens, que é colar o dente na frente do bloco e só funcionar de
+frente.
+
+A orientação das faces não depende de eu ter acertado o sentido na mão: o volume
+assinado da malha é calculado depois da poligonização e, se der negativo, a ordem
+dos índices é invertida.
+
+**Acessibilidade.** Três botões abaixo do modelo giram para os dois lados e
+pausam a rotação automática. Eles não são enfeite: girar por arrasto é gesto de
+trajetória, e a WCAG 2.2 exige uma alternativa de toque simples (2.5.7);
+movimento que começa sozinho e dura mais de cinco segundos precisa de um jeito
+de parar (2.2.2); e um `<canvas role="img">` que recebe foco não anuncia que é
+operável, então a operação por teclado ficaria inalcançável justamente para quem
+depende dela (4.1.2) — por isso o canvas **não** é focável, e quem opera são os
+botões. No celular, `touch-action: pan-y pinch-zoom` deixa passar a rolagem
+vertical e a pinça. Com `prefers-reduced-motion`, a rotação automática não
+acontece, e a preferência é observada ao vivo.
+
+---
+
+## Desenho
+
+**Porcelana e ouro.** O branco quente, o filete de ouro e o manuscrito vêm da
+identidade que a clínica já tem. O que é novo é o ar entre as coisas, a serifada
+de alto contraste em itálico como acento, e a faixa escura que faz o ouro
+brilhar.
+
+**As cores foram medidas, não escolhidas.**
+
+| Cor | Valor | Como foi obtida |
 |---|---|---|
-| 1 | **Número de inscrição da clínica no CRO-SP** | O art. 43 do Código de Ética Odontológica torna obrigatório informar nome e inscrição da pessoa jurídica em qualquer comunicação. Os canais da clínica publicam `033836` (bio do Instagram, como "CROCL", e os anúncios do Meta). |
-| 2 | **Número de inscrição da responsável técnica no CRO-SP** | Mesmo artigo: pessoa jurídica também informa nome e inscrição do responsável técnico. O site atual publica `CRO-SP 125.985` para a pessoa física. A leitura provável é que `033836` seja a clínica e `125.985` a profissional, mas provável não basta para publicar identificação obrigatória em nome de terceiro. |
-| 3 | **Especialidade registrada no CRO da responsável técnica** | O site atual anuncia "especialista em ortodontia". O art. 44, II veda anunciar especialidade sem registro no Conselho. Sem o número do registro de especialista, o título não entra. |
-| 4 | **Nome, CRO e especialidade dos demais profissionais**, mais autorização de uso de nome e imagem | O art. 43 §2º só permite que a pessoa jurídica anuncie especialidades se tiver profissional inscrito naquela especialidade **e** disponibilizar ao público a relação desses profissionais com as qualificações. Sem a lista, a clínica não pode dizer que tem equipe de especialistas. |
-| 5 | **Horário de sexta em Marília** | O site atual diz 8h; a ficha do Google diz 8h30. O site publica 8h30, que é o horário que não manda ninguém para uma porta fechada, mas a divergência precisa ser resolvida na fonte. |
-| 6 | **Bairro e CEP da unidade de Garça** | Receita Federal e site dizem Williams / 17402-000. O Google diz Centro / 17400-000, e ainda quebra o nome da rua como "Voluntários, de - 32". O site publica a versão em que duas fontes independentes concordam. O que precisa ser corrigido é a ficha do Google. |
-| 7 | **Materiais de faceta oferecidos** | A copy atual cita só resina, e a página de lentes e facetas explica também a porcelana, porque a diferença importa para quem decide. Confirmar o que a clínica oferece. |
-| 8 | **Lista completa dos tratamentos** | Os sete com página própria vieram da copy publicada. A biblioteca de imagens do site atual sugere outros (cirurgias, estética restauradora). Conferir se falta algum. |
+| Ardósia | `#4C526A` | 24.981 pixels exatamente nesse valor no ícone de 512 px da clínica: é preenchimento vetorial chapado, não estimativa |
+| Ouro, extremo escuro | `#A38434` | parada literal do gradiente declarado nos SVG do site atual |
+| Ouro, extremo claro | `#D2AF57` | a outra parada do mesmo gradiente |
 
-Além dessas, dois dados simplesmente não existem em fonte pública e valem uma
-pergunta: **e-mail de atendimento** e **grafia oficial da rua em Marília**
-(a Receita registra "Marrey Junior"; o site e o Google grafam "Marrei Júnior",
-e é essa a grafia publicada aqui, porque é a que o mapa resolve).
+**O ouro é forma, não é tinta de texto pequeno.** `#A38434` dá 3,35:1 sobre a
+porcelana: passa para texto grande e não passa para texto pequeno. Então título
+e itálico grande usam `#A38434`; rótulo e legenda usam `#7A5F1F` (4,9:1); e o
+botão de ouro é forma preenchida com tinta quase preta por cima (5,1:1 no
+extremo escuro do gradiente, 8,6:1 no claro). Todos os pares são recalculados
+pelo verificador a cada rodada.
 
----
+**O símbolo é vetor da arte oficial, não desenho a olho.** Contornos por
+*marching squares* no nível 0,5 do campo de alfa do ícone de 512 px,
+simplificados por Douglas-Peucker a 0,45 px, conferidos por rasterização própria
+contra a original: **zero pixel divergindo acima de 0,5 de alfa**, interseção
+sobre união de 96,8%. A mesma geometria alimenta o SVG das páginas e o
+rasterizador de `tools/imagens.py`, então ícone e página não podem divergir.
 
-## O que este site não publica, de propósito
+**As duas variantes do logotipo não são recorte a mão.** Cada pixel é
+classificado pela saturação em HSV: o manuscrito é cromático, a palavra
+ODONTOLOGIA é acromática. Na variante de fundo claro só a palavra muda de cor, e
+o alfa nunca é tocado — o manuscrito em ouro sai idêntico ao original, pixel a
+pixel.
 
-Não é omissão nem falta de material. Cada linha tem uma norma atrás.
+**Tipografia.** Duas famílias variáveis, servidas deste domínio e recortadas ao
+texto que o site escreve: **Hanken Grotesk** para texto e interface (24 KB) e
+**Cormorant Garamond** para título (22 KB), mais o itálico (10 KB). O itálico é
+recortado num conjunto separado, tirado só do que está dentro de `<em>` no HTML
+gerado: 45 caracteres em vez de 144.
 
-- **Nota, contagem e texto de avaliação de paciente.** O material de origem veda
-  expressamente reproduzir, porque as plataformas divergem entre si e o dado
-  envelhece. O art. 44, VI ainda trata da identificação de paciente em peça
-  publicitária. `tools/check.mjs` derruba a build se encontrar.
-- **Imagem de diagnóstico ou de resultado, o "antes e depois".** A Resolução
-  CFO-196/2019 é expressa: **pessoa jurídica não divulga esse tipo de imagem**,
-  só o cirurgião-dentista que executou o procedimento, com consentimento formal
-  do paciente. O site atual da clínica publica quatro casos assim.
-- **Preço, desconto, promoção, gratuidade e condição de pagamento.** Art. 44, I.
-  O site atual responde na FAQ que trabalha com parcelamento; essa pergunta saiu
-  inteira daqui.
-- **Especialidade anunciada em nome da clínica.** Art. 43 §2º, ver pendência 4.
-- **Promessa de resultado, superlativo e comparação com outras clínicas.**
-- **Fotografia.** Não há nenhuma foto licenciada da clínica nem autorização de
-  uso de imagem de ninguém. O desenho foi feito para funcionar sem foto. Quando
-  houver ensaio próprio e autorização por escrito, entram.
-- **Rastreador de qualquer tipo.** Sem pixel, sem analytics, sem cookie.
+**Movimento.** Nada aparece ao rolar. Conteúdo escondido atrás de observador de
+interseção fica invisível quando o script falha. Aqui o movimento só existe em
+resposta a gesto: passar o cursor, focar, arrastar o modelo.
 
 ---
 
-## SEO e leitura por assistente de IA
+## Busca, e assistente de IA
 
-O diagnóstico media isso e dava 3 de 12 para o negócio como entidade. O que
-mudou aqui:
-
-- **Um nome só.** "Glamm Odontologia" em todo lugar. O diagnóstico encontrou três
-  nomes públicos disputando a mesma identidade: Glamm no CNPJ e nos anúncios,
-  Dra. Gabriela Tukasan no Google e no domínio, os dois no Instagram. O nome
-  anterior aparece uma vez, na seção de equipe, ligando as duas identidades sem
-  competir com a marca (`alternateName` no JSON-LD faz o mesmo para a máquina).
-- **Uma página só, com âncora por seção e por tratamento.** É decisão do cliente,
-  e ela tem custo: perdem-se as URLs por tratamento e por cidade, que são as que
-  pegam busca de cauda longa ("lente de contato dental em Marília"). O que segura
-  o prejuízo é que todo o conteúdo continua na página, cada tratamento fica dentro
-  de um `<details>` (portanto no HTML, indexável), e o dado estruturado descreve
-  as duas unidades e os sete tratamentos como entidades com `@id` próprio.
-  O conteúdo segue separado por tratamento em `src/dados.mjs`: se as páginas
-  voltarem, é só voltar a gerá-las.
-- **JSON-LD completo.** `Dentist` por unidade, com endereço, telefone próprio e
-  `openingHoursSpecification`; `parentOrganization` ligando as duas à mesma marca;
-  um `MedicalProcedure` por tratamento, com `bodyLocation`; `FAQPage` com as 29
-  perguntas; `WebSite`.
-- **`llms.txt`** na raiz, com a entidade em texto puro. Enquanto o site estiver em
-  prévia, a primeira linha do arquivo avisa que não é o canal oficial da clínica.
-  `tools/check.mjs` derruba a verificação se essa coerência se perder.
-- **Nome, endereço e telefone idênticos** em todas as superfícies, sempre lidos de
-  `src/dados.mjs`.
-- **Âncoras estáveis**: `#implante-e-protese`, `#garca`, `#agendar` e as demais
-  funcionam como endereço direto e podem ser mandadas por WhatsApp.
+- **18 URLs**, uma por tratamento, uma por unidade, mais os hubs, a clínica, a
+  equipe, as dúvidas, o contato e a privacidade. É o que devolve à clínica a
+  busca de cauda longa ("lente de contato dental em Marília").
+- **Toda página abre respondendo**, em uma ou duas frases que se sustentam fora
+  do contexto. É o trecho que o assistente cita e o que a pessoa lê antes de
+  decidir rolar.
+- **Um grafo de dado estruturado**, repetido em toda página com `@id` estável:
+  `Organization` + `MedicalOrganization` para a marca, um `Dentist` por unidade
+  com endereço, horário e serviços, `WebSite`, `BreadcrumbList` por página,
+  `FAQPage` onde há perguntas, `MedicalWebPage` + `MedicalProcedure` em cada
+  tratamento e `Person` na equipe. É assim que buscador e assistente entendem
+  que as duas unidades, o site e a marca são a mesma entidade.
+- **`llms.txt`** na raiz, com identificação, as duas unidades por extenso, os
+  sete tratamentos, as perguntas frequentes e — enquanto for prévia — um aviso
+  para sistemas automatizados não usarem este endereço como fonte.
+- **Sem coordenada geográfica no dado estruturado**, de propósito: as duas
+  fichas do Google carregam endereço divergente e não há levantamento próprio.
+  `geo` sem conferência é pior que `geo` ausente, porque passa a mandar gente
+  para o lugar errado com a autoridade do dado estruturado.
+- **Mapas por busca de endereço, nunca por ponto salvo**, pelo mesmo motivo.
 
 ---
 
-## A arcada que gira
+## As normas que moldaram a copy
 
-No cartão do topo, uma arcada dentária em três dimensões gira devagar, e a lista
-de tratamentos logo abaixo acende a região em que cada um atua: as facetas nos
-seis da frente, a ortodontia na arcada inteira, a periodontia na gengiva, o
-implante numa falha — a arcada tem um segundo pré-molar faltando de propósito, e
-o pino só aparece quando o implante é o tratamento escolhido.
+Odontologia é profissão regulamentada, e a publicidade odontológica segue o
+Código de Ética Odontológica (Resolução CFO-118/2012) e a Resolução CFO-196/2019.
+**O site atual da clínica contraria quatro pontos, e este faz o contrário em
+todos.** Vale antecipar essa conversa com a cliente: as ausências abaixo são
+deliberadas, e a página `/a-clinica/` as explica ao paciente.
 
-**Era um dente solto e virou uma arcada.** O dente único lia como peça de
-laboratório: dava para pôr um ponto na raiz e outro na coroa, e acabava aí. A
-arcada é o que faz a peça dizer alguma coisa, porque tratamento age em região.
-
-**Sem biblioteca e sem arquivo de modelo.** O caminho comum seria Three.js mais
-um GLB: cerca de 1,6 MB entre biblioteca, carregador e malha. Aqui os cerca de
-8 mil triângulos são gerados em tempo de execução e desenhados em WebGL 1 puro,
-sem nenhuma licença de terceiro a respeitar. A malha sai facetada de propósito,
-porque é o que conversa com o símbolo da marca, que é um dente lapidado.
-
-**As proporções são medidas, não estimadas.** As larguras, espessuras e alturas
-de coroa estão no código em milímetros, na faixa média da dentição superior
-permanente adulta, e entram na curva por comprimento de arco: o meio-arco é
-integrado, a soma das larguras é ajustada a ele, e cada coroa cai no seu ponto.
-É isso que faz os dentes se tocarem em vez de virarem um colar de contas. O
-arquivo resultante tem 59 mm de largura por 39 de fundo, que é arcada de gente.
-
-**Três erros que só a medição pegou**, e que ficam registrados porque são o tipo
-de coisa que volta:
-
-- Os eixos da coroa estavam trocados: a largura mésio-distal ia para o eixo que
-  aponta para fora da boca e a espessura ia para o eixo do arco. Cada dente
-  ocupava, ao longo da curva, só a sua espessura, e o milímetro que sobrava
-  virava uma fenda preta entre um dente e o outro. Nas capturas parecia problema
-  de gengiva; era de eixo.
-- O referencial local apontava para dentro da arcada, então o tombamento
-  inclinava a coroa para o palato e a cunha alargava a face errada.
-- O realce acendia uma região por chamada de desenho, e a arcada era desenhada
-  de novo para cada região. Com o teste de profundidade em MENOR, o segundo
-  desenho tinha profundidade IGUAL e era descartado inteiro: a ortodontia, que
-  acende tudo, acendia só a gengiva, em silêncio. Agora são quatro regiões numa
-  chamada só.
-
-**O enquadramento é calculado, não escolhido.** Uma peça que gira não tem a
-silhueta da caixa que a envolve, e a perspectiva ainda engorda o que está mais
-perto: a versão com altura e largura digitadas à mão cortava a arcada na
-direita. Agora uma busca binária procura a menor distância de câmera em que todo
-vértice, em todos os ângulos de giro, cai dentro do quadro com margem. Roda uma
-vez por proporção de tela e fica guardada.
-
-**A peça é um acréscimo, nunca o caminho.** O que comanda são os botões da
-lista, que são HTML de verdade e funcionam pelo teclado. A tela é `aria-hidden`.
-Sem WebGL, sem JavaScript, ou com o arquivo bloqueado, a seção continua sendo a
-lista dos sete tratamentos, cada um abrindo o texto completo no mesmo lugar.
-
-**No celular:** a inicialização só acontece quando a seção se aproxima da tela,
-o desenho para quando ela sai, a resolução é limitada a duas vezes a do
-dispositivo, e o palco declara `touch-action: pan-y`, que é o que garante que o
-gesto vertical continua rolando a página em vez de girar a arcada. Com
-`prefers-reduced-motion` não há rotação automática nem transição de virada.
-
-Abrir a página com `#endodontia`, ou qualquer outro identificador de tratamento,
-já seleciona aquela região.
+- **Art. 44, I** veda anunciar preço, gratuidade e **modalidade de pagamento**.
+  A FAQ do site atual responde "sim, trabalhamos com parcelamento". Saiu inteira.
+- **Resolução CFO-196/2019**: pessoa jurídica **não divulga imagem de
+  diagnóstico nem de resultado**. Só o cirurgião-dentista que executou, com
+  consentimento. O site atual publica quatro casos de "antes e depois". Não
+  entram.
+- **Art. 44, VI**: depoimento com nome de paciente e reprodução de nota de
+  avaliação. Saíram, e no lugar entraram compromissos verificáveis na própria
+  consulta.
+- **Art. 43 §2º**: a pessoa jurídica só anuncia especialidade se tiver
+  profissional inscrito naquela especialidade **e publicar a relação** desses
+  profissionais com as qualificações. Por isso "equipe de especialistas" saiu, e
+  a página `/equipe/` existe para destravar a afirmação assim que a lista
+  existir. **É o item de maior retorno da lista de pendências.**
+- **Art. 43**: é obrigatório constar nome e inscrição da **pessoa jurídica** e
+  nome e inscrição do **responsável técnico**. São dois números diferentes, e
+  estão no rodapé de toda página assim que forem confirmados.
+- **Art. 44, II e III**: especialidade sem registro e equipamento como
+  diferencial não comprovado. "1.000+ pacientes atendidos" e "câmera intraoral
+  de última geração" saíram; a página da câmera explica o que ela faz e o que
+  ela não substitui.
 
 ---
 
-## Desempenho
+## Pendências que travam a produção
 
-Medido sobre os arquivos gerados, com gzip, que é o que o GitHub Pages serve.
-O site é uma página só e carrega TUDO: os sete tratamentos com o texto completo,
-as duas unidades, as perguntas frequentes e a arcada em três dimensões.
+Enquanto qualquer campo `null` existir em `src/dados.mjs`, `node build.mjs`
+(produção) recusa rodar. Os dois primeiros são os de maior efeito.
 
-| | bruto | gzip |
-|---|---|---|
-| `index.html`, com os sete tratamentos por extenso | 100 KB | **21 KB** |
-| Folha de estilo | 40 KB | **9 KB** |
-| Scripts, dos quais a arcada é a maior parte | 55 KB | **18 KB** |
-| A fonte, recortada | 23 KB | 23 KB (já comprimida) |
-| Os dois logotipos | 36 KB | 36 KB (já comprimidos) |
-| **Tudo somado** | **255 KB** | **108 KB** |
-
-Mais da metade do que sobra depois da compressão são a fonte e os dois
-logotipos, que não encolhem mais. O logotipo do rodapé é `loading="lazy"`, então
-o primeiro desenho não espera por ele.
-
-Os 46 KB brutos do `dente3d.js` são, em boa parte, comentário: o arquivo explica
-a geometria e os erros que ela já teve. Não é minificado de propósito — o
-projeto não tem etapa de build para os assets, e o custo real, depois do gzip,
-são 16 KB.
-
-O que sustenta isso: nenhuma biblioteca, nenhum framework, nenhum recurso de
-terceiro, nenhum rastreador, fonte recortada para os caracteres que o site
-escreve, `width` e `height` em toda imagem (o verificador recusa sem), logotipo
-do cabeçalho com `fetchpriority="high"`.
-
-Varredura de transbordamento horizontal, em navegador de verdade e por iframe
-nas larguras reais: **320, 360, 375 e 414 px, zero casos.**
-
-> **Captura de tela em largura de celular:** o Chrome headless nesta máquina tem
-> largura mínima de layout de **500 px**. Pedir `--window-size=430` devolve uma
-> imagem de 430 px, mas a página foi diagramada a 500 e recortada, o que já me
-> fez "achar" um botão cortado que no navegador real não estava. Para largura de
-> celular, usar iframe num navegador de verdade. O script de captura recusa
-> largura abaixo de 500. O mesmo navegador **repete o conteúdo a partir de
-> 8192 px de altura de janela**: uma captura de página inteira mais alta que
-> isso volta com o começo colado de novo no fim, sem erro nenhum.
+| # | O que falta | Por que trava | Leitura provável |
+|---|---|---|---|
+| 1 | **Inscrição da clínica no CRO** | Art. 43: identificação obrigatória em toda comunicação | Há candidato, em `interno/NOTAS-INTERNAS.md`. Não entra aqui: este repositório é público e o Pages serve o README |
+| 2 | **Inscrição da responsável técnica no CRO** | Idem, e é um número diferente do da clínica | Idem. Conferir na consulta pública do CFO antes de publicar qualquer um dos dois |
+| 3 | **Relação dos demais profissionais**: nome completo, CRO, especialidade registrada e autorização de uso de nome e imagem | Art. 43 §2º: sem a lista, a clínica não pode anunciar especialidade | — |
+| 4 | **Especialidade registrada da fundadora** | Art. 44, II: só entra com registro no Conselho | — |
+| 5 | **Horário de sexta em Marília** | Site diz 8h, Google diz 8h30. Publicamos 8h30, que é o que não manda ninguém para uma porta fechada | — |
+| 6 | **Bairro e CEP de Garça** | Receita e site dizem Williams / 17402-000; Google diz Centro / 17400-000. Publicamos a versão em que duas fontes concordam. **O que precisa mudar é a ficha do Google** | — |
+| 7 | **Grafia da rua em Marília** | Receita grafa "Marrey Junior"; site e Google grafam "Marrei Júnior". Publicamos a grafia pública, que é a que o mapa resolve. Corrigir no cadastro federal | — |
+| 8 | **E-mail de atendimento** | Não foi localizado em fonte pública | — |
+| 9 | **Autorização de uso da fotografia da fundadora** | O retrato veio da biblioteca do site atual. Confirmar que a clínica tem o direito de uso e quer usá-lo aqui | — |
+| 10 | **Licença dos sete ícones de tratamento** | Também vieram do site atual, que é assinado pela Metrix Digital. Recoloridos para o ouro da marca, mas o desenho é o mesmo. Confirmar a licença, ou substituir | — |
+| 11 | **Logotipo em vetor** | Não existe versão vetorial pública: a maior resolução disponível é 800 × 262. Pedir o original à clínica ou à agência | — |
+| 12 | **Domínio** | `glammodontologia.com.br` já é da clínica, registrado em 27/02/2026 e pago até 27/02/2027, sem resolver. Basta apontar | — |
+| 13 | **A imagem de compartilhamento não carrega inscrição no CRO** | `assets/img/og.png` é a peça que aparece quando o link é colado no WhatsApp, que é o canal principal da clínica. Ela viaja destacada do rodapé, e o art. 43 alcança essa peça. Assim que os números do item 1 e 2 existirem, acrescentar a inscrição em `tools/imagens.py` e regerar | — |
+| 14 | **"Atendimento particular"** | O site repete a frase, apoiado no art. 43 §1º (informar convênios e credenciamentos é informação de serviço). Uma leitura estrita do art. 44, I (modalidade de pagamento) é possível. Vale uma pergunta objetiva ao CRO-SP antes de publicar | — |
 
 ---
 
-## Segurança
+## Segurança e privacidade
 
-- **CSP `default-src 'none'`** em toda página, sem exceção para estilo ou script
-  embutido. Nada de terceiro carrega: sem CDN, sem fonte remota, sem iframe.
-- **`connect-src 'none'` e `form-action 'none'`.** O formulário de agendamento monta
-  a mensagem no próprio aparelho e abre o WhatsApp. Nada é enviado, e a CSP prova
-  isso em vez de pedir confiança.
-- **Fontes hospedadas aqui**, recortadas por `tools/fontes.mjs`.
-- **`referrer no-referrer`**, e todo link externo com `noopener noreferrer`.
-- **`tools/check.mjs` varre o repositório inteiro** por vazamento de dado do
-  ambiente de trabalho, incluindo `tools/` e `.github/`, que também são públicos.
-  Os identificadores pessoais ficam em `interno/identificadores.txt`, que o
-  `.gitignore` segura, para o próprio verificador não publicar o que procura.
+- **Nenhum terceiro.** Sem CDN, sem fonte de serviço externo, sem mapa
+  embutido, sem pixel, sem analítica. Fontes, imagens e scripts saem deste
+  domínio.
+- **Nenhum cookie, nenhum formulário, nenhum armazenamento local.**
+- **Política de segurança de conteúdo** em toda página, `default-src 'none'`,
+  sem `unsafe-inline`. Não há um `<style>` nem um `<script>` em linha no site;
+  o único `<script>` sem `src` é o de tipo `application/ld+json`, que o
+  navegador não executa.
+- **`referrer: no-referrer`**, e todo link externo com `rel="noopener noreferrer"`.
+- **Repositório**: issues, wiki, projects e discussions desligados; o fluxo do
+  Actions roda com `permissions: contents: read`, sem persistir credencial no
+  disco, com teto de tempo e cancelamento de execução repetida; `interno/` e
+  `.claude/` no `.gitignore`; a identidade do git usa o endereço `noreply` do
+  GitHub.
+- **O repositório é público e o GitHub Pages serve TODOS os arquivos dele**,
+  inclusive `src/`, `tools/` e este README. Comentário de código é conteúdo
+  publicado: nada confidencial, e nenhum dado de terceiro que o site tenha
+  decidido não publicar, pode ficar num comentário. Os números de inscrição no
+  CRO, por exemplo, ficam só em `interno/NOTAS-INTERNAS.md`, e `tools/check.mjs`
+  recusa a verificação se algo com cara de inscrição aparecer em arquivo
+  publicável.
 
-O verificador também recusa **classe de estilo sem dono**: regra na folha que não
-estiliza nada em nenhuma página. Não quebra nada, então ninguém vê — só engorda o
-arquivo que todo visitante baixa. A regra entrou depois de uma reforma de layout
-deixar cinco para trás, e foi provada plantando uma sexta.
+### O que falta quando sair do GitHub Pages
 
-### Cabeçalhos que faltam, e por quê
-
-`frame-ancestors`, `sandbox` e `report-uri` **não funcionam** entregues por
-`<meta>`: o navegador ignora e ainda registra erro no console. Só valem como
-cabeçalho HTTP, e o GitHub Pages não permite definir cabeçalho. O verificador
-inclusive **recusa** a presença de `frame-ancestors` na meta.
-
-Quando o site mudar para `glammodontologia.com.br` em hospedagem própria,
-configurar lá:
+Três diretivas de CSP **não funcionam** quando a política vem por `<meta>`: o
+navegador as ignora e ainda registra erro no console. Por isso elas não estão
+lá. Em hospedagem própria, configure como **cabeçalho HTTP**:
 
 ```
 Content-Security-Policy: frame-ancestors 'none'
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
-Strict-Transport-Security: max-age=31536000; includeSubDomains
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+Referrer-Policy: no-referrer
+Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
 ```
+
+O verificador **recusa** a presença dessas diretivas na meta, justamente para
+ninguém achar que estão valendo.
 
 ---
 
-## A marca
+## Ir para produção
 
-O logotipo **não é recriação**: é o arquivo original que a própria clínica
-publica, com a palavra ODONTOLOGIA recolorida para a ardósia da marca na
-variante de fundo claro. O manuscrito em ouro é idêntico ao original, pixel a
-pixel.
-
-O símbolo (a peça em `src/chrome.mjs`) foi **vetorizado** a partir do ícone
-oficial de 512 px: contorno por marching squares no nível 0.5 do campo de alfa,
-com precisão de subpixel, simplificado por Douglas-Peucker a 0.45 px. A
-conferência foi feita rasterizando o SVG no mesmo quadro da arte original:
-**zero pixel diverge acima de 0,5 de alfa**, e a interseção sobre a união fica em
-96,8%, sendo o restante borda suavizada.
-
-As cores foram **medidas, não escolhidas**:
-
-| Cor | Valor | Origem |
-|---|---|---|
-| Ardósia | `#4C526A` | núcleo do traço no ícone oficial de 512 px, 24.981 pixels exatamente nesse valor |
-| Ouro escuro | `#A38434` | parada do gradiente declarada nos SVG do site da clínica |
-| Ouro claro | `#D2AF57` | a outra parada do mesmo gradiente |
-
-O que a folha de estilo faz com essas três cores está logo abaixo.
-
-### Por que o fundo é claro e o ouro é forma
-
-O ouro da marca **não carrega texto sobre fundo claro**: `#D2AF57` sobre creme
-dá 1,98:1, e mesmo o `#A38434` só chega a 3,36:1. A leitura fácil disso seria
-fazer o site escuro, e foi o que uma versão anterior fez. Mas escuro ficou sério
-demais para uma marca chamada Glamm, e o cliente disse isso.
-
-A saída é a mesma que a referência de design usa com o laranja dela: o ouro
-entra como **forma preenchida**, não como cor de texto. O disco de acento, os
-botões, os realces do modelo — todos com tinta escura por cima, que dá 8,47:1. E
-onde o ouro precisa mesmo virar texto sobre o claro, existe `#7A5F1F`, o mesmo
-tom escurecido, com 4,68:1.
-
-Todos os pares foram **medidos no navegador**, sobre o que a página realmente
-desenha, e não estimados na folha de estilo. Foi assim que apareceram os dois
-únicos casos abaixo do mínimo: a dica "arraste para girar", que dava 3,6:1
-porque o fundo dela é gradiente e a conta a olho não via isso, e o contorno dos
-campos do formulário, que cumpria 3:1 contra o branco de dentro mas não contra o
-papel de fora — e a WCAG 1.4.11 pede contra os dois vizinhos.
-
-Tipografia: **Hanken Grotesk**, variável, uma família só, sob SIL Open Font
-License, com o texto da licença em `assets/fonts/`. Peso 800 nos títulos e 400
-no texto: o contraste vem do peso e do corpo, não de misturar duas fontes. A
-versão anterior usava duas famílias e custava 57 KB; esta custa 23 KB.
+1. Confirmar as pendências e preencher os campos `null` em `src/dados.mjs`.
+2. Em `src/dados.mjs`, no bloco `PUBLICACAO`, trocar
+   `modo: 'proposta'` por `modo: 'producao'` e
+   `robots: 'noindex, nofollow'` por `robots: 'index, follow, max-image-preview:large'`.
+3. Trocar `CLINICA.origem` para `https://glammodontologia.com.br` e apontar o
+   domínio (CNAME no Registro.br + arquivo `CNAME` no repositório).
+4. `node build.mjs` — sem `--preview`. Ele recusa rodar se sobrar campo `null`.
+5. `node tools/fontes.mjs` e `node tools/check.mjs`.
+6. Publicar, e então **redirecionar `dragabrielatukasan.com.br`** para o domínio
+   novo. Enquanto os dois estiverem no ar disputando o mesmo nome, os dois
+   perdem.
 
 ---
 
-## Publicação
+## Origem do material e licenças
 
-GitHub Pages, branch `main`, raiz do repositório, com `.nojekyll`.
+| Item | Origem |
+|---|---|
+| Logotipo manuscrito e símbolo | Biblioteca de mídia do site atual da clínica, em 800 × 262 e 512 × 512 |
+| Retrato da fundadora | Biblioteca de mídia do site atual, recorte sem fundo, 1852 × 2560 |
+| Sete ícones de tratamento | Biblioteca de mídia do site atual, recoloridos para o ouro da marca a partir do canal de alfa |
+| Hanken Grotesk | SIL Open Font License 1.1 — `assets/fonts/OFL-hanken.txt` |
+| Cormorant Garamond | SIL Open Font License 1.1 — `assets/fonts/OFL-cormorant.txt` |
+| Modelo tridimensional, ícones de interface, ilustração de reserva | Feitos aqui, sem terceiros |
 
-Enquanto for proposta, o site fica em modo prévia: `noindex, nofollow` em toda
-página, `robots.txt` bloqueando tudo, aviso no `llms.txt` e faixa de "Prévia de
-apresentação" no topo. **Uma proposta de site para uma clínica real não pode
-disputar busca com a clínica.**
-
-Para publicar de verdade: preencher as pendências em `src/dados.mjs`, trocar
-`CLINICA.origem` pelo domínio próprio, rodar `node build.mjs` (sem `--preview`),
-`node tools/fontes.mjs` e `node tools/check.mjs`.
-
-O fluxo em `.github/workflows/verificar.yml` roda a cada envio e confere duas
-coisas: que o HTML publicado é exatamente o que o gerador produz, e que ele passa
-no verificador.
+Os arquivos `.ttf` completos das duas famílias vão versionados de propósito: sem
+eles `tools/fontes.mjs` não roda numa cópia nova e o recorte deixa de ser
+reproduzível. A OFL permite redistribuir, e a licença acompanha. O site servido
+não os carrega: só os `woff2` recortados.
 
 ---
 
-## Estrutura
+## Mapa dos arquivos
 
 ```
-build.mjs               gerador
-src/dados.mjs           fonte única de verdade
-src/chrome.mjs          casca: head, cabeçalho, rodapé, ícones, marca
-src/paginas.mjs         a página única, mais privacidade e erro
-tools/check.mjs         verificação estática
-tools/fontes.mjs        recorte das fontes
-tools/imagens.py        ícones e imagem de compartilhamento
-assets/js/dente3d.js    a arcada em WebGL, sem biblioteca
-assets/                 css, js, fontes, imagens
-interno/                material de trabalho, fora do repositório
-```
+index.html                    início
+tratamentos/                  hub + 7 páginas de tratamento
+unidades/                     hub + Marília + Garça
+a-clinica/  primeira-consulta/  urgencia/
+equipe/  duvidas/  contato/  privacidade/
+404.html
+llms.txt  robots.txt  sitemap.xml  site.webmanifest  .nojekyll
 
-Três arquivos HTML: `index.html` (o site), `privacidade.html` e `404.html`.
+assets/css/site.css           folha única
+assets/js/site.js             menu e âncoras; a página funciona inteira sem ele
+assets/js/dente3d.js          o molar em WebGL
+assets/fonts/                 os .ttf de origem, os .woff2 recortados e as licenças
+assets/img/                   marca, ícones, retrato e a imagem de compartilhamento
+
+src/                          a fonte do site
+tools/imagens.py              gera marca, ícones, retrato e og.png
+tools/fontes.mjs              recorta as fontes
+tools/check.mjs               verificação antes de publicar
+build.mjs                     monta tudo
+
+interno/                      NÃO versionado: diagnóstico, arte original,
+                              identificadores pessoais e a versão anterior do site
+```
